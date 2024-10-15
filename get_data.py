@@ -1,6 +1,108 @@
 import requests
 
 
+# Here is listed some data that can be used from OpenFoodFacts:
+# Carbon footprint and ethics:
+# "ecoscore_data": {
+#   "adjustments": {
+#       "origins_of_ingredients": {
+#           "aggregated_origins": [
+#               {
+#                   "epi_score":,
+#                   "origin":,
+#                   "percent:",
+#                   "transportation_score":
+#               }
+#           ],
+#           "epi_score":,
+#           "epi_value":,
+#           "origins_from_categories": [
+#           ],
+#           "transportation_score":
+#       },
+#       "packaging": {
+#           "non_recyclable_and_non_biodegradable_materials":,
+#           "value":,
+#           "warning":
+#       },
+#       "production_system": {
+#           "labels":,
+#           "value":,
+#           "warning":
+#       },
+#       "threatened species": {
+#       }
+#   }
+# }
+
+# Nutrients:
+# "nutrient_levels": {},
+# "nutrient_levels_tags": [],
+# "nutriments": {
+#     "carbohydrates":,
+#     "carbohydrates_100g":,
+#     "carbohydrates_serving":,
+#     "carbohydrates_unit":,
+#     "carbohydrates_value":,
+#     "energy":,
+#     "energy-kcal":,
+#     "energy-kcal_100g":,
+#     "energy-kcal_serving":,
+#     "energy-kcal_unit":,
+#     "energy-kcal_value":,
+#     "energy_100g":,
+#     "energy_serving":,
+#     "energy_unit":,
+#     "energy_value":,
+#     "sugars":,
+#     "sugars_100g":,
+#     "sugars_serving":,
+#     "sugars_unit":,
+#     "sugars_value":
+# },
+# "nutriscore": {
+#             "2021": {
+#                 "category_available":,
+#                 "data": {
+#                     "energy":,
+#                     "fiber":,
+#                     "fruits_vegetables_nuts_colza_walnut_olive_oils":,
+#                     "is_beverage":,
+#                     "is_cheese":,
+#                     "is_fat":,
+#                     "is_water":,
+#                     "proteins":,
+#                     "saturated_fat":,
+#                     "sodium":,
+#                     "sugars":
+#                 },
+#                 "grade":,
+#                 "nutrients_available":,
+#                 "nutriscore_applicable":,
+#                 "nutriscore_computed":
+#             },
+#             "2023": {
+#                 "category_available":,
+#                 "data": {
+#                     "energy":,
+#                     "fiber":,
+#                     "fruits_vegetables_legumes":,
+#                     "is_beverage":,
+#                     "is_cheese":,
+#                     "is_fat_oil_nuts_seeds":,
+#                     "is_red_meat_product":,
+#                     "is_water":,
+#                     "proteins":,
+#                     "salt":,
+#                     "saturated_fat":,
+#                     "sugars":
+#                 },
+#                 "grade":,
+#                 "nutrients_available":,
+#                 "nutriscore_applicable":,
+#                 "nutriscore_computed":
+#             }
+#         }
 def get_eco_score(barcode):
     """
     Tries to open the url and find information from OpenFoodFact.

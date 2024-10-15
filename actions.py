@@ -3,8 +3,7 @@ import get_data
 import handle_database
 
 
-# Viivakoodilla, jota ei löydy open food factista, ei toimi lisäys
-# esim. 111111111 ruoka 1.1.2025
+# 111111111 ruoka 1.1.2025
 # 4740019007985 Battery Energy Drink 29.5.2025
 def adding(con, cur, list_of_barcodes):
     """
