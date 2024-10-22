@@ -148,3 +148,34 @@ def get_eco_score(barcode):
     else:
         print(f"Failed to fetch product data: {response.status_code}")
         return None
+
+
+def get_gluten_free(barcode):
+    """
+    Tries to open the url and find information from OpenFoodFact.
+    :param barcode: With barcode, items are searched
+    :return: Returns True if product is gluten free, False if it's not
+    """
+    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+
+        product_data = response.json()
+
+        product = product_data.get('product', {})
+
+        allergens = product.get('allergens_tags', 'Allergens not found')
+
+        #if gluten is in allergens, it includes gluten
+        if ("en:gluten" in allergens ):
+            return False
+        #otherwise not
+        elif ("Allergens not found" in allergens):
+            return True
+        else:
+            return True
+
+    else:
+        print(f"Failed to fetch product data: {response.status_code}")
+        return None

@@ -44,10 +44,12 @@ def adding(con, cur, list_of_barcodes):
             expiry_date = expiry_date.strip()
             expiry_date_obj = datetime.datetime.strptime(
                 expiry_date, "%d.%m.%Y")
+            
+            gluten_free = get_data.get_gluten_free(barcode)
 
             handle_database.add_food(con, cur, barcode, food,
                                      expiry_date_obj, ecoscore_grade,
-                                     ecoscore_score, keywords)
+                                     ecoscore_score, gluten_free, keywords)
             list_of_barcodes.append(barcode_to_int)
 
             if status == 'product not found':

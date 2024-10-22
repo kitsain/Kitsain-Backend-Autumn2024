@@ -15,12 +15,13 @@ def create_database(con, cur):
                 "expiry_date INTEGER,"
                 "ecoscore_grade TEXT,"
                 "ecoscore_score INTEGER,"
+                "gluten_free BOOLEAN,"
                 "keywords TEXT)")
     con.commit()
 
 
 def add_food(con, cur, barcode, food, expiry_date, ecoscore_grade,
-             ecoscore_score, keywords):
+             ecoscore_score, gluten_free, keywords):
     """
     Adds food to the database.
     :param con: Connection to the database
@@ -30,12 +31,13 @@ def add_food(con, cur, barcode, food, expiry_date, ecoscore_grade,
     :param expiry_date: The day the food expires
     :param ecoscore_grade: Ecoscore as a letter
     :param ecoscore_score: Ecoscore as a number
+    :param gluten_free: is product gluten free
     :param keywords: Details about the food
     :return: Returns to the call function
     """
 
-    cur.execute("INSERT INTO food_waste VALUES (?, ?, ?, ?, ?, ?)",
-                (barcode, food, expiry_date, ecoscore_grade, ecoscore_score,
+    cur.execute("INSERT INTO food_waste VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (barcode, food, expiry_date, ecoscore_grade, ecoscore_score, gluten_free,
                  keywords))
     con.commit()
 

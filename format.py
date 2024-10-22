@@ -17,12 +17,16 @@ def print_foods_data(waste_data):
                                  max(len(w[3]) for w in waste_data))
     longest_ecoscore_score = max(len("Ecoscore Score"),
                                  max(len(str(w[4])) for w in waste_data))
+    longest_gluten_free = max(len("Gluten Free"), 
+                            max(len(str(w[5])) for w in waste_data))
+
 
     print(f"{'Barcode':<{longest_barcode}} | "
           f"{'Food':<{longest_food}} | "
           f"{'Expiry Date':<{longest_expiry_date}} | "
           f"{'Ecoscore Grade':<{longest_ecoscore_grade}} | "
           f"{'Ecoscore Score':<{longest_ecoscore_score}} | "
+          f"{'Gluten free':<{longest_gluten_free}} | "
           f"Keywords")
 
     for waste in waste_data:
@@ -31,10 +35,13 @@ def print_foods_data(waste_data):
                                                      "%Y-%m-%d %H:%M:%S")
         formatted_expiry_date = expiry_date_obj.strftime("%d.%m.%Y")
 
+        gluten_free_status = "True" if waste[5] == 1 else "False"
+
         print(
             f"{str(waste[0]):<{longest_barcode}} | "
             f"{waste[1]:<{longest_food}} | "
             f"{formatted_expiry_date:<{longest_expiry_date}} | "
             f"{waste[3]:<{longest_ecoscore_grade}} | "
             f"{str(waste[4]):<{longest_ecoscore_score}} | "
-            f"{waste[5]}")
+            f"{gluten_free_status:<{longest_gluten_free}} | "
+            f"{waste[6]}")
