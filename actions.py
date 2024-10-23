@@ -3,9 +3,7 @@ import get_data
 import handle_database
 
 
-# 111111111 ruoka 1.1.2025
-# 4740019007985 Battery Energy Drink 29.5.2025
-def adding(con, cur, list_of_barcodes):
+def adding(con, cur, user_id):
     """
     Tries to add the input food to the database. If food with given barcode
     is found from OpenFoodFact, it is added to the database with the
