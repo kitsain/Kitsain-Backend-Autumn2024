@@ -110,9 +110,13 @@ def add_user(con, cur, username, password, email, role):
         
         con.commit()
         print(f"User '{username}' with role '{role}' added successfully.")
+        
+        return True
     
     except sqlite3.Error as e:
         print(f"Error adding user: {e}")
+        
+        return False
 
 
 def remove_user(con, cur, user_id, requester_id):
