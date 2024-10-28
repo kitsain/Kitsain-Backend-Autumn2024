@@ -108,6 +108,8 @@ def main():
 
     finally:
         con.close()
+        
+    print("Application closed successfully!")
 
 
 if __name__ == "__main__":

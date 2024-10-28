@@ -147,16 +147,52 @@ def remove_user(con, cur, user_id, requester_id):
         print("Permission denied. Only admins or the user themselves can remove this user.")
 
 
+def print_users(cur):
+    """
+    Prints all users and their information from the user table.
+    
+    Parameters:
+    - cur: SQLite cursor object
+    """
+    
+    try:
+        cur.execute('''
+        SELECT user_id, username, role, email, aura_points, last_login, creation_date
+        FROM user
+        ORDER BY user_id
+        ''')
+        
+        rows = cur.fetchall()
+        
+        if rows:
+            print("All Users:")
+            for row in rows:
+                print(f"User ID: {row[0]}")
+                print(f"Username: {row[1]}")
+                print(f"Role: {row[2]}")
+                print(f"Email: {row[3]}")
+                print(f"Aura Points: {row[4]}")
+                print(f"Last Login: {row[5]}")
+                print(f"Creation Date: {row[6]}")
+                print("-" * 40)
+        else:
+            print("No users found in the database.")
+    
+    except sqlite3.Error as e:
+        print(f"Error fetching users: {e}")
+        
+
 
 
 # Note: Products are not updated in the table; new versions override previous version given a later creation date
-def add_product(con, cur, product_name, weight_g, volume_l, barcode, category, esg_score, co2_footprint, brand, sub_brand, parent_company, information_links, user_created, gluten_free):
+def add_product(con, cur, user_id, product_name, weight_g, volume_l, barcode, category, esg_score, co2_footprint, brand, sub_brand, parent_company, information_links, gluten_free):
     """
     Adds a new product to the product table.
     
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
+    - user_id: ID of the user who created the product entry
     - product_name: Name of the product
     - weight_g: Weight of the product in grams (optional)
     - volume_l: Volume of the product in liters (optional)
@@ -168,7 +204,6 @@ def add_product(con, cur, product_name, weight_g, volume_l, barcode, category, e
     - sub_brand: Sub-brand of the product (optional)
     - parent_company: Parent company of the product (optional)
     - information_links: Links to additional product information (optional)
-    - user_created: ID of the user who created the product entry
     - gluten_free: Boolean indicating if the product is gluten-free
     """
     
@@ -180,7 +215,7 @@ def add_product(con, cur, product_name, weight_g, volume_l, barcode, category, e
         ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (product_name, weight_g, volume_l, barcode, category, esg_score, co2_footprint, 
-              brand, sub_brand, parent_company, information_links, user_created, gluten_free))
+              brand, sub_brand, parent_company, information_links, user_id, gluten_free))
         
         # Commit the changes to the database
         con.commit()
@@ -191,7 +226,7 @@ def add_product(con, cur, product_name, weight_g, volume_l, barcode, category, e
         print(f"Error: {e}")
 
 
-def remove_latest_product_version(con, cur, barcode, user_id):
+def remove_latest_product_version(con, cur, user_id, barcode):
     """
     Deletes the latest version of a product based on the barcode if the user is an admin.
     
@@ -234,7 +269,7 @@ def remove_latest_product_version(con, cur, barcode, user_id):
         print("Permission denied. Only admin users can delete products.")
 
 
-def view_foods(cur):
+def print_products(cur):
     """
     Lists the latest versions of each product based on the barcode and creation_date.
     
@@ -292,13 +327,14 @@ def view_foods(cur):
 
 
 
-def create_shop(con, cur, store_name, store_chain, location_address, location_gps):
+def create_shop(con, cur, user_id, store_name, store_chain, location_address, location_gps):
     """
     Creates a new shop in the database. No shopkeepers are assigned initially.
     
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
+    - user_id: ID of user that created the shop (for now this is not used for anything)
     - store_name: Name of the store (e.g., "K-Market Duo")
     - store_chain: The chain the store belongs to (optional, e.g., "K-Market")
     - location_address: The physical address of the shop
@@ -318,15 +354,15 @@ def create_shop(con, cur, store_name, store_chain, location_address, location_gp
         print(f"Error: {e}")
 
 
-def add_shopkeeper_to_shop(con, cur, shop_id, user_id):
+def add_shopkeeper_to_shop(con, cur, user_id, shop_id):
     """
     Adds a shopkeeper to a shop. Only users with the 'shopkeeper' role can be added as shopkeepers.
     
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
-    - shop_id: ID of the shop
     - user_id: ID of the user to be added as shopkeeper
+    - shop_id: ID of the shop
     """
     
     # Check if the user is a shopkeeper
@@ -350,15 +386,15 @@ def add_shopkeeper_to_shop(con, cur, shop_id, user_id):
         print(f"User {user_id} is not a shopkeeper and cannot be added to a shop.")
 
 
-def remove_shopkeeper_from_shop(con, cur, shop_id, user_id):
+def remove_shopkeeper_from_shop(con, cur, user_id, shop_id):
     """
     Removes a shopkeeper from a shop if they are currently assigned to it.
     
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
-    - shop_id: ID of the shop
     - user_id: ID of the shopkeeper to be removed
+    - shop_id: ID of the shop
     """
     
     # Check if the user is a shopkeeper for this shop
@@ -378,16 +414,70 @@ def remove_shopkeeper_from_shop(con, cur, shop_id, user_id):
         print(f"User {user_id} is not currently assigned as a shopkeeper to shop {shop_id}.")
 
 
+def print_shops(cur):
+    """
+    Prints all shops and their information, including assigned shopkeepers.
+    
+    Parameters:
+    - cur: SQLite cursor object
+    """
+    
+    try:
+        # Query to get shop details
+        cur.execute('''
+        SELECT s.shop_id, s.store_name, s.store_chain, s.location_address, s.location_gps
+        FROM shop s
+        ORDER BY s.shop_id
+        ''')
+        
+        shops = cur.fetchall()
+        
+        if shops:
+            print("All Shops and Assigned Shopkeepers:")
+            for shop in shops:
+                shop_id, store_name, store_chain, location_address, location_gps = shop
+                
+                print(f"Shop ID: {shop_id}")
+                print(f"Store Name: {store_name}")
+                print(f"Store Chain: {store_chain}")
+                print(f"Location Address: {location_address}")
+                print(f"Location GPS: {location_gps}")
+                
+                # Query to get shopkeepers for this shop
+                cur.execute('''
+                SELECT u.user_id, u.username
+                FROM works_for wf
+                JOIN user u ON wf.user_id = u.user_id
+                WHERE wf.shop_id = ?
+                ''', (shop_id,))
+                
+                shopkeepers = cur.fetchall()
+                
+                if shopkeepers:
+                    print("Assigned Shopkeepers:")
+                    for shopkeeper in shopkeepers:
+                        print(f"  - Shopkeeper ID: {shopkeeper[0]}, Username: {shopkeeper[1]}")
+                else:
+                    print("  No shopkeepers assigned.")
+                
+                print("-" * 40)
+        else:
+            print("No shops found in the database.")
+    
+    except sqlite3.Error as e:
+        print(f"Error fetching shops: {e}")
+        
+        
 
 
-
-def add_price(con, cur, product_id, shop_id, price, discount_price=None, waste_discount_percentage=None, valid_from_date=None, valid_to_date=None, user_id=None):
+def add_price(con, cur, user_id, product_id, shop_id, price, discount_price=None, waste_discount_percentage=None, valid_from_date=None, valid_to_date=None):
     """
     Adds a new price entry to the price table. Anyone can add prices.
     
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
+    - user_id: ID of the user creating the price entry
     - product_id: ID of the product being priced
     - shop_id: ID of the shop where the product is being sold
     - price: Price of the product
@@ -395,7 +485,6 @@ def add_price(con, cur, product_id, shop_id, price, discount_price=None, waste_d
     - waste_discount_percentage: Percentage discount due to waste reduction (optional)
     - valid_from_date: The date when this price becomes valid (optional, default to now)
     - valid_to_date: The date when this price expires or changes (optional)
-    - user_id: ID of the user creating the price entry
     """
     
     try:
@@ -412,15 +501,15 @@ def add_price(con, cur, product_id, shop_id, price, discount_price=None, waste_d
         print(f"Error: {e}")
 
 
-def remove_price(con, cur, price_id, user_id, shop_id):
+def remove_price(con, cur, user_id, price_id, shop_id):
     """
     Removes a price entry if the user is an admin or a shopkeeper of the shop where the price is listed.
     
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
-    - price_id: ID of the price entry to be removed
     - user_id: ID of the user attempting to remove the price
+    - price_id: ID of the price entry to be removed
     - shop_id: ID of the shop where the price is listed
     """
     
@@ -456,6 +545,72 @@ def remove_price(con, cur, price_id, user_id, shop_id):
             print("Permission denied. Only admins or shopkeepers of the shop can remove prices.")
 
 
+def print_prices(cur):
+    """
+    Prints each product with its latest price at each shop.
+    
+    Parameters:
+    - cur: SQLite cursor object
+    """
+    
+    try:
+        # Query to get all products
+        cur.execute('''
+        SELECT product_id, product_name, barcode
+        FROM product
+        WHERE (barcode, creation_date) IN (
+            SELECT barcode, MAX(creation_date)
+            FROM product
+            GROUP BY barcode
+        )
+        ORDER BY product_id
+        ''')
+        
+        products = cur.fetchall()
+        
+        if products:
+            print("Latest Prices for Each Product at Each Shop:")
+            for product in products:
+                product_id, product_name, barcode = product
+                print(f"Product ID: {product_id}, Barcode: {barcode}, Name: {product_name}")
+
+                # Query to get the latest price per shop for this product
+                cur.execute('''
+                SELECT sp.price_id, sp.price, sp.discount_price, sp.waste_discount_percentage, sp.report_date, sp.valid_from_date, sp.valid_to_date, s.store_name
+                FROM price sp
+                JOIN shop s ON sp.shop_id = s.shop_id
+                WHERE sp.product_id = ?
+                AND (sp.shop_id, sp.report_date) IN (
+                    SELECT shop_id, MAX(report_date)
+                    FROM price
+                    WHERE product_id = ?
+                    GROUP BY shop_id
+                )
+                ORDER BY s.store_name
+                ''', (product_id, product_id))
+                
+                prices = cur.fetchall()
+                
+                if prices:
+                    print("  Latest Prices per Shop:")
+                    for price in prices:
+                        print(f"    - Shop: {price[7]}")
+                        print(f"      Price ID: {price[0]}")
+                        print(f"      Regular Price: {price[1]}")
+                        print(f"      Discount Price: {price[2]}")
+                        print(f"      Waste Discount (%): {price[3]}")
+                        print(f"      Report Date: {price[4]}")
+                        print(f"      Valid From: {price[5]}")
+                        print(f"      Valid To: {price[6]}")
+                else:
+                    print("  No prices available for this product.")
+                
+                print("-" * 40)
+        else:
+            print("No products found in the database.")
+    
+    except sqlite3.Error as e:
+        print(f"Error fetching prices: {e}")
 
 
 
