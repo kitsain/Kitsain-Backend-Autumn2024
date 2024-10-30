@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify User</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h2>Modify User {{ user.username }}</h2>
+    <!-- Additional form fields or information for modifying the user go here -->
+    <form action="{{ url_for('remove_user', user_id=user.user_id) }}" method="POST" class="action-form">
+        <button type="submit" class="btn-secondary">Remove</button>
+    </form>
+</body>
+</html>

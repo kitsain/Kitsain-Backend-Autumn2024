@@ -3,54 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product List</title>
+    <title>Product, Shop, and User Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
 
-    <h2>Add New Product</h2>
-    <form action="{{ url_for('add_product') }}" method="POST">
-        <input type="text" name="food_details" placeholder="Barcode Food Creation Date (dd.mm.yyyy)" required>
-        <button type="submit">Add Product</button>
-    </form>
+    <!-- Product Section -->
+    <section class="section-container">
+        <h2 class="section-title">Add New Product</h2>
+        <form action="{{ url_for('add_product') }}" method="POST" class="form">
+            <input type="text" name="food_details" placeholder="Barcode, Food, Creation Date (dd.mm.yyyy)" required class="input-field">
+            <button type="submit" class="btn-primary">Add Product</button>
+        </form>
 
-    <h1>Product List</h1>
-    
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+        <!-- Flash messages for Products -->
+        {% with messages = get_flashed_messages(category_filter=["product"]) %}
+            {% if messages %}
+                <div class="flash-messages flash-product">
+                    <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Product Name</th>
-                <th>Barcode</th>
-                <th>Creation Date</th>
-                <th>Gluten Free</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>{{ product.product_name }}</td>
-                <td>{{ product.barcode }}</td>
-                <td>{{ product.creation_date.strftime('%d.%m.%Y') }}</td>
-                <td>{{ product.gluten_free }}</td>
-                <td>
-                    <form action="{{ url_for('remove_product', product_id=product.product_id) }}" method="POST" style="display:inline;">
-                        <button type="submit">Remove</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <h1 class="section-title">Product List</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Barcode</th>
+                    <th>Creation Date</th>
+                    <th>Gluten Free</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.product_name }}</td>
+                    <td>{{ product.barcode }}</td>
+                    <td>{{ product.creation_date.strftime('%d.%m.%Y') }}</td>
+                    <td>{{ product.gluten_free }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_product', product_id=product.product_id) }}" method="POST" class="action-form">
+                            <button type="submit" class="btn-secondary">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
 
+    <!-- Shop Section -->
+    <section class="section-container">
+        <h2 class="section-title">Add New Shop</h2>
+        <form action="{{ url_for('add_shop') }}" method="POST" class="form">
+            <input type="text" name="shop_details" placeholder="Name, Address, Chain" required class="input-field">
+            <button type="submit" class="btn-primary">Add New Shop</button>
+        </form>
+
+        <!-- Flash messages for Shops -->
+        {% with messages = get_flashed_messages(category_filter=["shop"]) %}
+            {% if messages %}
+                <div class="flash-messages flash-shop">
+                    <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h1 class="section-title">Shop List</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Store Name</th>
+                    <th>Location Address</th>
+                    <th>Store Chain</th>
+                    <th>Shopkeeper(s)</th>
+                    <th>Creation Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for shop in shops %}
+                <tr>
+                    <td>{{ shop.store_name }}</td>
+                    <td>{{ shop.location_address }}</td>
+                    <td>{{ shop.store_chain }}</td>
+                    <td>
+                        {% if shopkeepers_data[shop.shop_id] %}
+                            {% for shopkeeper in shopkeepers_data[shop.shop_id] %}
+                                {{ shopkeeper }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            No shopkeepers assigned
+                        {% endif %}
+                    </td>
+                    <td>{{ shop.creation_date.strftime('%d.%m.%Y') }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_shop', shop_id=shop.shop_id) }}" method="POST" class="action-form">
+                            <button type="submit" class="btn-secondary">Remove</button>
+                        </form>
+                        <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST" class="action-form">
+                            <button type="submit" class="btn-secondary">Modify shopkeepers</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- User Section -->
+    <section class="section-container">
+        <h2 class="section-title">Add New User</h2>
+        <form action="{{ url_for('add_user') }}" method="POST" class="form">
+            <input type="text" name="user_info" placeholder="username,role" required class="input-field">
+            <button type="submit" class="btn-primary">Add User</button>
+        </form>
+
+        <!-- Flash messages for Users -->
+        {% with messages = get_flashed_messages(category_filter=["user"]) %}
+            {% if messages %}
+                <div class="flash-messages flash-user">
+                    <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h1 class="section-title">User List</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User Id</th>
+                    <th>User Name</th>
+                    <th>Role</th>
+                    <th>Aura Points</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.user_id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>{{ user.aura_points }}</td>
+                    <td>
+                        <form action="{{ url_for('modify_user', user_id=user.user_id) }}" method="POST" class="action-form">
+                            <button type="submit" class="btn-secondary">Modify</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
 </body>
 </html>
