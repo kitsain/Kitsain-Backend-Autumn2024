@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+</head>
+<body>
+
+    <h2>Add New Product</h2>
+    <form action="{{ url_for('add_product') }}" method="POST">
+        <input type="text" name="food_details" placeholder="Barcode Food Creation Date (dd.mm.yyyy)" required>
+        <button type="submit">Add Product</button>
+    </form>
+
+    <h1>Product List</h1>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Barcode</th>
+                <th>Creation Date</th>
+                <th>Gluten Free</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.product_name }}</td>
+                <td>{{ product.barcode }}</td>
+                <td>{{ product.creation_date.strftime('%d.%m.%Y') }}</td>
+                <td>{{ product.gluten_free }}</td>
+                <td>
+                    <form action="{{ url_for('remove_product', product_id=product.product_id) }}" method="POST" style="display:inline;">
+                        <button type="submit">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
