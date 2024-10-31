@@ -56,7 +56,7 @@ class WorksFor(db.Model):
 class Product(db.Model):
     __tablename__ = 'product'
     product_id = db.Column(db.Integer, primary_key=True)
-    product_name = db.Column(db.String, nullable=False)
+    product_name = db.Column(db.String, nullable=False)    
     weight_g = db.Column(db.Integer)
     volume_l = db.Column(db.Float)
     barcode = db.Column(db.String)
@@ -92,64 +92,96 @@ class Price(db.Model):
 
 @app.route('/')
 def index():
-    products = (Product).query.all()  # Fetch all products from the database
+    products = (Product).query.all() 
     shops = Shop.query.all()
     users = User.query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
     return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users)
 
 
+from flask import flash, redirect, url_for, request
+from datetime import datetime
+
 @app.route('/add_product', methods=['POST'])
 def add_product():
-    get_food = request.form.get('food_details')
-
-    if not get_food:
-        flash("Please provide the food details.", "product")
-        return redirect(url_for('index'))
+    product_name = request.form.get('product_name')
+    shop = request.form.get('shop')
+    price = request.form.get('price')
+    waste_discount = request.form.get('waste_discount')
+    expiration_date = request.form.get('expiration_date')
+    user_id = request.form.get('user_id')  
+    product_id = generate_unique_user_id()
+    
+    if not product_name or not shop or not price:
+        print("Please provide the product name, shop, and price.", "product")
+        return redirect(url_for('products_page'))
 
     try:
-        parts = get_food.split(',')
-        barcode = parts[0]
-        product_name = ' '.join(parts[1:-1])
-        creation_date = parts[-1]
-        user_id = 1  # TODO: Replace with actual user ID logic
-        gluten_free = get_data.get_gluten_free(barcode)  
+        existing_shop = Shop.query.filter_by(store_name=shop).first()
+        if not existing_shop:
+            print(f"Shop '{shop}' not found. Please add it first.", "product")
+            return redirect(url_for('products_page'))
 
-        # Validate barcode
-        existing_product = Product.query.filter_by(barcode=barcode).first()
-        if existing_product:
-            flash(f"Barcode {barcode} already used! Choose another barcode.", "product")
-            return redirect(url_for('index'))
-
-        # Parse creation date
-        creation_date_obj = datetime.strptime(creation_date, "%d.%m.%Y")
         new_product = Product(
-            barcode=barcode,
+            product_id = product_id,
             product_name=product_name,
-            creation_date=creation_date_obj,
-            gluten_free=gluten_free,
-            user_created=user_id  # Set user_created here
+            user_created=user_id,
+            creation_date=datetime.now()
         )
 
         db.session.add(new_product)
         db.session.commit()
 
-        flash(f"Product \"{product_name}\" added successfully with barcode \"{barcode}\".", "product")
-    except (ValueError, IndexError):
-        flash("Please provide the food details in the correct format: barcode food creation_date", "product")
-    except Exception as e:
-        flash(f"Database error: {e}", "product")
 
-    return redirect(url_for('index'))
+        valid_to_date = datetime.strptime(expiration_date, '%Y-%m-%d') if expiration_date else None
+        new_price = Price(
+            product_id=new_product.product_id,
+            shop_id=existing_shop.shop_id,
+            price=float(price),
+            valid_to_date = valid_to_date,
+            waste_discount_percentage=float(waste_discount) if waste_discount else None,
+            user_created=user_id
+        )
+
+        db.session.add(new_price)
+        db.session.commit()
+
+        print(f"Product \"{product_name}\" added successfully to \"{shop}\".", "product")
+    except ValueError:
+        print("Please provide valid data. Ensure the price and waste discount are numbers.", "product")
+    except Exception as e:
+        db.session.rollback()  # Rollback any changes if there's an error
+        print(f"Database error: {e}", "product")
+
+    return redirect(url_for('products_page'))
+
+
+@app.route('/edit_product/<int:product_id>', methods=['POST'])
+def edit_product(product_id):
+    #TODO
+    return redirect(url_for('products_page'))
 
 
 @app.route('/remove_product/<int:product_id>', methods=['POST'])
 def remove_product(product_id):
     product_to_remove = Product.query.filter_by(product_id=product_id).first()
+
     if product_to_remove:
-        db.session.delete(product_to_remove)
-        db.session.commit()
-    return redirect(url_for('index'))
+        try:
+            Price.query.filter_by(product_id=product_id).delete()
+
+            db.session.delete(product_to_remove)
+            db.session.commit()
+
+            print(f'Product "{product_to_remove.product_name}" has been removed successfully.', "product")
+        except Exception as e:
+            db.session.rollback()
+            print(f"An error occurred while trying to remove the product: {e}", "product")
+    else:
+        print("Product not found. It may have already been removed.", "product")
+
+    return redirect(url_for('products_page'))
+
 
 
 @app.route('/remove_shop/<int:shop_id>', methods=['POST'])
@@ -158,7 +190,7 @@ def remove_shop(shop_id):
     if shop_to_remove:
         db.session.delete(shop_to_remove)
         db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('shops_page'))
 
 
 @app.route('/add_shop', methods=['POST'])
@@ -167,7 +199,7 @@ def add_shop():
 
     if not get_shop:
         flash("Please provide the shop details.", "shop")
-        return redirect(url_for('index'))
+        return redirect(url_for('shops_page'))
 
     try:
         parts = get_shop.split(',')
@@ -193,17 +225,17 @@ def add_shop():
     except Exception as e:
         flash(f"Database error: {e}", "shop")
 
-    return redirect(url_for('index'))
+    return redirect(url_for('shops_page'))
 
 @app.route('/modify_shopkeepers/<int:shop_id>', methods=['GET', 'POST'])
 def modify_shopkeepers(shop_id):
     if not shop_id:
         flash("Shop ID is required.", "error")
-        return redirect(url_for('index'))
+        return redirect(url_for('modify_shopkeepers'))
     shop = Shop.query.get(shop_id)
     if not shop:
         flash("Shop not found", "error")
-        return redirect(url_for('index'))
+        return redirect(url_for('modify_shopkeepers'))
 
     # Fetch all users for shopkeeper options
     users = User.query.all()
@@ -240,7 +272,7 @@ def add_user():
 
     if not get_user:
         flash("Please provide the user details.", "user")
-        return redirect(url_for('index'))
+        return redirect(url_for('users_page'))
 
     try:
         parts = get_user.split(',')
@@ -249,11 +281,10 @@ def add_user():
         user_id = generate_unique_user_id()
         aura_points = 0
         
-        # Validate barcode
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash(f"Username {username} already used! Choose another username.", "user")
-            return redirect(url_for('index'))
+            return redirect(url_for('users_page'))
 
         new_user = User(
             user_id=user_id,
@@ -272,18 +303,18 @@ def add_user():
     except Exception as e:
         flash(f"Database error: {e}", "user")
 
-    return redirect(url_for('index'))
+    return redirect(url_for('users_page'))
 
 @app.route('/modify_users/<int:user_id>', methods=['GET', 'POST'])
 def modify_user(user_id):
     if not user_id:
         flash("User ID is required.", "error")
-        return redirect(url_for('index'))
+        return redirect(url_for('modify_user.html'))
     
     user = User.query.get(user_id)
     if not user:
         flash("User not found", "error")
-        return redirect(url_for('index'))
+        return redirect(url_for('modify_user.html'))
 
     # Pass the user object to the template
     return render_template('modify_user.html', user=user)
@@ -294,7 +325,7 @@ def remove_user(user_id):
     if user_to_remove:
         db.session.delete(user_to_remove)
         db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('users_page'))
 
 
 def generate_unique_user_id():
@@ -305,8 +336,41 @@ def generate_unique_user_id():
         if not db.session.query(User).filter_by(user_id=user_id).first():
             return user_id
 
+@app.route('/products_page')
+def products_page():
+    products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
+    return render_template('products_page.html', products=products)
+
+@app.route('/shops_page')
+def shops_page():
+    shops = (Shop).query.all() 
+    shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
+    return render_template('shops_page.html', shops = shops, shopkeepers_data=shopkeepers_data)
+
+@app.route('/users_page')
+def users_page():
+    users = (User).query.all()
+    shops = (Shop).query.all()  
+    products = (Product).query.all()
+    shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops} 
+    return render_template('users_page.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users)
+
+@app.route('/seach_discounts')
+def search_discount():
+    #TODO
+    return render_template('index.html')
+
+@app.route('/filter_products')
+def filter_products():
+    #TODO
+    return render_template('products_page.html')
+
+@app.route('/save_product_changes')
+def save_product_changes():
+    #TODO
+    return render_template('products_page.html')
 
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()  # Create tables if they don't exist
+        db.create_all() 
     app.run(debug=True)

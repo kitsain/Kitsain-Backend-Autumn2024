@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <!-- Shop Section -->
+    <section class="section-container">
+        <h2 class="section-title">Add New Shop</h2>
+        <form action="{{ url_for('add_shop') }}" method="POST" class="form">
+            <input type="text" name="shop_details" placeholder="Name, Address, Chain" required class="input-field">
+            <button type="submit" class="btn-primary">Add New Shop</button>
+        </form>
+
+        <!-- Flash messages for Shops -->
+        {% with messages = get_flashed_messages(category_filter=["shop"]) %}
+            {% if messages %}
+                <div class="flash-messages flash-shop">
+                    <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h1 class="section-title">Shop List</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Store Name</th>
+                    <th>Location Address</th>
+                    <th>Store Chain</th>
+                    <th>Shopkeeper(s)</th>
+                    <th>Creation Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for shop in shops %}
+                <tr>
+                    <td>{{ shop.store_name }}</td>
+                    <td>{{ shop.location_address }}</td>
+                    <td>{{ shop.store_chain }}</td>
+                    <td>
+                        {% if shopkeepers_data[shop.shop_id] %}
+                            {% for shopkeeper in shopkeepers_data[shop.shop_id] %}
+                                {{ shopkeeper }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            No shopkeepers assigned
+                        {% endif %}
+                    </td>
+                    <td>{{ shop.creation_date.strftime('%d.%m.%Y') }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_shop', shop_id=shop.shop_id) }}" method="POST" class="action-form">
+                            <button type="submit" class="btn-secondary">Remove</button>
+                        </form>
+                        <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST" class="action-form">
+                            <button type="submit" class="btn-secondary">Modify shopkeepers</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <div class="button-container">
+        <a href="{{ url_for('index') }}" class="btn-primary">Back to Management Dashboard</a>
+    </div>
+
+</body>
+</html>

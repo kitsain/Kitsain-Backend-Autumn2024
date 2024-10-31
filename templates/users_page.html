@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <!-- User Section -->
+    <section class="section-container">
+        <h2 class="section-title">Add New User</h2>
+        <form action="{{ url_for('add_user') }}" method="POST" class="form">
+            <input type="text" name="user_info" placeholder="username,role" required class="input-field">
+            <button type="submit" class="btn-primary">Add User</button>
+        </form>
+
+        <!-- Flash messages for Users -->
+        {% with messages = get_flashed_messages(category_filter=["user"]) %}
+            {% if messages %}
+                <div class="flash-messages flash-user">
+                    <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h1 class="section-title">User List</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User Id</th>
+                    <th>User Name</th>
+                    <th>Role</th>
+                    <th>Aura Points</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.user_id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>{{ user.aura_points }}</td>
+                    <td>
+                        <form action="{{ url_for('modify_user', user_id=user.user_id) }}" method="POST" class="action-form">
+                            <button type="submit" class="btn-secondary">Modify</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <div class="button-container">
+        <a href="{{ url_for('index') }}" class="btn-primary">Back to Management Dashboard</a>
+    </div>
+
+</body>
+</html>
