@@ -19,6 +19,7 @@ body {
     align-items: left;
     justify-items: left;
     color: #6B3B48;
+    background-image: url("tausta.png");
 }
 
 .outer-container {
