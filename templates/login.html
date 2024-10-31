@@ -7,19 +7,35 @@
     <title>My Website</title>
     <link rel="stylesheet" href="./loginStyle.css">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
   </head>
   <body>
     <main>
-        <center>
-        <h1>Welcome to My Website</h1>  
-        <form action="/action_page.php">
-            <label for="fname">Username:</label>
-            <input type="text" id="fname" name="fname"><br><br>
-            <label for="lname">Password:</label>
-            <input type="text" id="lname" name="lname"><br><br>
-            <input type="submit" value="Submit">
-          </form>
-        </center>
+      <div class="outer-container">
+        <div class="inner-container">
+            <h1>WELCOME TO KITSAIN!</h1>  
+            <form action="/action_page.php">
+                <label for="login" id="login" name="login"> LOG IN<br><br></label>
+                <label for="fname">USERNAME </label>
+                <input type="text" id="fname" name="fname"><br><br>
+                <label for="lname">PASSWORD </label>
+                <input type="text" id="lname" name="lname"><br><br>
+                <label for="forgotpassword" id="fpassword" name="fpassword">FORGOT PASSWORD?<br><br></label>
+                <div class="line-container">
+                  <div class="line"></div>
+                  <label for="or" id="or" name="or">OR?</label>
+                  <div class="line"><br><br></div>
+                </div>
+                
+                <input type="submit" value="Log in">
+              </form>
+        </div>
+      </div>
+        <!-- <center> -->
+
+        <!-- </center> -->
     </main>
     <script src="index.js"></script>
   </body>
