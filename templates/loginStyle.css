@@ -1,0 +1,76 @@
+.playfair-display-uniquifier {
+    font-family: "Playfair Display", serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+}
+
+#login {
+    font-weight: bold;
+}
+
+#fpassword {
+    font-weight: bold;
+}
+
+body {
+    font-family: "Playfair Display"; 
+    /* text-align: center; */
+    align-items: left;
+    justify-items: left;
+    color: #6B3B48;
+}
+
+.outer-container {
+
+    /* border: 2px solid black; */
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    margin: 0 auto;
+
+    /* width: 100vw;
+    margin: 0 auto;
+    margin-left: 100%;
+    text-align: left;
+    padding: 1rem;
+    text-align: center; */
+    /* display: flex;  */
+    /* align-items: center; */
+    
+    /* margin: auto;
+    margin-left: 50%;
+    justify-content: flex-start;
+    height: 100vh; */
+}
+
+.inner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .line-container {
+    display: flex;
+    /* Keskittää viivat ja tekstin pystysuunnassa */
+    align-items: center;     
+}
+
+  .line {
+    /* Antaa viivojen kasvaa tilan mukaan */
+    flex-grow: 1;           
+    height: 2px;
+    background-color: #6B3B48;
+    /* Lisätään väliä viivojen ja tekstin väliin */
+    margin: 0 10px;         
+}
