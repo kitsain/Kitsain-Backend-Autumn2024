@@ -99,9 +99,6 @@ def index():
     return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users)
 
 
-from flask import flash, redirect, url_for, request
-from datetime import datetime
-
 @app.route('/add_product', methods=['POST'])
 def add_product():
     product_name = request.form.get('product_name')
@@ -156,12 +153,6 @@ def add_product():
     return redirect(url_for('products_page'))
 
 
-@app.route('/edit_product/<int:product_id>', methods=['POST'])
-def edit_product(product_id):
-    #TODO
-    return redirect(url_for('products_page'))
-
-
 @app.route('/remove_product/<int:product_id>', methods=['POST'])
 def remove_product(product_id):
     product_to_remove = Product.query.filter_by(product_id=product_id).first()
@@ -183,49 +174,93 @@ def remove_product(product_id):
     return redirect(url_for('products_page'))
 
 
-
 @app.route('/remove_shop/<int:shop_id>', methods=['POST'])
 def remove_shop(shop_id):
     shop_to_remove = Shop.query.filter_by(shop_id=shop_id).first()
+    
     if shop_to_remove:
+        # Get the shopkeeper(s) associated with this shop
+        shopkeepers = WorksFor.query.filter_by(shop_id=shop_id).all()
+        
+        # Remove the shop
         db.session.delete(shop_to_remove)
-        db.session.commit()
+        db.session.commit()  # Commit the deletion
+
+        # Check each shopkeeper
+        for works_for in shopkeepers:
+            # Check if the shopkeeper has any other shops
+            other_shops = WorksFor.query.filter_by(user_id=works_for.user_id).all()
+            if not other_shops:  # If no other shops, remove their shopkeeper status
+                shopkeeper = User.query.filter_by(user_id=works_for.user_id).first()
+                if shopkeeper:
+                    db.session.delete(shopkeeper)  # Delete the shopkeeper
+                    # Alternatively, you could just update their role to something else
+                    # shopkeeper.role = 'user'  # Change the role if you don't want to delete
+                    # db.session.add(shopkeeper)
+        
+        db.session.commit()  # Commit changes to delete shopkeeper if applicable
+    
     return redirect(url_for('shops_page'))
 
 
 @app.route('/add_shop', methods=['POST'])
 def add_shop():
-    get_shop = request.form.get('shop_details')
+    shop_id = generate_unique_user_id();
+    shop_name = request.form.get('store_name')
+    shop_chain = request.form.get('chain')
+    shop_location = request.form.get('location_address')
+    shopkeepers = request.form.get('shopkeepers')  
 
-    if not get_shop:
-        flash("Please provide the shop details.", "shop")
+    if not shop_name or not shop_chain or not shop_location:
+        flash("Please provide all required shop details.", "shop")
         return redirect(url_for('shops_page'))
 
     try:
-        parts = get_shop.split(',')
-        shop_name = parts[0]
-        shop_chain = parts[1]
-        shop_location = parts[2]
-        user_id = 1
-
+        # Set creation_date to now
+        creation_date = datetime.now().date()  # Get the current date
 
         new_shop = Shop(
+            shop_id = shop_id,
             store_name=shop_name,
             store_chain=shop_chain,
             location_address=shop_location,
-            user_created=user_id  # Set user_created here
+            user_created=1,  # Adjust as needed
+            creation_date=creation_date
         )
 
         db.session.add(new_shop)
-        db.session.commit()
+        db.session.commit()  # Commit to get the new shop ID
 
-        flash(f"Shop added successfully", "shop")
+        if shopkeepers:
+            shopkeeper_names = [name.strip() for name in shopkeepers.split(',')]
+            for shopkeeper_name in shopkeeper_names:
+                shopkeeper = User.query.filter_by(username=shopkeeper_name).first()
+                
+                if not shopkeeper:
+                    # Create new shopkeeper if not found
+                    shopkeeper = User(
+                        username=shopkeeper_name,
+                        password='default',  # Set a secure password as needed
+                        role='shopkeeper',
+                        aura_points=0
+                    )
+                    db.session.add(shopkeeper)  # Add the new shopkeeper to the session
+                    db.session.commit()  # Commit here to flush the new user ID
+
+                # Now add the relationship
+                works_for = WorksFor(user_id=shopkeeper.user_id, shop_id=new_shop.shop_id)
+                db.session.add(works_for)
+        
+        db.session.commit()
+        print("Shop added successfully!", "shop")
     except (ValueError, IndexError):
-        flash("Please provide the food details in the correct format: barcode food creation_date", "shop")
+        print("Error processing the provided details. Please ensure all fields are filled out correctly.", "shop")
     except Exception as e:
-        flash(f"Database error: {e}", "shop")
+        print(f"Database error: {e}", "shop")
+        db.session.rollback()
 
     return redirect(url_for('shops_page'))
+
 
 @app.route('/modify_shopkeepers/<int:shop_id>', methods=['GET', 'POST'])
 def modify_shopkeepers(shop_id):
@@ -355,18 +390,101 @@ def users_page():
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops} 
     return render_template('users_page.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users)
 
+
+from flask import Flask, request, jsonify
+
+
+@app.route('/update_product', methods=['POST'])
+def update_product():
+    data = request.get_json()  # Get the JSON data from the request
+
+    # Extract data from the request
+    product_id = data.get('product_id')
+    product_name = data.get('product_name')
+    shop = data.get('shop')
+    price = data.get('price')
+    waste_discount = data.get('waste_discount')
+    expiration_date = data.get('expiration_date')
+
+    # Logic to update the product in your database
+    # Example: use SQLAlchemy to update the product record
+
+    success = update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date)
+
+    if success:
+        return jsonify({"message": "Succeeded to update product."}), 200
+    else:
+        return jsonify({"message": "Failed to update product."}), 500
+
+
+def update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date):
+    product = Product.query.get(product_id)
+    
+    if not product:
+        return False  # Product not found
+
+    # Update the product's attributes
+    product.product_name = product_name
+    product.shop = shop  # You might need to find the shop ID based on the shop name
+    product.price = price
+    product.waste_discount_percentage = waste_discount
+    product.valid_to_date = expiration_date  # Assuming this field is for expiration
+    
+    try:
+        db.session.commit()  # Save changes to the database
+        return True  # Successfully updated
+    except Exception as e:
+        db.session.rollback()  # Rollback in case of error
+        print(f"Error updating product: {e}")
+        return False
+
+
+@app.route('/get_products', methods=['GET'])
+def get_products():
+    try:
+        # Query all products and their associated prices
+        products = Product.query.all()
+        
+        # Prepare a list to hold the product data
+        products_list = []
+        for product in products:
+            prices_list = []
+            for price in product.prices:  # Assuming Product has a relationship with Price
+                prices_list.append({
+                    'price': price.price,
+                    'store_name': price.shop.store_name if price.shop else 'N/A',
+                    'waste_discount_percentage': price.waste_discount_percentage,
+                    'valid_to_date': price.valid_to_date.strftime('%Y-%m-%d') if price.valid_to_date else 'N/A'
+                })
+            
+            products_list.append({
+                'product_id': product.product_id,
+                'product_name': product.product_name,
+                'prices': prices_list
+            })
+
+        print(products_list)
+        
+        # Return the list of products and prices as JSON
+        return jsonify(products_list)
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/filter_shops')
+def filter_shops():
+    #TODO
+    return render_template('shops_page.html')
+
 @app.route('/seach_discounts')
 def search_discount():
     #TODO
     return render_template('index.html')
 
+
 @app.route('/filter_products')
 def filter_products():
-    #TODO
-    return render_template('products_page.html')
-
-@app.route('/save_product_changes')
-def save_product_changes():
     #TODO
     return render_template('products_page.html')
 

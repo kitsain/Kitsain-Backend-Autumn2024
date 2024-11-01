@@ -4,76 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Management</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='shops_page.css') }}">
 </head>
 <body>
 
-    <!-- Shop Section -->
-    <section class="section-container">
-        <h2 class="section-title">Add New Shop</h2>
-        <form action="{{ url_for('add_shop') }}" method="POST" class="form">
-            <input type="text" name="shop_details" placeholder="Name, Address, Chain" required class="input-field">
-            <button type="submit" class="btn-primary">Add New Shop</button>
-        </form>
+            <!-- Top bar -->
+            <div class="top-bar d-flex align-items-center">
+                <div class="profile-picture"></div>
+                <h1 class="ml-2">
+                    <a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;">Kitsain</a>
+                </h1>
+                <input type="text" class="form-control search-box ml-3" placeholder="Search...">
+                <form action="{{ url_for('products_page') }}" method="GET" class="d-inline">
+                    <button type="submit" class="btn btn-primary ml-2-1">Products</button>
+                </form>
+                <form action="{{ url_for('shops_page') }}" method="GET" class="d-inline">
+                    <button type="submit" class="btn btn-primary ml-2-2">Stores</button>
+                </form>
+                <button class="btn btn-success ml-2">Add</button>
+                <button class="btn btn-info ml-2">My Profile</button>
+                <select class="ml-2">
+                    <option>EN</option>
+                    <option>FI</option>
+                    <!-- Add more languages as needed -->
+                </select>
+            </div>
 
-        <!-- Flash messages for Shops -->
-        {% with messages = get_flashed_messages(category_filter=["shop"]) %}
-            {% if messages %}
-                <div class="flash-messages flash-shop">
-                    <ul>
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-        {% endwith %}
-
-        <h1 class="section-title">Shop List</h1>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Store Name</th>
-                    <th>Location Address</th>
-                    <th>Store Chain</th>
-                    <th>Shopkeeper(s)</th>
-                    <th>Creation Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for shop in shops %}
-                <tr>
-                    <td>{{ shop.store_name }}</td>
-                    <td>{{ shop.location_address }}</td>
-                    <td>{{ shop.store_chain }}</td>
-                    <td>
-                        {% if shopkeepers_data[shop.shop_id] %}
-                            {% for shopkeeper in shopkeepers_data[shop.shop_id] %}
-                                {{ shopkeeper }}{% if not loop.last %}, {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            No shopkeepers assigned
-                        {% endif %}
-                    </td>
-                    <td>{{ shop.creation_date.strftime('%d.%m.%Y') }}</td>
-                    <td>
-                        <form action="{{ url_for('remove_shop', shop_id=shop.shop_id) }}" method="POST" class="action-form">
-                            <button type="submit" class="btn-secondary">Remove</button>
-                        </form>
-                        <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST" class="action-form">
-                            <button type="submit" class="btn-secondary">Modify shopkeepers</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
-
-    <div class="button-container">
-        <a href="{{ url_for('index') }}" class="btn-primary">Back to Management Dashboard</a>
+    <!-- Central search box for shops -->
+    <div class="container mt-5 text-center">
+        <h1 class="ml-3">View all shops</h1>
+        <p class="ml-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <button type="submit" class="btn btn-primary ml-2" id="addButton">Add</button>
     </div>
+
+
+    <!-- Shop Section -->
+    <div class="product_container mt-6 text-center">
+        <input type="text" class="form-control search-box ml-6" placeholder="Search for shops...">
+        <form action="{{ url_for('filter_shops') }}" method="POST" class="action-form">
+            <button type="submit" class="btn btn-primary ml-6">Filter</button>
+        </form>
+    </div>
+
+
+        <!-- Modal for Adding New Product -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="section-title">NOT FOUND! ADD NEW SHOP?</h2>
+            
+            <form action="{{ url_for('add_shop') }}" method="POST" class="form">
+                <div class="input-group">
+                    <label for="product_name">Store Name:</label>
+                    <input type="text" id="store_name" name="store_name" required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="shop">Location:</label>
+                    <input type="text" id="location_address" name="location_address" required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="price">Chain:</label>
+                    <input type="text" id="chain" name="chain" required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="Shopkeeper(s)">Shopkeeper(s):</label>
+                    <input type="text" id="shopkeepers" name="shopkeepers"  required class="input-field">
+                </div>
+                
+                <button type="submit" class="btn-primary-add">Add Shop</button>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="shops-container">
+        <div class="shop-header">
+            <div class="shop-column">Store Name</div>
+            <div class="shop-column">Location Address</div>
+            <div class="shop-column">Store Chain</div>
+            <div class="shop-column">Shopkeeper(s)</div>
+            <div class="shop-column">Creation Date</div>
+            <div class="shop-column">Actions</div>
+        </div>
+        <div class="shop-body">
+            {% for shop in shops %}
+            <div class="shop-row">
+                <div class="shop-column">{{ shop.store_name }}</div>
+                <div class="shop-column">{{ shop.location_address }}</div>
+                <div class="shop-column">{{ shop.store_chain }}</div>
+                <div class="shop-column">
+                    {% if shopkeepers_data[shop.shop_id] %}
+                        {% for shopkeeper in shopkeepers_data[shop.shop_id] %}
+                            {{ shopkeeper }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        No shopkeepers assigned
+                    {% endif %}
+                </div>
+                <div class="shop-column">{{ shop.creation_date.strftime('%d.%m.%Y') }}</div>
+                <div class="shop-column">
+                    <form action="{{ url_for('remove_shop', shop_id=shop.shop_id) }}" method="POST" class="action-form">
+                        <button type="submit" class="btn-secondary">Delete</button>
+                    </form>
+                    <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST" class="action-form">
+                        <button type="submit" class="btn-secondary">Modify shopkeepers</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    
+    <script>
+        // Get the modal
+        var modal = document.getElementById("addProductModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("addButton");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal 
+        btn.onclick = function(event) {
+            event.preventDefault(); // Prevent form submission
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 
 </body>
 </html>

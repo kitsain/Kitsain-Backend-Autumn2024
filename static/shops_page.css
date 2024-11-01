@@ -78,7 +78,7 @@ h1.ml-2{
 
 }
 
-.btn-primary.ml-2-1{
+.btn-primary.ml-2-2{
 
 
     width: 66px;
@@ -100,7 +100,6 @@ h1.ml-2{
     flex-grow: 0;
 
 }
-
 
 .container {
     display: flex;
@@ -339,17 +338,6 @@ h2.section-title{
     color:#FFFFFF;
 }
 
-.btn-primary-save{
-    padding: 12px;
-
-    width: 148px;
-    height: 48px;
-
-    background: #000000;
-    border-radius: 8px;
-    color:#FFFFFF;
-}
-
 .btn-secondary-delete{
     padding: 12px;
 
@@ -366,3 +354,77 @@ h2.section-title{
     padding: 5px;
 }
 
+/* General container for shops */
+.shops-container {
+    background: #FFF8F0; /* Background color */
+    border-radius: 6px; /* Rounded corners */
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.12); /* Subtle shadow */
+    margin-top: 20px; /* Spacing above the container */
+}
+
+/* Header for shop columns */
+.shop-header {
+    display: flex; /* Flex layout for header */
+    justify-content: space-between; /* Space between headers */
+    padding: 15px; /* Padding for header */
+    background-color: #f5f5f5; /* Header background color */
+    font-weight: bold; /* Bold text for clarity */
+}
+
+/* Each column in the header */
+.shop-column {
+    flex: 1; /* Equal width for columns */
+    padding: 0 10px; /* Horizontal padding */
+}
+
+/* Body containing shop rows */
+.shop-body {
+    padding: 10px 0; /* Padding for body */
+}
+
+/* Individual shop row */
+.shop-row {
+    display: flex; /* Flex layout for rows */
+    justify-content: space-between; /* Space between shop details */
+    padding: 15px; /* Padding for each row */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Row separation */
+    transition: background 0.3s; /* Smooth background transition */
+}
+
+/* Highlight on hover */
+.shop-row:hover {
+    background-color: #f9f9f9; /* Change background on hover */
+}
+
+/* Buttons in action column */
+.shop-column form {
+    display: inline-block; /* Align buttons horizontally */
+}
+
+/* Style for buttons in shops */
+.btn-secondary {
+    padding: 10px 15px; /* Padding for buttons */
+    margin-right: 5px; /* Space between buttons */
+    background: #000000; /* Button background */
+    color: #FFFFFF; /* Button text color */
+    border-radius: 8px; /* Rounded corners for buttons */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor for buttons */
+    transition: background 0.3s; /* Smooth background transition */
+}
+
+/* Button hover effect */
+.btn-secondary:hover {
+    background: #333333; /* Darker background on hover */
+}
+
+/* Optional: Add some responsive design */
+@media (max-width: 600px) {
+    .shop-header, .shop-row {
+        flex-direction: column; /* Stack columns on small screens */
+        align-items: flex-start; /* Align items to start */
+    }
+    .shop-column {
+        width: 100%; /* Full width for small screens */
+    }
+}

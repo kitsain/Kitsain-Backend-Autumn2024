@@ -88,7 +88,7 @@
         <div class="products-container">
             {% for product in products %}
                 {% for price in product.prices %}
-                    <div class="product-box">
+                    <div class="product-box" data-product-id="{{ product.product_id }}">
                         <div class="placeholder-image"></div>
                         <div class="product_info">
                         <h3 class="product-name">{{ product.product_name }}</h3>
@@ -116,6 +116,8 @@
         
         <form id="editForm" class="form">
             <!-- Separate fields with labels -->
+            <input type="hidden" id="edit_product_id" name="product_id">
+
             <div class="input-group">
                 <label for="edit_product_name">Product Name:</label>
                 <input type="text" id="edit_product_name" name="product_name" required class="input-field">
@@ -141,11 +143,7 @@
                 <input type="date" id="edit_expiration_date" name="expiration_date" required class="input-field">
             </div>
             
-
-            <form action="{{ url_for('save_product_changes') }}" method="POST" class="action-form">
-                <button type="submit" class="btn-primary-edit">Save Changes</button>
-            </form>
-
+                <button type="submit" class="btn-primary-save">Save Changes</button>
         </form>
     </div>
 </div>
@@ -183,39 +181,121 @@
         }
     </script>
 
-    <script>
-        // Get the modal for editing
-        var editModal = document.getElementById("editProductModal");
-        var editButtons = document.querySelectorAll(".btn-secondary-edit");
 
-        // When the user clicks the edit button, open the modal 
-        editButtons.forEach(button => {
-            button.onclick = function(event) {
-                event.preventDefault(); // Prevent form submission
-                var productBox = this.closest(".product-box");
-                // Populate the modal fields with the current product details
-                document.getElementById("edit_product_name").value = productBox.querySelector(".product-name").textContent;
-                document.getElementById("edit_shop").value = productBox.querySelector(".product-shop").textContent;
-                document.getElementById("edit_price").value = productBox.querySelector(".product-price").textContent.replace(' €', '');
-                document.getElementById("edit_waste_discount").value = productBox.querySelector(".product-discount").textContent.replace(' - ', '').replace('%', '').trim();
-                document.getElementById("edit_expiration_date").value = productBox.querySelector(".product-expiration").textContent;
-                editModal.style.display = "block";
-            }
-        });
+<script>
+    // Get the modals and other elements
+    const editModal = document.getElementById("editProductModal");
+    const editButtons = document.querySelectorAll(".btn-primary-edit");
 
-        // When the user clicks on <span> (x), close the edit modal
-        document.getElementsByClassName("close-edit")[0].onclick = function() {
+    // Open the edit modal and populate fields
+    editButtons.forEach(button => {
+        button.onclick = function(event) {
+            event.preventDefault();
+            const productBox = this.closest(".product-box");
+            document.getElementById("edit_product_id").value = productBox.dataset.productId;
+            document.getElementById("edit_product_name").value = productBox.querySelector(".product-name").textContent;
+            document.getElementById("edit_shop").value = productBox.querySelector(".product-shop").textContent;
+            document.getElementById("edit_price").value = productBox.querySelector(".product-price").textContent.replace(' €', '');
+            document.getElementById("edit_waste_discount").value = productBox.querySelector(".product-discount").textContent.replace(' - ', '').replace('%', '').trim();
+            document.getElementById("edit_expiration_date").value = productBox.querySelector(".product-expiration").textContent;
+            editModal.style.display = "block";
+        };
+    });
+
+    // Close the edit modal
+    document.getElementsByClassName("close-edit")[0].onclick = function() {
+        editModal.style.display = "none";
+    };
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target == editModal) {
             editModal.style.display = "none";
         }
+    };
 
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == editModal) {
-                editModal.style.display = "none";
+    // Function to fetch and update the product list
+    async function updateProductList() {
+        try {
+            const response = await fetch('/get_products'); 
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
+            const products = await response.json();
+            renderProductList(products);
+        } catch (error) {
+            console.error('There was a problem with fetching the products:', error);
         }
+    }
 
-    </script>
+    // Function to render the updated product list
+    function renderProductList(products) {
+        const productContainer = document.querySelector('.products-container');
+        productContainer.innerHTML = ''; // Clear the current product list
+
+        const baseUrl = '/remove_product/'; // Base URL for the remove_product endpoint
+
+        products.forEach(product => {
+            product.prices.forEach(price => {
+                const productBox = document.createElement('div');
+                productBox.className = 'product-box';
+                productBox.dataset.productId = product.product_id;
+                productBox.innerHTML = `
+                    <div class="placeholder-image"></div>
+                    <div class="product_info">
+                        <h3 class="product-name">${product.product_name}</h3>
+                        <p class="product-price">${price.price} €</p>
+                        <p class="product-shop">${price.store_name || 'N/A'}</p>
+                        <p class="product-discount"> - ${price.waste_discount_percentage || 'N/A'}%</p>
+                        <p class="product-expiration">${price.valid_to_date ? price.valid_to_date : 'N/A'}</p>
+                    </div>
+                    <div class="product_buttons">
+                        <button class="btn-primary-edit">Edit</button>
+                        <form action="${baseUrl}${product.product_id}" method="POST" class="action-form mt-2">
+                            <button type="submit" class="btn-secondary-delete">Delete</button>
+                        </form>
+                    </div>
+                `;
+                productContainer.appendChild(productBox);
+            });
+        });
+    }
+
+    // Handle the form submission for editing products
+    document.addEventListener("DOMContentLoaded", () => {
+        const editForm = document.getElementById("editForm");
+
+        editForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formData = new FormData(editForm);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch('/update_product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                alert(result.message);
+                editForm.reset();
+                editModal.style.display = "none"; // Close the modal after saving changes
+                updateProductList(); // Refresh the product list after successful edit
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        });
+    });
+</script>
+
+
 
 </body>
 </html>
