@@ -9,7 +9,7 @@
     font-weight: bold;
 }
 
-#fpassword {
+#forgotpassword {
     font-weight: bold;
 }
 
@@ -78,11 +78,11 @@ html, body {
     justify-content: center;
   }
 
-  #fpassword {
+  #forgotpassword {
     cursor: pointer;
   }
 
-  #fpassword:hover {
+  #forgotpassword:hover {
     text-decoration: underline;
   }
 
