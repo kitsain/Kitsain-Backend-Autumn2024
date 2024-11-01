@@ -13,6 +13,11 @@
     font-weight: bold;
 }
 
+a {
+    text-decoration: none;
+    color: #6B3B48;
+}
+
 body {
     font-family: "Playfair Display"; 
     /* text-align: center; */
@@ -71,6 +76,14 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  #fpassword {
+    cursor: pointer;
+  }
+
+  #fpassword:hover {
+    text-decoration: underline;
   }
 
   .line-container {
