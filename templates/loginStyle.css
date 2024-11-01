@@ -18,6 +18,13 @@ a {
     color: #6B3B48;
 }
 
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 10px;
+    visibility: visible; /* Varmistetaan, että elementti on näkyvissä */
+}
+
 body {
     font-family: "Playfair Display"; 
     /* text-align: center; */
