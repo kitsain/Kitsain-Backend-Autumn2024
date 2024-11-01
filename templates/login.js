@@ -12,7 +12,24 @@ document.getElementById('togglePassword').addEventListener('click', function(eve
 });
 
 
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    
 
+    event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('userpassword').value;
+    const errorMessage = document.getElementById('errorMessage');
+
+    if (username === "" || password === "") {
+        errorMessage.textContent = 'Please fill both fields!'
+        errorMessage.style.visibility = 'visible';
+    } else {
+        errorMessage.textContent = "";
+        errorMessage.style.visibility = 'hidden';
+        window.location.href = 'userMainpage.html';
+    }
+
+});
 
 
 // Halutaanko zoomaus ominaisuus vai ei?

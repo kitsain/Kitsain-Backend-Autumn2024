@@ -1,0 +1,48 @@
+.playfair-display-uniquifier {
+    font-family: "Playfair Display", serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+}
+
+body {
+    font-family: "Playfair Display"; 
+    /* text-align: center; */
+    align-items: left;
+    justify-items: left;
+    background-color:#FFF8F0;    ;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: 50% 50%;
+}
+
+
+
+.outer-container {
+
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    margin: 0 auto;
+
+}
+
+.inner-container {
+    
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: absolute;
+
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
