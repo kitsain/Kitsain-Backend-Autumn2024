@@ -20,7 +20,8 @@ def authenticate_user(cur, username, password):
     
     try:
         # Check if the username exists in the database
-        cur.execute('SELECT user_id, password FROM user WHERE username = ?', (username,))
+        cur.execute('SELECT user_id, password FROM user WHERE username = ?',
+                    (username,))
         result = cur.fetchone()
         
         if result:
@@ -35,7 +36,8 @@ def authenticate_user(cur, username, password):
 
     except sqlite3.Error as e:
         print(f"Database error: {e}")
-        return -1  # In case of any database error, return -1 (as if user not found)
+        return -1  # In case of any database error, return -1 (as if user not
+        # found)
 
 
 def username_exists(cur, username):
@@ -77,18 +79,21 @@ def main():
         username = input("\nEnter username: ")
         
         # Username doesn't exist:
-        if username_exists(cur, username) == False:
+        if not username_exists(cur, username):
             ans = ''
             while ans != 'y' and ans != 'Y' and ans != 'n' and ans != 'N':
-                ans = input(f"Username '{username}' does not exist\nCreate new user? [y/n]:")
+                ans = input(f"Username '{username}' does not exist\nCreate "
+                            f"new user? [y/n]: ")
             
             if ans == 'y' or ans == 'Y':
                 password = input("Enter new password: ")
                 email = input("Enter your email: ")
                 role = input("Enter role ['user', 'shopkeeper', 'admin']: ")
                 
-                if handle_database.add_user(con, cur, username, password, email, role):
-                    print(f"User '{username}' added successfully!\nPlease login with your username and password.")
+                if handle_database.add_user(con, cur, username, password, email,
+                                            role):
+                    print(f"User '{username}' added successfully!\nPlease login"
+                          f"with your username and password.")
                 else:
                     print("Failed to add new user. Please try again later.")
         

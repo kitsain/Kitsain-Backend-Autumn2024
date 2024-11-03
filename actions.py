@@ -4,13 +4,14 @@ import get_data
 import handle_database
 
 
-def adding(con, cur, user_id):
+def adding(con, cur, user_id, list_of_barcodes=None):
     """
     Tries to add the input food to the database. If food with given barcode
     is found from OpenFoodFact, it is added to the database with the
     information provided by OpenFoodFact. Otherwise, food is added to the
     database with information provided by the user. If food is input in
     incorrect form, exception is raised.
+    :param user_id:
     :param con: Connection to the database
     :param cur: Makes queries to the database possible
     :param list_of_barcodes: Contains the used barcodes
@@ -97,16 +98,20 @@ def print_help():
     print("""
     Notes:
     ------
-    - Command parameters containing spaces (e.g. long names) should be given inside quotes
+    - Command parameters containing spaces (e.g. long names) should be given 
+    inside quotes
     - Optional unknown command parameters should be given as NULL
     
     Available Commands:
     -------------------
-    ap [product_name] [weight_g] [volume_l] [barcode] [category] [esg_score] [co2_footprint] [brand] [sub_brand] [parent_company] [information_links] [gluten_free]
+    ap [product_name] [weight_g] [volume_l] [barcode] [category] [esg_score] 
+    [co2_footprint] [brand] [sub_brand] [parent_company] [information_links] 
+    [gluten_free]
         - Add a product to the product table.
     rp [barcode]
         - Remove the latest version of a product by barcode (admin only).
-    ac [product_id] [shop_id] [price] [discount_price] [waste_discount_percentage] [valid_from_date] [valid_to_date]
+    ac [product_id] [shop_id] [price] [discount_price] 
+    [waste_discount_percentage] [valid_from_date] [valid_to_date]
         - Add a price entry.
     rc [price_id] [shop_id]
         - Remove a price entry by price_id (admin or shopkeeper).
@@ -152,11 +157,14 @@ def user_actions(con, cur, user_id):
                 if len(args) == 12:
                     handle_database.add_product(con, cur, user_id, *args)
                 else:
-                    print("Error: 'ap' requires 13 arguments. Use 'help' to see the correct format.")
+                    print("Error: 'ap' requires 13 arguments. Use 'help' to "
+                          "see the correct format.")
             
             elif command == "rp":
                 if len(args) == 1:
-                    handle_database.remove_latest_product_version(con, cur, user_id, *args)
+                    handle_database.remove_latest_product_version(con, cur,
+                                                                  user_id,
+                                                                  *args)
                 else:
                     print("Error: 'rp' requires 1 argument.")
             
@@ -186,13 +194,15 @@ def user_actions(con, cur, user_id):
             
             elif command == "ask":
                 if len(args) == 1:
-                    handle_database.add_shopkeeper_to_shop(con, cur, user_id, *args)
+                    handle_database.add_shopkeeper_to_shop(con, cur, user_id,
+                                                           *args)
                 else:
                     print("Error: 'ask' requires 1 argument (shop_id).")
             
             elif command == "rsk":
                 if len(args) == 1:
-                    handle_database.remove_shopkeeper_from_shop(con, cur, user_id, *args)
+                    handle_database.remove_shopkeeper_from_shop(con, cur,
+                                                                user_id, *args)
                 else:
                     print("Error: 'rsk' requires 1 argument (shop_id).")
             
@@ -224,7 +234,8 @@ def user_actions(con, cur, user_id):
                 break
             
             else:
-                print("Unknown command. Type 'h' or 'help' for available commands.")
+                print("Unknown command. Type 'h' or 'help' for available "
+                      "commands.")
                 
         except Exception as e:
             print("Exception while parsing input: " + repr(e))

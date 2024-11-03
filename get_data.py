@@ -168,10 +168,10 @@ def get_gluten_free(barcode):
         allergens = product.get('allergens_tags', 'Allergens not found')
 
         #if gluten is in allergens, it includes gluten
-        if ("en:gluten" in allergens ):
+        if "en:gluten" in allergens:
             return False
         #otherwise not
-        elif ("Allergens not found" in allergens):
+        elif "Allergens not found" in allergens:
             return True
         else:
             return True
