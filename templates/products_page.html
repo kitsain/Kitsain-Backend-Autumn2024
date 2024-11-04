@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='products_page.css') }}">
+</head>
+<body>
+
+        <!-- Top bar -->
+        <div class="top-bar d-flex align-items-center">
+            <div class="profile-picture"></div>
+            <h1 class="ml-2">
+                <a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;">Kitsain</a>
+            </h1>
+            <input type="text" class="form-control search-box ml-3" placeholder="Search...">
+            <form action="{{ url_for('products_page') }}" method="GET" class="d-inline">
+                <button type="submit" class="btn btn-primary ml-2-1">Products</button>
+            </form>
+            <form action="{{ url_for('shops_page') }}" method="GET" class="d-inline">
+                <button type="submit" class="btn btn-primary ml-2-2">Stores</button>
+            </form>
+            <button class="btn btn-success ml-2">Add</button>
+            <button class="btn btn-info ml-2">My Profile</button>
+            <select class="ml-2">
+                <option>EN</option>
+                <option>FI</option>
+                <!-- Add more languages as needed -->
+            </select>
+        </div>
+
+    <!-- Central search box for products -->
+    <div class="container mt-5 text-center">
+        <h1 class="ml-3">View all products</h1>
+        <p class="ml-4">Here you will find all added and current products at a discounted price. From this view, you can also edit already added products or add new ones. Remember that you can only add current products and specify their locations and other details. Also, make sure to remove a product if you notice it has run out from the store shelf.</p>
+        <button type="submit" class="btn btn-primary ml-2" id="addButton">Add</button>
+    </div>
+
+    <!-- Product Section -->
+    <div class="product_container mt-6 text-center">
+        <input type="text" class="form-control search-box ml-6" placeholder="Search for products...">
+        <form action="{{ url_for('filter_products') }}" method="POST" class="action-form">
+            <button type="submit" class="btn btn-primary ml-6">Filter</button>
+        </form>
+    </div>
+
+
+    <!-- Modal for Adding New Product -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="section-title">NOT FOUND! ADD NEW PRODUCT?</h2>
+            
+            <form action="{{ url_for('add_product') }}" method="POST" class="form">
+                <div class="input-group">
+                    <label for="product_name">Product Name:</label>
+                    <input type="text" id="product_name" name="product_name" required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="shop">Shop:</label>
+                    <input type="text" id="shop" name="shop" required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="price">Price:</label>
+                    <input type="number" step="0.01" id="price" name="price" required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="waste_discount">Waste Discount (%):</label>
+                    <input type="number" step="0.1" id="waste_discount" name="waste_discount"  required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="expiration_date">Expiration Date:</label>
+                    <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
+                </div>
+                
+                <button type="submit" class="btn-primary-add">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- product container --> 
+        <div class="products-container">
+            {% for product in products %}
+                {% for price in product.prices %}
+                    <div class="product-box" data-product-id="{{ product.product_id }}">
+                        <div class="placeholder-image"></div>
+                        <div class="product_info">
+                        <h3 class="product-name">{{ product.product_name }}</h3>
+                        <p class="product-price">{{ price.price }} €</p>
+                        <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
+                        <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
+                        <p class="product-expiration">{{ price.valid_to_date.strftime('%d.%m.%Y') if price.valid_to_date else 'N/A' }}</p>
+                        </div>
+                        <div class="product_buttons">
+                        <button type="submit" class="btn-primary-edit" id="EditButton">Edit</button>
+                        <form action="{{ url_for('remove_product', product_id=product.product_id) }}" method="POST" class="action-form mt-2">
+                            <button type="submit" class="btn-secondary-delete">Delete</button>
+                        </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+    <!-- Modal for Editing Product -->
+<div id="editProductModal" class="modal">
+    <div class="modal-content">
+        <span class="close-edit">&times;</span>
+        <h2 class="section-title">Edit Product</h2>
+        
+        <form id="editForm" class="form">
+            <!-- Separate fields with labels -->
+            <input type="hidden" id="edit_product_id" name="product_id">
+
+            <div class="input-group">
+                <label for="edit_product_name">Product Name:</label>
+                <input type="text" id="edit_product_name" name="product_name" required class="input-field">
+            </div>
+            
+            <div class="input-group">
+                <label for="edit_shop">Shop:</label>
+                <input type="text" id="edit_shop" name="shop" required class="input-field">
+            </div>
+            
+            <div class="input-group">
+                <label for="edit_price">Price:</label>
+                <input type="number" step="0.01" id="edit_price" name="price" required class="input-field">
+            </div>
+            
+            <div class="input-group">
+                <label for="edit_waste_discount">Waste Discount (%):</label>
+                <input type="number" step="0.1" id="edit_waste_discount" name="waste_discount" required class="input-field">
+            </div>
+            
+            <div class="input-group">
+                <label for="edit_expiration_date">Expiration Date:</label>
+                <input type="date" id="edit_expiration_date" name="expiration_date" required class="input-field">
+            </div>
+            
+                <button type="submit" class="btn-primary-save">Save Changes</button>
+        </form>
+    </div>
+</div>
+        
+        
+
+    </section>
+
+    <script>
+        // Get the modal
+        var modal = document.getElementById("addProductModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("addButton");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks the button, open the modal 
+        btn.onclick = function(event) {
+            event.preventDefault(); // Prevent form submission
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+
+
+<script>
+    // Get the modals and other elements
+    const editModal = document.getElementById("editProductModal");
+    const editButtons = document.querySelectorAll(".btn-primary-edit");
+
+    // Open the edit modal and populate fields
+    editButtons.forEach(button => {
+        button.onclick = function(event) {
+            event.preventDefault();
+            const productBox = this.closest(".product-box");
+            document.getElementById("edit_product_id").value = productBox.dataset.productId;
+            document.getElementById("edit_product_name").value = productBox.querySelector(".product-name").textContent;
+            document.getElementById("edit_shop").value = productBox.querySelector(".product-shop").textContent;
+            document.getElementById("edit_price").value = productBox.querySelector(".product-price").textContent.replace(' €', '');
+            document.getElementById("edit_waste_discount").value = productBox.querySelector(".product-discount").textContent.replace(' - ', '').replace('%', '').trim();
+            document.getElementById("edit_expiration_date").value = productBox.querySelector(".product-expiration").textContent;
+            editModal.style.display = "block";
+        };
+    });
+
+    // Close the edit modal
+    document.getElementsByClassName("close-edit")[0].onclick = function() {
+        editModal.style.display = "none";
+    };
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        if (event.target == editModal) {
+            editModal.style.display = "none";
+        }
+    };
+
+    // Function to fetch and update the product list
+    async function updateProductList() {
+        try {
+            const response = await fetch('/get_products'); 
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const products = await response.json();
+            renderProductList(products);
+        } catch (error) {
+            console.error('There was a problem with fetching the products:', error);
+        }
+    }
+
+    // Function to render the updated product list
+    function renderProductList(products) {
+        const productContainer = document.querySelector('.products-container');
+        productContainer.innerHTML = ''; // Clear the current product list
+
+        const baseUrl = '/remove_product/'; // Base URL for the remove_product endpoint
+
+        products.forEach(product => {
+            product.prices.forEach(price => {
+                const productBox = document.createElement('div');
+                productBox.className = 'product-box';
+                productBox.dataset.productId = product.product_id;
+                productBox.innerHTML = `
+                    <div class="placeholder-image"></div>
+                    <div class="product_info">
+                        <h3 class="product-name">${product.product_name}</h3>
+                        <p class="product-price">${price.price} €</p>
+                        <p class="product-shop">${price.store_name || 'N/A'}</p>
+                        <p class="product-discount"> - ${price.waste_discount_percentage || 'N/A'}%</p>
+                        <p class="product-expiration">${price.valid_to_date ? price.valid_to_date : 'N/A'}</p>
+                    </div>
+                    <div class="product_buttons">
+                        <button class="btn-primary-edit">Edit</button>
+                        <form action="${baseUrl}${product.product_id}" method="POST" class="action-form mt-2">
+                            <button type="submit" class="btn-secondary-delete">Delete</button>
+                        </form>
+                    </div>
+                `;
+                productContainer.appendChild(productBox);
+            });
+        });
+    }
+
+    // Handle the form submission for editing products
+    document.addEventListener("DOMContentLoaded", () => {
+        const editForm = document.getElementById("editForm");
+
+        editForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formData = new FormData(editForm);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch('/update_product', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                alert(result.message);
+                editForm.reset();
+                editModal.style.display = "none"; // Close the modal after saving changes
+                updateProductList(); // Refresh the product list after successful edit
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        });
+    });
+</script>
+
+
+
+</body>
+</html>

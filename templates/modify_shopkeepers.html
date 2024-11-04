@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Shopkeepers</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h2>Modify Shopkeepers for {{ shop.store_name }}</h2>
+
+    <!-- Back to Home Button -->
+    <form action="{{ url_for('index') }}" class="action-form">
+        <button type="submit" class="btn-secondary">Back to Home Page</button>
+    </form>
+
+
+
+    <button onclick="openModal()">Modify Shopkeepers</button>
+
+    <!-- Modal Structure -->
+    <div id="modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Add or Remove Shopkeepers</h3>
+
+            <!-- Add Shopkeeper Form -->
+            <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST">
+                <input type="hidden" name="action" value="add">
+                <label for="add-user">Add Shopkeeper:</label>
+                <select name="user_id" required>
+                    {% for user in users %}
+                        {% if user not in current_shopkeepers and user.role == 'shopkeeper' %}
+                            <option value="{{ user.user_id }}">{{ user.username }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <button type="submit">Add</button>
+            </form>
+
+            <!-- Remove Shopkeeper Form -->
+            <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST">
+                <input type="hidden" name="action" value="remove">
+                <label for="remove-user">Remove Shopkeeper:</label>
+                <select name="user_id" required>
+                    {% for user in current_shopkeepers %}
+                        <option value="{{ user.user_id }}">{{ user.username }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Remove</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript to control the modal display -->
+    <script>
+        function openModal() {
+            document.getElementById('modal').style.display = 'block';
+        }
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
