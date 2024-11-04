@@ -375,3 +375,24 @@ p.ml-4 {
 .store_container:last-child {
     border-bottom: none; 
 }
+
+
+.price-container {
+    display: flex; 
+    align-items: center; 
+}
+
+.product-price {
+    margin-left: 10px; 
+    font-weight: bold; 
+}
+
+.product-discount_price {
+    text-decoration: line-through; 
+    color: red; 
+}
+
+.product-name {
+    margin-bottom: 0; 
+}
+

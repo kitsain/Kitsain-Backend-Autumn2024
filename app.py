@@ -29,9 +29,6 @@ class User(db.Model):
         CheckConstraint("role IN ('user', 'shopkeeper', 'admin')", name="valid_role"),
     )
     
-    __table_args__ = (
-        CheckConstraint("role IN ('user', 'shopkeeper', 'admin')", name="valid_role"),
-    )
     # Relationships
     # shops = db.relationship('Shop', backref='creator', lazy=True)
     # products_created = db.relationship('Product', backref='creator', lazy=True)
@@ -135,12 +132,13 @@ def add_product():
     product_name = request.form.get('product_name')
     shop = request.form.get('shop')
     price = request.form.get('price')
+    discount_price = request.form.get('discount_price')
     waste_discount = request.form.get('waste_discount')
     expiration_date = request.form.get('expiration_date')
     user_id = request.form.get('user_id')  
     product_id = generate_unique_user_id()
     
-    if not product_name or not shop or not price:
+    if not product_name or not shop or not price or not discount_price:
         print("Please provide the product name, shop, and price.", "product")
         return redirect(url_for('products_page'))
 
@@ -166,6 +164,7 @@ def add_product():
             product_id=new_product.product_id,
             shop_id=existing_shop.shop_id,
             price=float(price),
+            discount_price=float(discount_price),
             valid_to_date = valid_to_date,
             waste_discount_percentage=float(waste_discount) if waste_discount else None,
             user_created=user_id
@@ -501,23 +500,99 @@ def get_products():
     except Exception as e:
         print(f"Error occurred: {str(e)}")
         return jsonify({'error': str(e)}), 500
+    
 
-
-@app.route('/filter_shops')
+@app.route('/filter_shops', methods=['GET', 'POST'])
 def filter_shops():
-    #TODO
+    store_name = ''
+    location_address = ''
+    chain = ''
+    shopkeepers = ''
+    
+    if request.method == 'POST':
+        # Get values from the form
+        store_name = request.form.get('store_name', '')
+        location_address = request.form.get('location_address', '')
+        chain = request.form.get('chain', '')
+        shopkeepers = request.form.get('shopkeepers', '')
+
+        # Your filtering logic here...
+        query = Shop.query
+        
+        if store_name:
+            query = query.filter(Shop.store_name.ilike(f'%{store_name}%'))
+        
+        if location_address:
+            query = query.filter(Shop.location_address.ilike(f'%{location_address}%'))
+        
+        if chain:
+            query = query.filter(Shop.store_chain.ilike(f'%{chain}%'))
+        
+        if shopkeepers:
+            query = query.join(WorksFor).join(User).filter(User.username.ilike(f'%{shopkeepers}%'))
+
+        filtered_shops = query.all()
+        shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in filtered_shops}
+
+        # Render the shops page with the filtered results and the input values
+        return render_template('shops_page.html', shops=filtered_shops, shopkeepers_data=shopkeepers_data, 
+                               store_name=store_name, location_address=location_address, 
+                               chain=chain, shopkeepers=shopkeepers)
+
+    # If it's a GET request, just render the shops page without filters
     return render_template('shops_page.html')
+
+
+@app.route('/filter_products', methods=['GET', 'POST'])
+def filter_products():
+    products = []
+    product_name = ''
+    shop = ''
+    price = ''
+    waste_discount = ''
+    expiration_date = ''
+    
+    if request.method == 'POST':
+        # Get values from the form
+        product_name = request.form.get('product_name', '')
+        shop = request.form.get('shop', '')
+        price = request.form.get('price', '')
+        waste_discount = request.form.get('waste_discount', '')
+        expiration_date = request.form.get('expiration_date', '')
+
+        # Filtering logic
+        query = Product.query.join(Price).join(Shop)  # Join Product with Price and Shop
+        
+        if product_name:
+            query = query.filter(Product.product_name.ilike(f'%{product_name}%'))
+        
+        if shop:
+            query = query.filter(Shop.store_name.ilike(f'%{shop}%'))  # Use the shop's name here
+
+        if price:
+            query = query.filter(Price.price <= float(price))  # Filter by Price model
+        
+        if waste_discount:
+            query = query.filter(Price.waste_discount_percentage <= float(waste_discount))  # Adjusted to reference Price model
+        
+        if expiration_date:
+            query = query.filter(Price.valid_to_date <= expiration_date)  # Adjust based on your requirements
+
+        # Execute the query and get filtered products
+        products = query.all()
+
+    # Render the products page with the filtered results
+    return render_template('products_page.html', products=products, 
+                           product_name=product_name, shop=shop, 
+                           price=price, waste_discount=waste_discount, 
+                           expiration_date=expiration_date)
+
+
 
 @app.route('/seach_discounts')
 def search_discount():
     #TODO
     return render_template('index.html')
-
-
-@app.route('/filter_products')
-def filter_products():
-    #TODO
-    return render_template('products_page.html')
 
 if __name__ == "__main__":
     with app.app_context():

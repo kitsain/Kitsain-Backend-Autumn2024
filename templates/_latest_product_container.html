@@ -1,20 +1,24 @@
-<!-- product container -->
-<div class="products-container">
-    {% for product in products %}
-        {% for price in product.prices %}
-            <div class="product-box" data-product-id="{{ product.product_id }}">
-                <div class="placeholder-image"></div>
-                <div class="product_info">
+
+    <!-- product container --> 
+    <div class="products-container">
+        {% for product in products %}
+            {% for price in product.prices %}
+                <div class="product-box" data-product-id="{{ product.product_id }}">
+                    <div class="placeholder-image"></div>
+                    <div class="product_info">
                     <h3 class="product-name">{{ product.product_name }}</h3>
-                    <p class="product-price">{{ price.price }} €</p>
-                    <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
+                    <div class="price-container">
+                        <p class="product-discount_price">{{ price.price }} €</p>
+                        <p class="product-price">{{ price.discount_price }} €</p>
+                    </div>
                     <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
+                    <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
                     <p class="product-expiration">{{ price.valid_to_date.strftime('%d.%m.%Y') if price.valid_to_date else 'N/A' }}</p>
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
-</div>
+    </div>
 
 </body>
 </html>

@@ -212,7 +212,7 @@ p.ml-4{
 
     position: relative;
     width: 815px;
-    height: 550px;
+    height: auto;
 
     background: #FFF8F0;
     border: 1px solid #511948;
@@ -427,4 +427,12 @@ h2.section-title{
     .shop-column {
         width: 100%; /* Full width for small screens */
     }
+}
+
+.btn.btn-primary.filter {
+    padding: 12px;
+
+    background: #000000;
+    border-radius: 8px;
+    color:#FFFFFF;
 }

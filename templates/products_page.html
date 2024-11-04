@@ -41,47 +41,90 @@
     <div class="product_container mt-6 text-center">
         <input type="text" class="form-control search-box ml-6" placeholder="Search for products...">
         <form action="{{ url_for('filter_products') }}" method="POST" class="action-form">
-            <button type="submit" class="btn btn-primary ml-6">Filter</button>
+            <button type="submit" class="btn btn-primary ml-6" id="filterButton">Filter</button>
         </form>
     </div>
 
-
-    <!-- Modal for Adding New Product -->
-    <div id="addProductModal" class="modal">
+    <!-- Modal for Filtering Products -->
+    <div id="filterProductModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 class="section-title">NOT FOUND! ADD NEW PRODUCT?</h2>
-            
-            <form action="{{ url_for('add_product') }}" method="POST" class="form">
+            <span class="close">&times;</span>            
+            <form action="{{ url_for('filter_products') }}" method="POST" class="form">
                 <div class="input-group">
                     <label for="product_name">Product Name:</label>
-                    <input type="text" id="product_name" name="product_name" required class="input-field">
+                    <input type="text" id="product_name" name="product_name" class="input-field" value="{{ product_name }}">
                 </div>
                 
                 <div class="input-group">
                     <label for="shop">Shop:</label>
-                    <input type="text" id="shop" name="shop" required class="input-field">
+                    <input type="text" id="shop" name="shop" class="input-field" value="{{ shop }}">
                 </div>
                 
                 <div class="input-group">
                     <label for="price">Price:</label>
-                    <input type="number" step="0.01" id="price" name="price" required class="input-field">
+                    <input type="number" step="0.01" id="price" name="price" class="input-field" value="{{ price }}">
                 </div>
                 
                 <div class="input-group">
                     <label for="waste_discount">Waste Discount (%):</label>
-                    <input type="number" step="0.1" id="waste_discount" name="waste_discount"  required class="input-field">
+                    <input type="number" step="0.1" id="waste_discount" name="waste_discount" class="input-field" value="{{ waste_discount }}">
                 </div>
                 
                 <div class="input-group">
                     <label for="expiration_date">Expiration Date:</label>
-                    <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
+                    <input type="date" id="expiration_date" name="expiration_date" class="input-field" value="{{ expiration_date }}">
                 </div>
                 
-                <button type="submit" class="btn-primary-add">Add Product</button>
+                <button type="submit" class="btn-primary-add">Filter</button>
             </form>
         </div>
     </div>
+
+
+
+<!-- Modal for Adding New Product -->
+<div id="addProductModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 class="section-title">NOT FOUND! ADD NEW PRODUCT?</h2>
+        
+        <form action="{{ url_for('add_product') }}" method="POST" class="form">
+            <div class="input-group">
+                <label for="product_name">Product Name:</label>
+                <input type="text" id="product_name" name="product_name" required class="input-field">
+            </div>
+            
+            <div class="input-group">
+                <label for="shop">Shop:</label>
+                <input type="text" id="shop" name="shop" required class="input-field">
+            </div>
+            
+            <div class="input-group">
+                <label for="price">Price:</label>
+                <input type="number" step="0.01" id="add-price" name="price" required class="input-field">
+            </div>
+            
+            <div class="input-group">
+                <label for="discount_price">Discount Price:</label>
+                <input type="number" step="0.01" id="discount_price" name="discount_price" class="input-field" oninput="calculateWasteDiscount()">
+            </div>
+            
+            <div class="input-group">
+                <label for="waste_discount">Waste Discount (%):</label>
+                <input type="number" step="0.1" id="waste_discount_add" name="waste_discount" class="input-field" oninput="calculateDisountPrice()">
+            </div>
+            
+            <div class="input-group">
+                <label for="expiration_date">Expiration Date:</label>
+                <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
+            </div>
+            
+            <button type="submit" class="btn-primary-add">Add Product</button>
+        </form>
+    </div>
+</div>
+
+
 
 
     <!-- product container --> 
@@ -92,9 +135,12 @@
                         <div class="placeholder-image"></div>
                         <div class="product_info">
                         <h3 class="product-name">{{ product.product_name }}</h3>
-                        <p class="product-price">{{ price.price }} €</p>
-                        <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
+                        <div class="price-container">
+                            <p class="product-discount_price">{{ price.price }} €</p>
+                            <p class="product-price">{{ price.discount_price }} €</p>
+                        </div>
                         <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
+                        <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
                         <p class="product-expiration">{{ price.valid_to_date.strftime('%d.%m.%Y') if price.valid_to_date else 'N/A' }}</p>
                         </div>
                         <div class="product_buttons">
@@ -119,7 +165,7 @@
     </div>
 
 
-        <!-- Modal for Editing Product -->
+    <!-- Modal for Editing Product -->
     <div id="editProductModal" class="modal">
         <div class="modal-content">
             <span class="close-edit">&times;</span>
@@ -141,7 +187,7 @@
                 
                 <div class="input-group">
                     <label for="edit_price">Price:</label>
-                    <input type="number" step="0.01" id="edit_price" name="price" required class="input-field">
+                    <input type="number" step="0.01" id="edit_price" name="price" required class="input-field" >
                 </div>
                 
                 <div class="input-group">
@@ -167,34 +213,69 @@
 
     <script src="{{ url_for('static', filename='js/editProduct.js') }}"></script>
 
+    <script src="{{ url_for('static', filename='js/calculateWasteDiscount.js') }}"></script>
+
     <script>
-        // Get the modal
-        var modal = document.getElementById("addProductModal");
-
-        // Get the button that opens the modal
-        var btn = document.getElementById("addButton");
-
-        // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
-
-        // When the user clicks the button, open the modal 
-        btn.onclick = function(event) {
-            event.preventDefault(); // Prevent form submission
-            modal.style.display = "block";
-        }
-
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
+        // Function to handle opening and closing the Add Product modal
+        function handleAddProductModal() {
+            // Get the modal for adding products
+            var modal = document.getElementById("addProductModal");
+            // Get the button that opens the modal
+            var btn = document.getElementById("addButton");
+            // Get the <span> element that closes the modal
+            var span = modal.getElementsByClassName("close")[0];
+    
+            // When the user clicks the button, open the modal 
+            btn.onclick = function(event) {
+                event.preventDefault(); // Prevent form submission
+                modal.style.display = "block";
+            }
+    
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
                 modal.style.display = "none";
             }
+    
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
         }
+    
+        // Function to handle opening and closing the Filter Products modal
+        function handleFilterProductModal() {
+            // Get the modal for filtering products
+            var modal = document.getElementById("filterProductModal");
+            // Get the button that opens the modal
+            var btn = document.getElementById("filterButton");
+            // Get the <span> element that closes the modal
+            var span = modal.getElementsByClassName("close")[0];
+    
+            // When the user clicks the button, open the modal 
+            btn.onclick = function(event) {
+                event.preventDefault(); // Prevent form submission
+                modal.style.display = "block";
+            }
+    
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+    
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+    
+        // Initialize modals
+        handleAddProductModal();
+        handleFilterProductModal();
     </script>
-
+    
 </body>
 </html>

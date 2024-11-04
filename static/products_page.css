@@ -213,7 +213,7 @@ p.ml-4{
 
     position: relative;
     width: 815px;
-    height: 550px;
+    height: auto;
 
     background: #FFF8F0;
     border: 1px solid #511948;
@@ -311,6 +311,7 @@ h2.section-title{
 .product-price,
 .product-shop,
 .product-discount,
+.product-discount_price,
 .product-expiration {
     margin: 0; 
     padding: 2px 0; 
@@ -364,5 +365,20 @@ h2.section-title{
     flex-direction: column; 
     gap: 5px; 
     padding: 5px;
+}
+
+.price-container {
+    display: flex; /* Use flexbox to align items in a row */
+    align-items: center; /* Center items vertically */
+}
+
+.product-price {
+    margin-left: 10px; /* Add some space between the two prices */
+    font-weight: bold; /* Make the original price bold */
+}
+
+.product-discount_price {
+    text-decoration: line-through; /* Overline for discount price */
+    color: red; /* Optional: Change the color of the discount price for emphasis */
 }
 
