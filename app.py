@@ -89,10 +89,12 @@ class Price(db.Model):
     user_created = db.Column(db.Integer, db.ForeignKey('user.user_id'))
 
 
+from sqlalchemy import desc
 
 @app.route('/')
 def index():
-    products = (Product).query.all() 
+    # Retrieve the five latest products, assuming Product has a 'created_at' or 'added_date' field
+    products = Product.query.order_by(desc(Product. creation_date)).limit(2).all()
     shops = Shop.query.all()
     users = User.query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}

@@ -40,6 +40,44 @@
         </form>
     </div>
 
+    <!-- view latest products container -->
+    <div class="l_product_container mt-6 text-center">
+        <h1 class="ml-6">Latest Updates</h1>
+        <p class="ml-7">View already added products or add a product yourself</p>
+        <!--product containter-->
+        {% include '_latest_product_container.html' %}
+    </div>
+
+    <!-- view all products container -->
+    <div class="product_container mt-6 text-center">
+        <h1 class="ml-6">View all products</h1>
+        <p class="ml-7">Click here to view all products added so far</p>
+        <form action="{{ url_for('products_page') }}" method="GET" class="action-form">
+            <button type="submit" class="btn btn-primary view">View</button>
+        </form>
+    </div>
+
+    <!-- Stores near you container -->
+    <div class="store_container mt-6 text-center">
+        <div class="store-buttons">
+        <h1 class="ml-6">Stores near you</h1>
+        <p class="ml-7">Find stores near you</p>
+        </div>
+        <div class="stores">
+        <div class="store-container">
+            <h1 class="store-icons">&#128205</h1>
+            <p>Prisma Kaleva</p>
+            <p>Open 24/7</p>
+            <p>Sammonkatu 75</p>
+        </div>
+        <div class="store-container">
+            <h1 class="store-icons">&#128722</h1>
+            <p>K-Supermarket Kaleva</p>
+            <p>10AM - 10PM</p>
+            <p>Sammonkatu 26</p>
+        </div>
+    </div>
+    </div>
 
 </body>
 </html>
