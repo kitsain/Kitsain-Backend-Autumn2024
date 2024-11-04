@@ -1,46 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>My Website</title>
-    <link rel="stylesheet" href="./loginStyle.css">
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <title>Kitsain</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='loginStyle.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-  </head>
-  <body>
+</head>
+<body>
     <main>
-      <div class="outer-container">
-        <div class="inner-container, maximum-scale=1.0">
-            <h1>WELCOME TO KITSAIN!</h1>  
-            <form action="/action_page.php" id="loginForm">
-                <label for="login" id="login" name="login"> LOG IN<br><br></label>
-                <label for="username">USERNAME </label>
-                <input type="text" id="username" name="username" placeholder="Username"><br><br>
-                <label for="userpassword">PASSWORD </label>
-                <input type="password" id="userpassword" name="userpassword" placeholder="Password">
-                <button id="togglePassword">Reveal</button><br><br>
-                <a href="newPassword.html">
-                  <label for="forgotpassword" id="forgotpassword" name="forgotpassword">FORGOT PASSWORD?
-                </label> </a><br><br>
-                <p id="errorMessage" class="error"></p>
-                <div class="line-container">
-                  <div class="line"></div>
-                  <label for="or" id="or" name="or">OR?</label>
-                  <div class="line"><br><br></div>
-                </div>
-                <!-- <button type="submit">Log in</button> -->
-                <input type="submit" value="Log in">
-              </form>
+        <div class="outer-container">
+            <div class="inner-container">
+                <h1>WELCOME TO KITSAIN!</h1>  
+                <form action="/login" method="POST" id="loginForm" class="loginForm">
+                    <label for="login">LOG IN</label><br><br>
+                    <label for="username">USERNAME</label>
+                    <input type="text" id="username" name="username" placeholder="Username" required><br><br>
+                    <label for="userpassword">PASSWORD</label>
+                    <input type="password" id="userpassword" name="password" placeholder="Password" required>
+                    <button type="button" id="togglePassword" onclick="togglePasswordVisibility()" class="reveal-button">&#128274;</button><br><br>
+                    <a href="newPassword.html">FORGOT PASSWORD?</a><br><br>
+                    <p id="errorMessage" class="error">
+                      {% for message in get_flashed_messages(with_categories=False) %}
+                          {{ message }}<br>
+                      {% endfor %}
+                    </p>
+                    <div class="line-container">
+                        <div class="line"></div>
+                        <label for="or">OR?</label>
+                        <div class="line"></div><br><br>
+                    </div>
+                    <button type="submit" class="login-button">Log in</button>
+                </form>
+            </div>
         </div>
-      </div>
-        <!-- <center> -->
-
-        <!-- </center> -->
     </main>
-    <script src="login.js"></script>
-  </body>
+    <script src="{{ url_for('static', filename='login.js') }}"></script>
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("userpassword");
+            const toggleButton = document.getElementById("togglePassword");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text"; 
+                toggleButton.innerHTML = "&#128275;"; 
+            } else {
+                passwordInput.type = "password"; 
+                toggleButton.innerHTML = "&#128274;";
+            }
+        }
+    </script>
+</body>
 </html>

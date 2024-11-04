@@ -26,7 +26,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     } else {
         errorMessage.textContent = "";
         errorMessage.style.visibility = 'hidden';
-        window.location.href = 'userMainpage.html';
+        window.location.href = 'index.html';
     }
 
 });

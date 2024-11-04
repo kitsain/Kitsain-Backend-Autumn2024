@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from sqlalchemy import desc
+from flask import session
 import get_data
 import uuid
 import random
@@ -88,10 +90,26 @@ class Price(db.Model):
     valid_to_date = db.Column(db.DateTime)
     user_created = db.Column(db.Integer, db.ForeignKey('user.user_id'))
 
-
-from sqlalchemy import desc
-
 @app.route('/')
+def login_page():
+    return render_template('login.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')  # Gets the username
+        password = request.form.get('password')  # Gets the password
+        
+        # Check if username and password match "admin"
+        if username == "admin" and password == "admin":
+            session['user_id'] = 1  # Example user ID for admin
+            return redirect(url_for('index'))
+        else:
+            flash("Invalid username or password. Please try again.", "error")
+    
+    return render_template('login.html')
+
+@app.route('/index')
 def index():
     # Retrieve the five latest products, assuming Product has a 'created_at' or 'added_date' field
     products = Product.query.order_by(desc(Product. creation_date)).limit(2).all()
