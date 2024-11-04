@@ -184,15 +184,13 @@ p.ml-4 {
 }
 
 .ml-7 {
-
-
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
     /* identical to box height, or 150% */
-    text-align: center;
+    text-align: start;
 
     color: #000000;
 
@@ -299,7 +297,7 @@ p.ml-4 {
 }
 
 
-.store-buttons {
+.store-text {
     display: flex;
     flex-direction: column;
 }
@@ -308,18 +306,72 @@ p.ml-4 {
     display: flex;
     flex-direction: row;
     gap:40px;
-    padding-left: 200px; /* Adjust this value to increase or decrease space */
+    padding-left: 200px; 
 }
 
-.store-icons {
-/* frame */
+.icon-container {
+    width: 100px;
+    height: 100px;
 
-width: 100px;
-height: 100px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
 
-background: rgba(0, 0, 0, 0.05);
-border-radius: 50px;
+    margin-left:40px;
+}
+
+.store-icon {
+    font-size: 48px; 
+    width: 100px; 
+    height: 100px; 
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
+    text-align: center; 
+    line-height: 100px; 
 }
 
 
+.store-name {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    text-align: center;
 
+    color: #000000;
+}
+
+.store-hours {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.store-address {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 36px;
+    text-align: center;
+
+    color: #000000;
+}
+
+
+.container, .l_product_container, .product_container, .store_container {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); 
+}
+
+
+.container:last-child, 
+.l_product_container:last-child, 
+.product_container:last-child, 
+.store_container:last-child {
+    border-bottom: none; 
+}

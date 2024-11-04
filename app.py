@@ -1,11 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import desc
 from flask import session
-import get_data
-import uuid
 import random
+from sqlalchemy import CheckConstraint
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Required for flashing messages
@@ -20,10 +19,14 @@ class User(db.Model):
     username = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=True)
     email = db.Column(db.String, nullable=True)
-    role = db.Column(db.String, nullable=False, check_constraint="role IN ('user', 'shopkeeper', 'admin')")
+    role = db.Column(db.String, nullable=False)
     aura_points = db.Column(db.Integer, default=0)
     last_login = db.Column(db.DateTime, default=db.func.current_timestamp())
     creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    __table_args__ = (
+        CheckConstraint("role IN ('user', 'shopkeeper', 'admin')", name="valid_role"),
+    )
     
     # Relationships
     shops = db.relationship('Shop', backref='creator', lazy=True)
@@ -360,6 +363,7 @@ def add_user():
 
     return redirect(url_for('users_page'))
 
+
 @app.route('/modify_users/<int:user_id>', methods=['GET', 'POST'])
 def modify_user(user_id):
     if not user_id:
@@ -410,10 +414,6 @@ def users_page():
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops} 
     return render_template('users_page.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users)
 
-
-from flask import Flask, request, jsonify
-
-
 @app.route('/update_product', methods=['POST'])
 def update_product():
     data = request.get_json()  # Get the JSON data from the request
@@ -445,10 +445,10 @@ def update_product_in_db(product_id, product_name, shop, price, waste_discount, 
 
     # Update the product's attributes
     product.product_name = product_name
-    product.shop = shop  # You might need to find the shop ID based on the shop name
+    product.shop = shop  
     product.price = price
     product.waste_discount_percentage = waste_discount
-    product.valid_to_date = expiration_date  # Assuming this field is for expiration
+    product.valid_to_date = expiration_date 
     
     try:
         db.session.commit()  # Save changes to the database
@@ -459,11 +459,12 @@ def update_product_in_db(product_id, product_name, shop, price, waste_discount, 
         return False
 
 
+
 @app.route('/get_products', methods=['GET'])
 def get_products():
     try:
-        # Query all products and their associated prices
-        products = Product.query.all()
+        # Query all products along with their associated prices and shops using outer joins
+        products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
         
         # Prepare a list to hold the product data
         products_list = []
@@ -474,7 +475,7 @@ def get_products():
                     'price': price.price,
                     'store_name': price.shop.store_name if price.shop else 'N/A',
                     'waste_discount_percentage': price.waste_discount_percentage,
-                    'valid_to_date': price.valid_to_date.strftime('%Y-%m-%d') if price.valid_to_date else 'N/A'
+                    'valid_to_date': price.valid_to_date if price.valid_to_date else 'N/A'
                 })
             
             products_list.append({
@@ -483,12 +484,14 @@ def get_products():
                 'prices': prices_list
             })
 
+        # Print the products list (for debugging purposes)
         print(products_list)
         
-        # Return the list of products and prices as JSON
-        return jsonify(products_list)
+        # Render the products_page.html and pass the products_list to the template
+        return render_template('products_page.html', products=products_list)
     
     except Exception as e:
+        print(f"Error occurred: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 

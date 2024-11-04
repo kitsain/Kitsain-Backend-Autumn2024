@@ -36,7 +36,7 @@
         <p class="ml-4">Find discounted products near you</p>
         <form action="{{ url_for('search_discount') }}" method="POST" class="action-form">
             <input type="text" class="form-control" placeholder="Search for products...">
-            <button type="submit" class="search-button">Seach</button>
+            <button type="submit" class="search-button">Search</button>
         </form>
     </div>
 
@@ -59,24 +59,28 @@
 
     <!-- Stores near you container -->
     <div class="store_container mt-6 text-center">
-        <div class="store-buttons">
+        <div class="store-text">
         <h1 class="ml-6">Stores near you</h1>
         <p class="ml-7">Find stores near you</p>
         </div>
         <div class="stores">
-        <div class="store-container">
-            <h1 class="store-icons">&#128205</h1>
-            <p>Prisma Kaleva</p>
-            <p>Open 24/7</p>
-            <p>Sammonkatu 75</p>
-        </div>
-        <div class="store-container">
-            <h1 class="store-icons">&#128722</h1>
-            <p>K-Supermarket Kaleva</p>
-            <p>10AM - 10PM</p>
-            <p>Sammonkatu 26</p>
-        </div>
-    </div>
+            <div class="store-container">
+                <div class="icon-container">
+                    <p class="store-icon">&#128205;</p>
+                </div>
+                <p class="store-name">Prisma Kaleva</p>
+                <p class="store-hours">Open 24/7</p>
+                <p class="store-address"><strong>Sammonkatu 75</strong></p>
+            </div>
+            <div class="store-container">
+                <div class="icon-container">
+                    <p class="store-icon">&#128722;</p>
+                </div>
+                <p class="store-name">K-Supermarket Kaleva</p>
+                <p class="store-hours">10AM - 10PM</p>
+                <p class="store-address"><strong>Sammonkatu 26</strong></p>
+            </div>
+        </div>        
     </div>
 
 </body>
