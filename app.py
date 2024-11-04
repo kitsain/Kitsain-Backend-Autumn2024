@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import CheckConstraint
 from datetime import datetime
 from sqlalchemy import desc
 from flask import session
@@ -28,10 +29,13 @@ class User(db.Model):
         CheckConstraint("role IN ('user', 'shopkeeper', 'admin')", name="valid_role"),
     )
     
+    __table_args__ = (
+        CheckConstraint("role IN ('user', 'shopkeeper', 'admin')", name="valid_role"),
+    )
     # Relationships
-    shops = db.relationship('Shop', backref='creator', lazy=True)
-    products_created = db.relationship('Product', backref='creator', lazy=True)
-    prices_created = db.relationship('Price', backref='creator', lazy=True)
+    # shops = db.relationship('Shop', backref='creator', lazy=True)
+    # products_created = db.relationship('Product', backref='creator', lazy=True)
+    # prices_created = db.relationship('Price', backref='creator', lazy=True)
 
 
 class Shop(db.Model):
@@ -111,6 +115,10 @@ def login():
             flash("Invalid username or password. Please try again.", "error")
     
     return render_template('login.html')
+
+@app.route('/forgot_password')
+def forgot_password():
+    return render_template('newPassword.html')
 
 @app.route('/index')
 def index():
