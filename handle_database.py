@@ -32,7 +32,8 @@ def create_database(con, cur):
         location_gps TEXT                           -- GPS coordinates of the shop location
     )''')
 
-    # Create the 'works_for' table to track which shopkeepers work for which shops
+    # Create the 'works_for' table to track which shopkeepers work for which
+    # shops
     cur.execute('''
     CREATE TABLE IF NOT EXISTS works_for (
         user_id INTEGER,                                                                    -- User ID of the shopkeeper
@@ -81,8 +82,10 @@ def create_database(con, cur):
         FOREIGN KEY (user_created) REFERENCES user(user_id)         -- Links to the 'user' table
     )''')
 
-    # Add an index for product barcodes to allow multiple versions of the same product
-    cur.execute('CREATE INDEX IF NOT EXISTS idx_product_barcode ON product(barcode);')
+    # Add an index for product barcodes to allow multiple versions
+    # of the same product
+    cur.execute('CREATE INDEX IF NOT EXISTS idx_product_barcode ON '
+                'product(barcode);')
 
     # Commit the changes to save the schema creation
     con.commit()
@@ -121,7 +124,8 @@ def add_user(con, cur, username, password, email, role):
 
 def remove_user(con, cur, user_id, requester_id):
     """
-    Removes a user from the user table. Only admins or the user themselves can remove a user.
+    Removes a user from the user table. Only admins or the user themselves can
+    remove a user.
     
     Parameters:
     - con: SQLite connection object
@@ -130,11 +134,13 @@ def remove_user(con, cur, user_id, requester_id):
     - requester_id: ID of the user making the removal request
     """
     
-    # Check if the requester is an admin or if the requester is the user being removed
+    # Check if the requester is an admin or if the requester is the user being
+    # removed
     cur.execute('SELECT role FROM user WHERE user_id = ?', (requester_id,))
     requester_role = cur.fetchone()
     
-    if requester_role and (requester_role[0] == 'admin' or requester_id == user_id):
+    if requester_role and (requester_role[0] == 'admin' or requester_id ==
+                           user_id):
         # Proceed with removing the user
         try:
             cur.execute('DELETE FROM user WHERE user_id = ?', (user_id,))
@@ -144,7 +150,8 @@ def remove_user(con, cur, user_id, requester_id):
         except sqlite3.Error as e:
             print(f"Error removing user: {e}")
     else:
-        print("Permission denied. Only admins or the user themselves can remove this user.")
+        print("Permission denied. Only admins or the user themselves can "
+              "remove this user.")
 
 
 def print_users(cur):
@@ -157,7 +164,8 @@ def print_users(cur):
     
     try:
         cur.execute('''
-        SELECT user_id, username, role, email, aura_points, last_login, creation_date
+        SELECT user_id, username, role, email, aura_points, last_login, 
+        creation_date
         FROM user
         ORDER BY user_id
         ''')
@@ -184,8 +192,11 @@ def print_users(cur):
 
 
 
-# Note: Products are not updated in the table; new versions override previous version given a later creation date
-def add_product(con, cur, user_id, product_name, weight_g, volume_l, barcode, category, esg_score, co2_footprint, brand, sub_brand, parent_company, information_links, gluten_free):
+# Note: Products are not updated in the table; new versions override previous
+# version given a later creation date
+def add_product(con, cur, user_id, product_name, weight_g, volume_l,
+                barcode, category, esg_score, co2_footprint, brand, sub_brand,
+                parent_company, information_links, gluten_free):
     """
     Adds a new product to the product table.
     
@@ -196,7 +207,8 @@ def add_product(con, cur, user_id, product_name, weight_g, volume_l, barcode, ca
     - product_name: Name of the product
     - weight_g: Weight of the product in grams (optional)
     - volume_l: Volume of the product in liters (optional)
-    - barcode: Product barcode (should be unique or the same for different versions)
+    - barcode: Product barcode (should be unique or the same for different
+    versions)
     - category: Category of the product (e.g., Dairy, Snacks)
     - esg_score: ESG score for the product (optional)
     - co2_footprint: CO2 footprint for the product (optional)
@@ -210,12 +222,16 @@ def add_product(con, cur, user_id, product_name, weight_g, volume_l, barcode, ca
     try:
         cur.execute('''
         INSERT INTO product (
-            product_name, weight_g, volume_l, barcode, category, esg_score, co2_footprint, 
-            brand, sub_brand, parent_company, information_links, user_created, gluten_free
+            product_name, weight_g, volume_l, barcode, category, esg_score, 
+            co2_footprint, 
+            brand, sub_brand, parent_company, information_links, user_created, 
+            gluten_free
         ) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (product_name, weight_g, volume_l, barcode, category, esg_score, co2_footprint, 
-              brand, sub_brand, parent_company, information_links, user_id, gluten_free))
+        ''', (product_name, weight_g, volume_l, barcode, category, esg_score,
+              co2_footprint,
+              brand, sub_brand, parent_company, information_links, user_id,
+              gluten_free))
         
         # Commit the changes to the database
         con.commit()
@@ -228,13 +244,15 @@ def add_product(con, cur, user_id, product_name, weight_g, volume_l, barcode, ca
 
 def remove_latest_product_version(con, cur, user_id, barcode):
     """
-    Deletes the latest version of a product based on the barcode if the user is an admin.
+    Deletes the latest version of a product based on the barcode if the user is
+    an admin.
     
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
     - barcode: Barcode of the product
-    - user_id: ID of the user attempting to delete the product (must be an admin)
+    - user_id: ID of the user attempting to delete the product (must be an
+    admin)
     """
     
     # Check if the user is an admin
@@ -244,7 +262,8 @@ def remove_latest_product_version(con, cur, user_id, barcode):
     if user_role and user_role[0] == 'admin':
         # User is an admin, proceed with deletion
         try:
-            # Find the latest version of the product based on barcode and creation date
+            # Find the latest version of the product based on barcode and
+            # creation date
             cur.execute('''
             SELECT product_id FROM product
             WHERE barcode = ?
@@ -254,11 +273,14 @@ def remove_latest_product_version(con, cur, user_id, barcode):
             product_to_delete = cur.fetchone()
             
             if product_to_delete:
-                # Delete the product with the latest creation date for the given barcode
-                cur.execute('DELETE FROM product WHERE product_id = ?', (product_to_delete[0],))
+                # Delete the product with the latest creation date for the given
+                # barcode
+                cur.execute('DELETE FROM product WHERE product_id = ?',
+                            (product_to_delete[0],))
                 con.commit()
                 
-                print(f"Latest version of product with barcode {barcode} has been deleted.")
+                print(f"Latest version of product with barcode {barcode} "
+                      f"has been deleted.")
             else:
                 print(f"No product found with barcode {barcode}.")
         
@@ -271,7 +293,8 @@ def remove_latest_product_version(con, cur, user_id, barcode):
 
 def print_products(cur):
     """
-    Lists the latest versions of each product based on the barcode and creation_date.
+    Lists the latest versions of each product based on the barcode and
+    creation_date.
     
     Parameters:
     - cur: SQLite cursor object
@@ -327,14 +350,16 @@ def print_products(cur):
 
 
 
-def create_shop(con, cur, user_id, store_name, store_chain, location_address, location_gps):
+def create_shop(con, cur, user_id, store_name, store_chain, location_address,
+                location_gps):
     """
     Creates a new shop in the database. No shopkeepers are assigned initially.
     
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
-    - user_id: ID of user that created the shop (for now this is not used for anything)
+    - user_id: ID of user that created the shop (for now this is not used for
+    anything)
     - store_name: Name of the store (e.g., "K-Market Duo")
     - store_chain: The chain the store belongs to (optional, e.g., "K-Market")
     - location_address: The physical address of the shop
@@ -343,7 +368,8 @@ def create_shop(con, cur, user_id, store_name, store_chain, location_address, lo
     
     try:
         cur.execute('''
-        INSERT INTO shop (store_name, store_chain, location_address, location_gps)
+        INSERT INTO shop (store_name, store_chain, location_address, 
+        location_gps)
         VALUES (?, ?, ?, ?)
         ''', (store_name, store_chain, location_address, location_gps))
         
@@ -356,7 +382,8 @@ def create_shop(con, cur, user_id, store_name, store_chain, location_address, lo
 
 def add_shopkeeper_to_shop(con, cur, user_id, shop_id):
     """
-    Adds a shopkeeper to a shop. Only users with the 'shopkeeper' role can be added as shopkeepers.
+    Adds a shopkeeper to a shop. Only users with the 'shopkeeper' role can be
+    added as shopkeepers.
     
     Parameters:
     - con: SQLite connection object
@@ -378,12 +405,14 @@ def add_shopkeeper_to_shop(con, cur, user_id, shop_id):
             ''', (user_id, shop_id))
             
             con.commit()
-            print(f"User {user_id} has been added as a shopkeeper to shop {shop_id}.")
+            print(f"User {user_id} has been added as a shopkeeper to shop "
+                  f"{shop_id}.")
         
         except sqlite3.Error as e:
             print(f"Error: {e}")
     else:
-        print(f"User {user_id} is not a shopkeeper and cannot be added to a shop.")
+        print(f"User {user_id} is not a shopkeeper and cannot be added "
+              f"to a shop.")
 
 
 def remove_shopkeeper_from_shop(con, cur, user_id, shop_id):
@@ -398,20 +427,24 @@ def remove_shopkeeper_from_shop(con, cur, user_id, shop_id):
     """
     
     # Check if the user is a shopkeeper for this shop
-    cur.execute('SELECT * FROM works_for WHERE user_id = ? AND shop_id = ?', (user_id, shop_id))
+    cur.execute('SELECT * FROM works_for WHERE user_id = ? AND shop_id = ?',
+                (user_id, shop_id))
     shopkeeper_assignment = cur.fetchone()
     
     if shopkeeper_assignment:
         # Proceed with removing the shopkeeper from the shop
         try:
-            cur.execute('DELETE FROM works_for WHERE user_id = ? AND shop_id = ?', (user_id, shop_id))
+            cur.execute('DELETE FROM works_for WHERE user_id = ? AND '
+                        'shop_id = ?', (user_id, shop_id))
             con.commit()
-            print(f"User {user_id} has been removed as a shopkeeper from shop {shop_id}.")
+            print(f"User {user_id} has been removed as a shopkeeper "
+                  f"from shop {shop_id}.")
         
         except sqlite3.Error as e:
             print(f"Error: {e}")
     else:
-        print(f"User {user_id} is not currently assigned as a shopkeeper to shop {shop_id}.")
+        print(f"User {user_id} is not currently assigned as a shopkeeper "
+              f"to shop {shop_id}.")
 
 
 def print_shops(cur):
@@ -425,7 +458,8 @@ def print_shops(cur):
     try:
         # Query to get shop details
         cur.execute('''
-        SELECT s.shop_id, s.store_name, s.store_chain, s.location_address, s.location_gps
+        SELECT s.shop_id, s.store_name, s.store_chain, s.location_address, 
+        s.location_gps
         FROM shop s
         ORDER BY s.shop_id
         ''')
@@ -435,7 +469,8 @@ def print_shops(cur):
         if shops:
             print("All Shops and Assigned Shopkeepers:")
             for shop in shops:
-                shop_id, store_name, store_chain, location_address, location_gps = shop
+                (shop_id, store_name, store_chain, location_address,
+                 location_gps) = shop
                 
                 print(f"Shop ID: {shop_id}")
                 print(f"Store Name: {store_name}")
@@ -456,7 +491,8 @@ def print_shops(cur):
                 if shopkeepers:
                     print("Assigned Shopkeepers:")
                     for shopkeeper in shopkeepers:
-                        print(f"  - Shopkeeper ID: {shopkeeper[0]}, Username: {shopkeeper[1]}")
+                        print(f"  - Shopkeeper ID: {shopkeeper[0]}, "
+                              f"Username: {shopkeeper[1]}")
                 else:
                     print("  No shopkeepers assigned.")
                 
@@ -470,7 +506,9 @@ def print_shops(cur):
         
 
 
-def add_price(con, cur, user_id, product_id, shop_id, price, discount_price=None, waste_discount_percentage=None, valid_from_date=None, valid_to_date=None):
+def add_price(con, cur, user_id, product_id, shop_id, price,
+              discount_price=None, waste_discount_percentage=None,
+              valid_from_date=None, valid_to_date=None):
     """
     Adds a new price entry to the price table. Anyone can add prices.
     
@@ -482,20 +520,27 @@ def add_price(con, cur, user_id, product_id, shop_id, price, discount_price=None
     - shop_id: ID of the shop where the product is being sold
     - price: Price of the product
     - discount_price: Discounted price, if any (optional)
-    - waste_discount_percentage: Percentage discount due to waste reduction (optional)
-    - valid_from_date: The date when this price becomes valid (optional, default to now)
+    - waste_discount_percentage: Percentage discount due to waste reduction
+    (optional)
+    - valid_from_date: The date when this price becomes valid (optional,
+    default to now)
     - valid_to_date: The date when this price expires or changes (optional)
     """
     
     try:
         cur.execute('''
         INSERT INTO price (
-            product_id, shop_id, price, discount_price, waste_discount_percentage, valid_from_date, valid_to_date, user_created, report_date
+            product_id, shop_id, price, discount_price, 
+            waste_discount_percentage, valid_from_date, valid_to_date, 
+            user_created, report_date
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ''', (product_id, shop_id, price, discount_price, waste_discount_percentage, valid_from_date, valid_to_date, user_id))
+        ''', (product_id, shop_id, price, discount_price,
+              waste_discount_percentage, valid_from_date, valid_to_date,
+              user_id))
         
         con.commit()
-        print(f"Price for product {product_id} at shop {shop_id} added successfully.")
+        print(f"Price for product {product_id} at shop {shop_id} added "
+              f"successfully.")
     
     except sqlite3.Error as e:
         print(f"Error: {e}")
@@ -503,7 +548,8 @@ def add_price(con, cur, user_id, product_id, shop_id, price, discount_price=None
 
 def remove_price(con, cur, user_id, price_id, shop_id):
     """
-    Removes a price entry if the user is an admin or a shopkeeper of the shop where the price is listed.
+    Removes a price entry if the user is an admin or a shopkeeper of the shop
+    where the price is listed.
     
     Parameters:
     - con: SQLite connection object
@@ -529,7 +575,8 @@ def remove_price(con, cur, user_id, price_id, shop_id):
     
     else:
         # Check if the user is a shopkeeper for the given shop
-        cur.execute('SELECT * FROM works_for WHERE user_id = ? AND shop_id = ?', (user_id, shop_id))
+        cur.execute('SELECT * FROM works_for WHERE user_id = ? AND shop_id = ?',
+                    (user_id, shop_id))
         shopkeeper_assignment = cur.fetchone()
         
         if shopkeeper_assignment:
@@ -537,12 +584,14 @@ def remove_price(con, cur, user_id, price_id, shop_id):
             try:
                 cur.execute('DELETE FROM price WHERE price_id = ?', (price_id,))
                 con.commit()
-                print(f"Price with ID {price_id} has been removed by shopkeeper.")
+                print(f"Price with ID {price_id} has been removed"
+                      f" by shopkeeper.")
             
             except sqlite3.Error as e:
                 print(f"Error: {e}")
         else:
-            print("Permission denied. Only admins or shopkeepers of the shop can remove prices.")
+            print("Permission denied. Only admins or shopkeepers "
+                  "of the shop can remove prices.")
 
 
 def print_prices(cur):
@@ -572,11 +621,14 @@ def print_prices(cur):
             print("Latest Prices for Each Product at Each Shop:")
             for product in products:
                 product_id, product_name, barcode = product
-                print(f"Product ID: {product_id}, Barcode: {barcode}, Name: {product_name}")
+                print(f"Product ID: {product_id}, Barcode: {barcode}, Name: "
+                      f"{product_name}")
 
                 # Query to get the latest price per shop for this product
                 cur.execute('''
-                SELECT sp.price_id, sp.price, sp.discount_price, sp.waste_discount_percentage, sp.report_date, sp.valid_from_date, sp.valid_to_date, s.store_name
+                SELECT sp.price_id, sp.price, sp.discount_price, 
+                sp.waste_discount_percentage, sp.report_date, 
+                sp.valid_from_date, sp.valid_to_date, s.store_name
                 FROM price sp
                 JOIN shop s ON sp.shop_id = s.shop_id
                 WHERE sp.product_id = ?
@@ -621,7 +673,8 @@ def update_user_aura(con, cur):
     - +20 for updating an existing product
     - +10 for creating or updating the normal price of a product
     - +30 for creating or updating the discount price of a product
-    - +100 for creating or updating a waste_discount_percentage (if not the default 0%)
+    - +100 for creating or updating a waste_discount_percentage (if not the
+    default 0%)
     """
 
     try:
@@ -637,9 +690,11 @@ def update_user_aura(con, cur):
         new_product_creations = cur.fetchall()
 
         for user_id, aura_points in new_product_creations:
-            cur.execute('UPDATE user SET aura_points = aura_points + ? WHERE user_id = ?', (aura_points, user_id))
+            cur.execute('UPDATE user SET aura_points = aura_points + '
+                        '? WHERE user_id = ?', (aura_points, user_id))
 
-        # Calculate aura for updating existing products (+20 for updates to products)
+        # Calculate aura for updating existing products (+20 for updates to
+        # products)
         cur.execute('''
             SELECT user_created, COUNT(product_id) * 20
             FROM product
@@ -654,9 +709,11 @@ def update_user_aura(con, cur):
         product_updates = cur.fetchall()
 
         for user_id, aura_points in product_updates:
-            cur.execute('UPDATE user SET aura_points = aura_points + ? WHERE user_id = ?', (aura_points, user_id))
+            cur.execute('UPDATE user SET aura_points = aura_points + ? '
+                        'WHERE user_id = ?', (aura_points, user_id))
 
-        # Calculate aura for creating or updating the normal price of a product (+10)
+        # Calculate aura for creating or updating the normal price
+        # of a product (+10)
         cur.execute('''
             SELECT user_created, COUNT(price_id) * 10
             FROM price
@@ -666,7 +723,8 @@ def update_user_aura(con, cur):
         normal_price_updates = cur.fetchall()
 
         for user_id, aura_points in normal_price_updates:
-            cur.execute('UPDATE user SET aura_points = aura_points + ? WHERE user_id = ?', (aura_points, user_id))
+            cur.execute('UPDATE user SET aura_points = aura_points + ? '
+                        'WHERE user_id = ?', (aura_points, user_id))
 
         # Calculate aura for creating or updating the discount price (+30)
         cur.execute('''
@@ -678,9 +736,11 @@ def update_user_aura(con, cur):
         discount_price_updates = cur.fetchall()
 
         for user_id, aura_points in discount_price_updates:
-            cur.execute('UPDATE user SET aura_points = aura_points + ? WHERE user_id = ?', (aura_points, user_id))
+            cur.execute('UPDATE user SET aura_points = aura_points + ? '
+                        'WHERE user_id = ?', (aura_points, user_id))
 
-        # Calculate aura for creating or updating waste_discount_percentage (+100 if waste_discount_percentage is not 0%)
+        # Calculate aura for creating or updating waste_discount_percentage
+        # (+100 if waste_discount_percentage is not 0%)
         cur.execute('''
             SELECT user_created, COUNT(price_id) * 100
             FROM price
@@ -690,7 +750,8 @@ def update_user_aura(con, cur):
         waste_discount_updates = cur.fetchall()
 
         for user_id, aura_points in waste_discount_updates:
-            cur.execute('UPDATE user SET aura_points = aura_points + ? WHERE user_id = ?', (aura_points, user_id))
+            cur.execute('UPDATE user SET aura_points = aura_points + ? '
+                        'WHERE user_id = ?', (aura_points, user_id))
 
         # Commit the updates
         con.commit()
