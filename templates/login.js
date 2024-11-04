@@ -31,7 +31,17 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
 
 });
 
-
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById("userpassword");
+    const toggleButton = document.getElementById("togglePassword");
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text"; 
+        toggleButton.innerHTML = "&#128275;"; 
+    } else {
+        passwordInput.type = "password"; 
+        toggleButton.innerHTML = "&#128274;";
+    }
+}
 // Halutaanko zoomaus ominaisuus vai ei?
 // document.addEventListener('wheel', function(event) {
 //     if (event.ctrlKey) {

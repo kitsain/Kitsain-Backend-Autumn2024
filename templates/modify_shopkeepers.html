@@ -37,7 +37,6 @@
                 </select>
                 <button type="submit">Add</button>
             </form>
-
             <!-- Remove Shopkeeper Form -->
             <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST">
                 <input type="hidden" name="action" value="remove">
