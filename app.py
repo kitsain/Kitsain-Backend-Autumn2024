@@ -113,6 +113,23 @@ def login():
     
     return render_template('login.html')
 
+
+@app.route('/email', methods=['GET', 'POST'])
+def email():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        print(email)
+
+        emailagain = request.form.get('emailagain')
+        print(emailagain)
+
+        if email != emailagain:
+            print("The email fields are not equal")
+            return render_template("newPassword.html")
+
+    print("Hello world!")
+    return render_template("passwordSetConfirmation.html")
+
 @app.route('/forgot_password')
 def forgot_password():
     return render_template('newPassword.html')
