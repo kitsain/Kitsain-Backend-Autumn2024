@@ -8,7 +8,7 @@ import random
 from sqlalchemy import CheckConstraint
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Required for flashing messages
+app.secret_key = 'asdhfauisdhfuhi'  # Required for flashing messages
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_waste_new.db'  
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -118,13 +118,14 @@ def login():
 def email():
     if request.method == 'POST':
         email = request.form.get('email')
-        print(email)
+        # print(email)
 
         emailagain = request.form.get('emailagain')
-        print(emailagain)
+        # print(emailagain)
 
         if email != emailagain:
-            print("The email fields are not equal")
+            # print("The email fields are not equal")
+            flash("Error: The email fields were not equal", category="error")
             return render_template("newPassword.html")
 
     print("Hello world!")

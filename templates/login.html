@@ -25,9 +25,20 @@
                     <button type="button" id="togglePassword" onclick="togglePasswordVisibility()" class="reveal-button">&#128274;</button><br><br>
                     <a href="{{ url_for('forgot_password') }}">FORGOT PASSWORD?</a><br><br>
                     <p id="errorMessage" class="error">
-                      {% for message in get_flashed_messages(with_categories=False) %}
+                      <!-- {% for message in get_flashed_messages(with_categories=False) %}
                           {{ message }}<br>
-                      {% endfor %}
+                      {% endfor %} -->
+                      <!-- Muutettu tämä niin, että tarkistaa erikseen onko erroreita. Ei muuten toiminut newPassword-sivulla.
+                       - ehkuitti -->
+                      {% with messages = get_flashed_messages(with_categories=False) %}
+                        {% if messages %}
+                            <p id="errorMessage" class="error">
+                                {% for message in messages %}
+                                    {{ message }}<br>
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    {% endwith %}
                     </p>
                     <div class="line-container">
                         <div class="line"></div>
