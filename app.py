@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import CheckConstraint
 from datetime import datetime
@@ -47,10 +47,17 @@ def email():
         if email != emailagain:
             # print("The email fields are not equal")
             flash("Error: The email fields were not equal", category="error")
-            return render_template("newPassword.html")
-
-    print("Hello world!")
-    return render_template("passwordSetConfirmation.html")
+            session['email'] = email
+            session['emailagain'] = emailagain
+            return redirect(url_for('email'))
+        
+        session.pop('email', None)
+        session.pop('emailagain', None)
+        return render_template("passwordSetConfirmation.html")
+    
+    email = session.get('email', '')
+    emailagain = session.get('emailagain', '')
+    return render_template("newPassword.html", email=email, emailagain=emailagain)
 
 @app.route('/forgot_password')
 def forgot_password():
