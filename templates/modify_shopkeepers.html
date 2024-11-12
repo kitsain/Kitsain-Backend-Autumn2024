@@ -25,7 +25,7 @@
             <h3>Add or Remove Shopkeepers</h3>
 
             <!-- Add Shopkeeper Form -->
-            <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST">
+            <form action="{{ url_for('modify_shopkeepers_method', shop_id=shop.shop_id) }}" method="POST">
                 <input type="hidden" name="action" value="add">
                 <label for="add-user">Add Shopkeeper:</label>
                 <select name="user_id" required>
@@ -38,7 +38,7 @@
                 <button type="submit">Add</button>
             </form>
             <!-- Remove Shopkeeper Form -->
-            <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST">
+            <form action="{{ url_for('modify_shopkeepers_method', shop_id=shop.shop_id) }}" method="POST">
                 <input type="hidden" name="action" value="remove">
                 <label for="remove-user">Remove Shopkeeper:</label>
                 <select name="user_id" required>

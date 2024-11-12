@@ -1,4 +1,4 @@
-from flask import request, redirect, url_for, flash
+from flask import request, redirect, url_for, jsonify, render_template
 from models import db, Product, Shop, Price, User
 from datetime import datetime
 import random
@@ -61,3 +61,98 @@ def generate_unique_user_id():
         user_id = random.randint(1000, 999999)
         if not db.session.query(User).filter_by(user_id=user_id).first():
             return user_id
+
+def remove_product(product_id):
+    product_to_remove = Product.query.filter_by(product_id=product_id).first()
+
+    if product_to_remove:
+        try:
+            Price.query.filter_by(product_id=product_id).delete()
+
+            db.session.delete(product_to_remove)
+            db.session.commit()
+
+            print(f'Product "{product_to_remove.product_name}" has been removed successfully.', "product")
+        except Exception as e:
+            db.session.rollback()
+            print(f"An error occurred while trying to remove the product: {e}", "product")
+    else:
+        print("Product not found. It may have already been removed.", "product")
+
+    return redirect(url_for('products_page'))
+
+def update_product():
+    data = request.get_json()  # Get the JSON data from the request
+
+    # Extract data from the request
+    product_id = data.get('product_id')
+    product_name = data.get('product_name')
+    shop = data.get('shop')
+    price = data.get('price')
+    waste_discount = data.get('waste_discount')
+    expiration_date = data.get('expiration_date')
+
+    # Logic to update the product in your database
+    # Example: use SQLAlchemy to update the product record
+
+    success = update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date)
+
+    if success:
+        return jsonify({"message": "Succeeded to update product."}), 200
+    else:
+        return jsonify({"message": "Failed to update product."}), 500
+
+
+def update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date):
+    product = Product.query.get(product_id)
+    
+    if not product:
+        return False  # Product not found
+
+    # Update the product's attributes
+    product.product_name = product_name
+    product.shop = shop  
+    product.price = price
+    product.waste_discount_percentage = waste_discount
+    product.valid_to_date = expiration_date 
+    
+    try:
+        db.session.commit()  # Save changes to the database
+        return True  # Successfully updated
+    except Exception as e:
+        db.session.rollback()  # Rollback in case of error
+        print(f"Error updating product: {e}")
+        return False
+    
+def get_products():
+    try:
+        # Query all products along with their associated prices and shops using outer joins
+        products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
+        
+        # Prepare a list to hold the product data
+        products_list = []
+        for product in products:
+            prices_list = []
+            for price in product.prices:  # Assuming Product has a relationship with Price
+                prices_list.append({
+                    'price': price.price,
+                    'store_name': price.shop.store_name if price.shop else 'N/A',
+                    'waste_discount_percentage': price.waste_discount_percentage,
+                    'valid_to_date': price.valid_to_date if price.valid_to_date else 'N/A'
+                })
+            
+            products_list.append({
+                'product_id': product.product_id,
+                'product_name': product.product_name,
+                'prices': prices_list
+            })
+
+        # Print the products list (for debugging purposes)
+        print(products_list)
+        
+        # Render the products_page.html and pass the products_list to the template
+        return render_template('products_page.html', products=products_list)
+    
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+        return jsonify({'error': str(e)}), 500

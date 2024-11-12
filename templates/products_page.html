@@ -40,7 +40,7 @@
     <!-- Product Section -->
     <div class="product_container mt-6 text-center">
         <input type="text" class="form-control search-box ml-6" placeholder="Search for products...">
-        <form action="{{ url_for('filter_products') }}" method="POST" class="action-form">
+        <form action="{{ url_for('filter_products_method') }}" method="POST" class="action-form">
             <button type="submit" class="btn btn-primary ml-6" id="filterButton">Filter</button>
         </form>
     </div>
@@ -49,7 +49,7 @@
     <div id="filterProductModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>            
-            <form action="{{ url_for('filter_products') }}" method="POST" class="form">
+            <form action="{{ url_for('filter_products_method') }}" method="POST" class="form">
                 <div class="input-group">
                     <label for="product_name">Product Name:</label>
                     <input type="text" id="product_name" name="product_name" class="input-field" value="{{ product_name }}">

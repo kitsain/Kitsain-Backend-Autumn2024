@@ -51,7 +51,7 @@
             <span class="close">&times;</span>
             <h2 class="section-title">Filter Shops</h2>
             
-            <form action="{{ url_for('filter_shops') }}" method="POST" class="form">
+            <form action="{{ url_for('filter_shops_method') }}" method="POST" class="form">
                 <div class="input-group">
                     <label for="store_name">Store Name:</label>
                     <input type="text" id="store_name" name="store_name" class="input-field" value="{{ store_name }}">
@@ -85,7 +85,7 @@
             <span class="close">&times;</span>
             <h2 class="section-title">NOT FOUND! ADD NEW SHOP?</h2>
             
-            <form action="{{ url_for('add_shop') }}" method="POST" class="form">
+            <form action="{{ url_for('add_shop_method') }}" method="POST" class="form">
                 <div class="input-group">
                     <label for="product_name">Store Name:</label>
                     <input type="text" id="store_name" name="store_name" required class="input-field">
@@ -138,10 +138,10 @@
                 </div>
                 <div class="shop-column">{{ shop.creation_date.strftime('%d.%m.%Y') }}</div>
                 <div class="shop-column">
-                    <form action="{{ url_for('remove_shop', shop_id=shop.shop_id) }}" method="POST" class="action-form">
+                    <form action="{{ url_for('remove_shop_method', shop_id=shop.shop_id) }}" method="POST" class="action-form">
                         <button type="submit" class="btn-secondary">Delete</button>
                     </form>
-                    <form action="{{ url_for('modify_shopkeepers', shop_id=shop.shop_id) }}" method="POST" class="action-form">
+                    <form action="{{ url_for('modify_shopkeepers_method', shop_id=shop.shop_id) }}" method="POST" class="action-form">
                         <button type="submit" class="btn-secondary">Modify shopkeepers</button>
                     </form>
                 </div>
