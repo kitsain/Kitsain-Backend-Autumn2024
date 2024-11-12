@@ -149,6 +149,24 @@ def get_eco_score(barcode):
         print(f"Failed to fetch product data: {response.status_code}")
         return None
 
+def fetch_product_from_OFF(barcode):
+    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        product_data = response.json()
+        product = product_data.get('product', {})
+
+        product_name = product.get('product_name', 'Product name not found')
+        product_quantity = product.get('quantity', 'Quantity not found')
+        category = product.get('compared_to_category', 'Category not found')
+        esg_score = product.get('ecoscore_grade', 'Ecoscore Grade not found')
+        co2_footprint = product.get('ecoscore_data', {}).\
+            get('agribalyse', {}).get('co2_total', 'CO2 Footprint not found')
+
+
+        return product_name, product_quantity, category, esg_score, \
+               co2_footprint
 
 def get_gluten_free(barcode):
     """

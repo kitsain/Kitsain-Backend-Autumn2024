@@ -2,6 +2,9 @@ import format
 import sqlite3
 import math
 
+import get_data
+
+
 def create_database(con, cur):
     """
     Creates a database if it is not created already.
@@ -219,7 +222,11 @@ def add_product(con, cur, user_id, product_name, weight_g, volume_l,
     - information_links: Links to additional product information (optional)
     - gluten_free: Boolean indicating if the product is gluten-free
     """
-    
+
+    get_data.fetch_product_from_OFF(barcode)
+
+
+
     try:
         cur.execute('''
         INSERT INTO product (
