@@ -32,6 +32,7 @@ def adding(con, cur, user_id, list_of_barcodes=None):
             print(f"Barcode {barcode} already used! Choose another "
                   f"barcode.")
 
+        # NEEDS TO BE MODIFIED!!
         else:
             ecoscore_grade, ecoscore_score, name_en, keywords, status = \
                 get_data.get_eco_score(barcode)
