@@ -1,5 +1,6 @@
 import format
 import sqlite3
+import math
 
 def create_database(con, cur):
     """
@@ -760,4 +761,69 @@ def update_user_aura(con, cur):
     
     except sqlite3.Error as e:
         print(f"Error updating user aura points: {e}")
+
+
+
+
+
+
+def __haversine(lat1, lon1, lat2, lon2):
+    """
+    Calculate the Haversine distance between two sets of GPS coordinates.
+    """
+    R = 6371  # Radius of Earth in kilometers
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    return R * c  # Distance in kilometers
+
+def find_closest_shops(cur, user_lat, user_lon, n):
+    """
+    Finds the 'n' closest shops to a given GPS coordinate (user_lat, user_lon).
+    
+    Parameters:
+    - cur: SQLite cursor object
+    - user_lat: Latitude of the user's location, e.g. 61.4494483
+    - user_lon: Longitude of the user's location, e.g. 23.8559905
+    - n: Number of closest shops to find
+    
+    Returns:
+    - A list of tuples containing the shop ID and distance (in kilometers) for the 'n' closest shops.
+    """
+    try:
+        # Query to retrieve shop IDs and GPS coordinates
+        cur.execute('SELECT shop_id, location_gps FROM shop')
+        shops = cur.fetchall()
+        
+        # List to hold shops with calculated distances
+        shop_distances = []
+
+        for shop_id, location_gps in shops:
+            if location_gps:
+                try:
+                    # Parse the latitude and longitude from the shop's location_gps field
+                    shop_lat, shop_lon = map(float, location_gps.split(','))
+                    
+                    # Calculate the distance using the Haversine formula
+                    distance = __haversine(user_lat, user_lon, shop_lat, shop_lon)
+                    
+                    # Append the shop and its distance
+                    shop_distances.append((shop_id, distance))
+                
+                except ValueError:
+                    print(f"Invalid GPS format for shop_id {shop_id}: {location_gps}")
+        
+        # Sort shops by distance and select the closest 'n'
+        shop_distances.sort(key=lambda x: x[1])
+        closest_shops = shop_distances[:n]
+
+        return closest_shops
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return []
 
