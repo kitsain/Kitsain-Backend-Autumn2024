@@ -50,19 +50,19 @@
             </div>
         </div>
     </main>
-    <script src="{{ url_for('static', filename='login.js') }}"></script>
+    <!-- <script src="{{ url_for('static', filename='login.js') }}"></script> -->
     <script>
-        // function togglePasswordVisibility() {
-        //     const passwordInput = document.getElementById("userpassword");
-        //     const toggleButton = document.getElementById("togglePassword");
-        //     if (passwordInput.type === "password") {
-        //         passwordInput.type = "text"; 
-        //         toggleButton.innerHTML = "&#128275;"; 
-        //     } else {
-        //         passwordInput.type = "password"; 
-        //         toggleButton.innerHTML = "&#128274;";
-        //     }
-        // }
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("userpassword");
+            const toggleButton = document.getElementById("togglePassword");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text"; 
+                toggleButton.innerHTML = "&#128275;"; 
+            } else {
+                passwordInput.type = "password"; 
+                toggleButton.innerHTML = "&#128274;";
+            }
+        }
     </script>
 </body>
 </html>
