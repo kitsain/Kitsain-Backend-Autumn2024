@@ -5,6 +5,9 @@ import math
 import get_data
 
 
+import get_data
+
+
 def create_database(con, cur):
     """
     Creates a database if it is not created already.
