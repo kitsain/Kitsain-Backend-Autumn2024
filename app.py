@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import CheckConstraint
+from sqlalchemy import CheckConstraint, text
 from datetime import datetime
 from sqlalchemy import desc
 from flask import session
@@ -43,6 +43,22 @@ def email():
 
         emailagain = request.form.get('emailagain')
         # print(emailagain)
+
+        print("Email: ", email)
+
+        user = User.query.filter_by(email=email).first()
+
+        # result = db.session.execute(text("SELECT * FROM user WHERE email = :email"), {'email': email}).fetchone()
+        # print("Result: ", result)  # This should show the user if the email exists
+
+        if user: 
+            print("Käyttäjä löytyi!")
+            print(user)
+
+        if not user: 
+            print(user)
+            print(email)
+            print("Käyttäjää ei löytynyt")
 
         if email != emailagain:
             # print("The email fields are not equal")
