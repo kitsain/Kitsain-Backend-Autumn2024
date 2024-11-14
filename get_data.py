@@ -173,6 +173,9 @@ def fetch_product_from_OFF(barcode):
 
         gluten_free = get_gluten_free(product)
 
+        image = product.get('selected_images', {}).get('front', {}).get(
+            'display', {}).get('en', 'Image not found')
+
         return {
             'product_name': product_name,
             'product_quantity': product_quantity,
@@ -182,7 +185,8 @@ def fetch_product_from_OFF(barcode):
             'brand': brand,
             'information_links': information_links,
             'allergens': allergens,
-            'gluten_free': gluten_free
+            'gluten_free': gluten_free,
+            'image': image
         }
 
 
