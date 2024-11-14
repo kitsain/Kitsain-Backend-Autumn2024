@@ -221,6 +221,21 @@ p.ml-4 {
     background: #FFF8F0;
 }
 
+
+.search_results_container.mt-6.text-center{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 170px;
+    isolation: isolate;
+
+    width: auto;
+    height: auto;
+
+    background: #FFF8F0;
+}
+
 .store_container.mt-6.text-center {
     display: flex;
     flex-direction: row;
@@ -364,7 +379,7 @@ p.ml-4 {
 }
 
 
-.container, .l_product_container, .product_container, .store_container {
+.container, .l_product_container, .product_container, .store_container, .search_results_container {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1); 
 }
 

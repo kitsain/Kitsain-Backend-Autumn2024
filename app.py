@@ -4,7 +4,7 @@ from sqlalchemy import CheckConstraint, text
 from datetime import datetime
 from sqlalchemy import desc
 from flask import session
-from routes.products import add_product, remove_product, update_product, get_products
+from routes.products import add_product, remove_product, update_product, get_products, search_discount
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
@@ -113,7 +113,7 @@ def index():
     shops = Shop.query.all()
     users = User.query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
-    return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users)
+    return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users, results=None, query=None)
 
 @app.route('/')
 def login_page():
@@ -195,10 +195,10 @@ def filter_shops_method():
 def filter_products_method():
     return filter_products()
 
-@app.route('/seach_discounts')
-def search_discount():
-    #TODO
-    return render_template('index.html')
+@app.route('/search_discounts', methods=['GET', 'POST'])
+def search_discount_method():
+    return search_discount()
+
 
 if __name__ == '__main__':
     add_hardcoded_user()

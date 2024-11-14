@@ -156,3 +156,41 @@ def get_products():
     except Exception as e:
         print(f"Error occurred: {str(e)}")
         return jsonify({'error': str(e)}), 500
+    
+
+def search_discount():
+    query = request.args.get('query', '')  
+    products_with_shops = []
+    products = []
+
+    if query:
+        products = Product.query.filter(Product.product_name.ilike(f"%{query}%")).all()  
+
+        
+        for product in products:
+            shops = Shop.query.join(Price).filter(Price.product_id == product.product_id).all()
+            for shop in shops:
+                accuracy = calculate_accuracy(query, product.product_name)
+                products_with_shops.append({
+                    'product': product.product_name,
+                    'shop': shop.store_name,
+                    'accuracy': accuracy,
+                    'location': shop.location_address
+                })
+
+        products_with_shops.sort(key=lambda x: x['accuracy'], reverse=True)
+    else:
+        products = Product.query.all()
+        print(products)
+
+    return render_template('index.html', results=products, query=query)
+
+def calculate_accuracy(query, product_name):
+    query_lower = query.lower()
+    product_name_lower = product_name.lower()
+    
+    match_len = len([ch for ch in query_lower if ch in product_name_lower])
+    accuracy = match_len / len(query_lower) if query_lower else 0
+    
+    return accuracy
+

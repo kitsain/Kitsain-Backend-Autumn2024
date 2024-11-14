@@ -34,19 +34,43 @@
     <div class="container mt-5 text-center">
         <h1 class="ml-3">Welcome to Kitsain</h1>
         <p class="ml-4">Find discounted products near you</p>
-        <form action="{{ url_for('search_discount') }}" method="POST" class="action-form">
-            <input type="text" class="form-control" placeholder="Search for products...">
+        <form action="{{ url_for('search_discount_method') }}" method="GET" class="action-form">
+            <input type="text" class="form-control" name="query" placeholder="Search for products..." value="{{ request.args.get('query', '') }}">
             <button type="submit" class="search-button">Search</button>
         </form>
     </div>
 
-    <!-- view latest products container -->
-    <div class="l_product_container mt-6 text-center">
-        <h1 class="ml-6">Latest Updates</h1>
-        <p class="ml-7">View already added products or add a product yourself</p>
-        <!--product containter-->
-        {% include '_latest_product_container.html' %}
+    <!-- View Latest Updates container (if no search query) -->
+    {% if not request.args.get('query') %}
+        <div class="l_product_container mt-6 text-center">
+            <h1 class="ml-6">Latest Updates</h1>
+            <p class="ml-7">View already added products or add a product yourself</p>
+            <!--product container-->
+            {% include '_latest_product_container.html' %}
+        </div>
+    {% endif %}
+
+    {% if request.args.get('query') %}
+    <!-- Search results container with Remove Search button -->
+    <div class="search_results_container mt-6 text-center">
+        <button id="remove-search" class="remove-search-button">Remove Search</button>
+        {% include 'search_results.html' %}
     </div>
+    {% endif %}
+
+    <!--TODO-->
+    <!--<script>
+        document.getElementById('remove-search').addEventListener('click', function() {
+            // Clear the query input field
+            const queryInput = document.querySelector('input[name="query"]');
+            queryInput.value = '';
+            
+            // Submit the form with no query value (removes the search query)
+            const form = queryInput.closest('form');
+            form.submit();
+        });
+    </script>-->
+    
 
     <!-- view all products container -->
     <div class="product_container mt-6 text-center">

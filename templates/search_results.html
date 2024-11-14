@@ -1,0 +1,26 @@
+<div class="search-results-container">
+    {% if results %}
+        <h2>Found {{ results|length }} products matching your search.</h2>
+        <div class="products-container">
+            {% for result in results %}
+            {% for price in result.prices %}
+                <div class="product-box" data-product-id="{{ result.product_id }}">
+                    <div class="placeholder-image"></div>
+                    <div class="product_info">
+                    <h3 class="product-name">{{ result.product_name }}</h3>
+                    <div class="price-container">
+                        <p class="product-discount_price">{{ price.price }} €</p>
+                        <p class="product-price">{{ price.discount_price }} €</p>
+                    </div>
+                    <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
+                    <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
+                    <p class="product-expiration">{{ price.valid_to_date.strftime('%d.%m.%Y') if price.valid_to_date else 'N/A' }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No products found matching your search.</p>
+    {% endif %}
+</div>
