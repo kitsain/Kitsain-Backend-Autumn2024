@@ -9,6 +9,7 @@ from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 import random
+import sqlite3
 from models import db, Product, Shop, User, Price, WorksFor
 
 app = Flask(__name__)
@@ -46,18 +47,30 @@ def email():
 
         print("Email: ", email)
 
-        user = User.query.filter_by(email=email).first()
+        con = sqlite3.connect("food_waste_new.db")
+        cur = con.cursor()
+        cur.execute('SELECT * FROM user WHERE email = ?', (email,))
+        user = cur.fetchone()
+
+        # con = sqlite3.connect("food_waste_new.db")
+        # cur = con.cursor()
+
+        # id = cur.execute("SELECT * FROM user WHERE email='admin@email.com'")
+
+        # print("ID: ", id)
+
+        # user = User.query.filter_by(email=email).first()
 
         # result = db.session.execute(text("SELECT * FROM user WHERE email = :email"), {'email': email}).fetchone()
         # print("Result: ", result)  # This should show the user if the email exists
 
         if user: 
             print("Käyttäjä löytyi!")
-            print(user)
+            print("Käyttäjä: ", user)
 
         if not user: 
-            print(user)
-            print(email)
+            print("Käyttäjä: ", user)
+            print("Sähköposti: ", email)
             print("Käyttäjää ei löytynyt")
 
         if email != emailagain:
@@ -80,6 +93,30 @@ def forgot_password():
     return render_template('newPassword.html')
 
 # page rendering
+
+def add_hardcoded_user():
+    with app.app_context():
+        db.create_all()  # Ensures tables are created
+
+        # Create a hard-coded user
+        hardcoded_user = User(
+            username="hardcoded_user",
+            password="securepassword123",  # You should hash the password
+            email="user@example.com",
+            role="admin",
+            aura_points=100,
+        )
+
+        # Add the user to the session
+        db.session.add(hardcoded_user)
+
+        # Commit the changes to the database
+        try:
+            db.session.commit()
+            print("Hard-coded user added successfully.")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error adding hard-coded user: {e}")
 
 @app.route('/index')
 def index():
@@ -170,12 +207,11 @@ def filter_shops_method():
 def filter_products_method():
     return filter_products()
 
-
-
 @app.route('/seach_discounts')
 def search_discount():
     #TODO
     return render_template('index.html')
 
 if __name__ == '__main__':
+    add_hardcoded_user()
     app.run(debug=True)
