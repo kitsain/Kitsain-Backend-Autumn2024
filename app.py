@@ -68,8 +68,15 @@ def email():
             session['emailagain'] = emailagain
             return redirect(url_for('email'))
         
-        session.pop('email', None)
-        session.pop('emailagain', None)
+
+        password = "uudempi_salasana"
+
+        cur.execute('UPDATE user SET password = ? WHERE email = ?', (password, email))
+        con.commit()
+        con.close()
+
+        # session.pop('email', None)
+        # session.pop('emailagain', None)
         return render_template("passwordSetConfirmation.html")
     
     email = session.get('email', '')
