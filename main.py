@@ -68,7 +68,7 @@ def username_exists(cur, username):
 
 def main():
 
-    con = sqlite3.connect("food_waste_new.db")
+    con = sqlite3.connect("commerce_data.db")
     cur = con.cursor()
 
     handle_database.create_database(con, cur)

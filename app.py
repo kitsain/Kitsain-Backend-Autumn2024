@@ -14,7 +14,7 @@ from models import db, Product, Shop, User, Price, WorksFor
 
 app = Flask(__name__)
 app.secret_key = 'asdhfauisdhfuhi'  # Required for flashing messages
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_waste_new.db'  
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///commerce_data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -47,22 +47,10 @@ def email():
 
         print("Email: ", email)
 
-        con = sqlite3.connect("food_waste_new.db")
+        con = sqlite3.connect("commerce_data.db")
         cur = con.cursor()
         cur.execute('SELECT * FROM user WHERE email = ?', (email,))
         user = cur.fetchone()
-
-        # con = sqlite3.connect("food_waste_new.db")
-        # cur = con.cursor()
-
-        # id = cur.execute("SELECT * FROM user WHERE email='admin@email.com'")
-
-        # print("ID: ", id)
-
-        # user = User.query.filter_by(email=email).first()
-
-        # result = db.session.execute(text("SELECT * FROM user WHERE email = :email"), {'email': email}).fetchone()
-        # print("Result: ", result)  # This should show the user if the email exists
 
         if user: 
             print("Käyttäjä löytyi!")

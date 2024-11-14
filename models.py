@@ -4,7 +4,7 @@ from sqlalchemy import CheckConstraint
 
 app = Flask(__name__)
 app.secret_key = 'asdhfauisdhfuhi'  # Required for flashing messages
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_waste_new.db'  
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///commerce_data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy()
