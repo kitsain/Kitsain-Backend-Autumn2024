@@ -226,7 +226,7 @@ def add_product(con, cur, user_id, product_name, weight_g, volume_l,
     - gluten_free: Boolean indicating if the product is gluten-free
     """
 
-    get_data.fetch_product_from_OFF(barcode)
+    # get_data.fetch_product_from_OFF(barcode)
 
 
 
