@@ -1,12 +1,6 @@
-import format
+
 import sqlite3
 import math
-
-import get_data
-
-
-import get_data
-
 
 def create_database(con, cur):
     """
@@ -227,8 +221,6 @@ def add_product(con, cur, user_id, product_name, weight_g, volume_l,
     """
 
     # get_data.fetch_product_from_OFF(barcode)
-
-
 
     try:
         cur.execute('''
