@@ -26,10 +26,9 @@ def main():
                 password = input("Enter new password: ")
                 email = input("Enter your email: ")
                 role = input("Enter role ['user', 'shopkeeper', 'admin']: ")
-                
-                if handle_database.add_user(con, cur, username, password, email,
-                                            role):
-                    print(f"User '{username}' added successfully!\nPlease login with your username and password.")
+
+                if handle_database.add_user(con, cur, username, password, email, role):
+                    print(f"User '{username}' added successfully!\nPlease log in with your username and password.")
                 else:
                     print("Failed to add new user. Please try again later.")
         

@@ -2,6 +2,7 @@
 from datetime import datetime
 import sqlite3
 import math
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def create_database(con, cur):
     """
@@ -98,31 +99,19 @@ def create_database(con, cur):
 
 def add_user(con, cur, username, password, email, role):
     """
-    Adds a new user to the user table. 
-    
-    Parameters:
-    - con: SQLite connection object
-    - cur: SQLite cursor object
-    - username: Username of the new user
-    - password: Password for the user (should be hashed in practice)
-    - email: Email address of the user
-    - role: Role of the user ('user', 'shopkeeper', or 'admin')
+    Adds a new user to the user table with hashed password.
     """
-    
     try:
+        hashed_password = generate_password_hash(password)
         cur.execute('''
         INSERT INTO user (username, password, email, role, creation_date)
         VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ''', (username, password, email, role))
-        
+        ''', (username, hashed_password, email, role))
         con.commit()
         print(f"User '{username}' with role '{role}' added successfully.")
-        
         return True
-    
     except sqlite3.Error as e:
         print(f"Error adding user: {e}")
-        
         return False
 
 
@@ -160,46 +149,28 @@ def remove_user(con, cur, user_id, requester_id):
 
 def authenticate_user(cur, username, password):
     """
-    Authenticates a user based on the provided username and password.
-    
-    Parameters:
-    - cur: SQLite cursor object
-    - username: The username provided by the user
-    - password: The password provided by the user (in plain text)
-    
-    Returns:
-    - user_id if authentication is successful
-    - -1 if the username is not found
-    - -2 if the password is incorrect
+    Authenticates a user by comparing the provided password with the hashed password in the database.
     """
-    
     try:
-        # Check if the username exists in the database
-        cur.execute('SELECT user_id, password FROM user WHERE username = ?',
-                    (username,))
+        cur.execute('SELECT user_id, password FROM user WHERE username = ?', (username,))
         result = cur.fetchone()
-        
         if result:
             user_id, stored_password = result
-            # Compare the provided password with the stored password
-            if password == stored_password:
+            if check_password_hash(stored_password, password):
                 # Update last login:
                 cur.execute('''
-                        UPDATE user
-                        SET last_login = CURRENT_TIMESTAMP
-                        WHERE user_id = ?
-                    ''', (user_id,))
-        
+                    UPDATE user
+                    SET last_login = CURRENT_TIMESTAMP
+                    WHERE user_id = ?
+                ''', (user_id,))
                 return user_id  # Successful authentication
             else:
                 return -2  # Incorrect password
         else:
             return -1  # Username not found
-
     except sqlite3.Error as e:
         print(f"Database error: {e}")
-        return -1  # In case of any database error, return -1 (as if user not
-        # found)
+        return -1
 
 
 def username_exists(cur, username):
@@ -984,4 +955,3 @@ def find_closest_shops(cur, user_lat, user_lon, n):
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         return []
-
