@@ -33,13 +33,16 @@ def add_product():
         db.session.add(new_product)
         db.session.commit()
 
-        valid_to_date = datetime.strptime(expiration_date, '%Y-%m-%d') if expiration_date else None
+        # valid_to_date = datetime.strptime(expiration_date, '%Y-%m-%d') if expiration_date else None
+
+        discount_valid_to = datetime.strptime(expiration_date, '%Y-%m-%d') if expiration_date else None
+
         new_price = Price(
             product_id=new_product.product_id,
             shop_id=existing_shop.shop_id,
             price=float(price),
             discount_price=float(discount_price),
-            valid_to_date=valid_to_date,
+            discount_valid_to=discount_valid_to,
             waste_discount_percentage=float(waste_discount) if waste_discount else None,
             user_created=user_id
         )
@@ -47,9 +50,9 @@ def add_product():
         db.session.add(new_price)
         db.session.commit()
 
-        print(f"Product \"{product_name}\" added successfully to \"{shop}\".", "product")
+        print(f"Product \"{product_name}\" added successfully to \"{shop}\".")
     except ValueError:
-        print("Please provide valid data. Ensure the price and waste discount are numbers.", "product")
+        print("Please provide valid data. Ensure the price and waste discount are numbers.")
     except Exception as e:
         db.session.rollback()  # Rollback any changes if there's an error
         print(f"Database error: {e}", "product")

@@ -8,9 +8,8 @@ from routes.products import add_product, remove_product, update_product, get_pro
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
-import random
 import sqlite3
-from models import db, Product, Shop, User, Price, WorksFor
+from models import db, Product, Shop, User, Price
 
 import database_functions as dbf
 
@@ -23,9 +22,9 @@ db.init_app(app)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # db.drop_all()
-    # db.create_all()
-    # dbf.add_user("admin", "admin", "admin@email.com", "admin")
+    db.drop_all()
+    db.create_all()
+    dbf.add_user("admin", "admin", "admin@email.com", "admin")
     
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username
@@ -88,8 +87,6 @@ def email():
 def forgot_password():
     return render_template('newPassword.html')
 
-# page rendering
-
 def add_hardcoded_user():
     with app.app_context():
         db.create_all()  # Ensures tables are created
@@ -113,6 +110,8 @@ def add_hardcoded_user():
         except Exception as e:
             db.session.rollback()
             print(f"Error adding hard-coded user: {e}")
+
+# page rendering
 
 @app.route('/index')
 def index():
@@ -170,7 +169,7 @@ def add_product_method():
     # Check access rights
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
-    
+        
     return add_product()
 
 @app.route('/remove_product/<int:product_id>', methods=['POST'])

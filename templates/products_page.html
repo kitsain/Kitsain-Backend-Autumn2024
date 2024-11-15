@@ -141,7 +141,7 @@
                         </div>
                         <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
                         <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
-                        <p class="product-expiration">{{ price.valid_to_date.strftime('%d.%m.%Y') if price.valid_to_date else 'N/A' }}</p>
+                        <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
                         </div>
                         <div class="product_buttons">
                             <button type="submit" class="btn-primary-edit" id="EditButton">Edit</button>
