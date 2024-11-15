@@ -25,7 +25,7 @@ db.init_app(app)
 def login():
     # db.drop_all()
     # db.create_all()
-    # datf.add_user("admin", "admin", "admin@email.com", "admin")
+    # dbf.add_user("admin", "admin", "admin@email.com", "admin")
     
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username

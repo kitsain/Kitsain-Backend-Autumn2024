@@ -22,11 +22,6 @@ class User(db.Model):
     last_login = db.Column(db.DateTime, default=db.func.current_timestamp())
     creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-    # # Relationships
-    # shops_managed = relationship('WorksFor', back_populates='user')
-    # products_created = relationship('Product', back_populates='creator')
-    # prices_reported = relationship('Price', back_populates='reporter')
-
     # Constraint on role
     __table_args__ = (
         CheckConstraint("role IN ('user', 'shopkeeper', 'admin')", name="valid_role"),
@@ -41,10 +36,9 @@ class Shop(db.Model):
     store_chain = db.Column(db.String)
     location_address = db.Column(db.String)
     location_gps = db.Column(db.String)
+    user_created = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-    # # Relationships
-    # shopkeepers = relationship('WorksFor', back_populates='shop')
-    # prices = relationship('Price', back_populates='shop')
     # Relationships
     prices = db.relationship('Price', backref='shop', lazy=True)
 
@@ -79,9 +73,6 @@ class Product(db.Model):
     user_created = db.Column(db.Integer, ForeignKey('user.user_id'))
     creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-    # # Relationships
-    # creator = relationship('User', back_populates='products_created')
-    # prices = relationship('Price', back_populates='product')
     # Relationships
     creator = db.relationship('User', backref='product', lazy=True)
     prices = db.relationship('Price', backref='product', lazy=True)
@@ -113,8 +104,3 @@ class Price(db.Model):
     __table_args__ = (
         CheckConstraint("waste_quantity IN ('few', 'some', 'many')", name="valid_waste_quantity"),
     )
-
-    # # Relationships
-    # product = relationship('Product', back_populates='prices')
-    # shop = relationship('Shop', back_populates='prices')
-    # reporter = relationship('User', back_populates='prices_reported')
