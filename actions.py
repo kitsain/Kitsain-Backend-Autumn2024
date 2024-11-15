@@ -19,8 +19,7 @@ def print_help():
         - Add a product to the product table.
     rp [barcode]
         - Remove the latest version of a product by barcode (admin only).
-    ac [product_id] [shop_id] [price] [discount_price] 
-    [waste_discount_percentage] [valid_from_date] [valid_to_date]
+    ac [product_id] [shop_id] [price] [discount_price] [waste_discount_percentage] [discount_valid_from] [discount_valid_to] [waste_valid_to] [waste_quantity]
         - Add a price entry.
     rc [price_id] [shop_id]
         - Remove a price entry by price_id (admin or shopkeeper).
@@ -77,7 +76,7 @@ def user_actions(con, cur, user_id):
                     print("Error: 'rp' requires 1 argument.")
             
             elif command == "ac":
-                if len(args) == 7:
+                if len(args) == 9:
                     handle_database.add_price(con, cur, user_id, *args)
                 else:
                     print("Error: 'ac' requires 7 arguments.")

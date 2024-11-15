@@ -1,4 +1,5 @@
 
+from datetime import datetime
 import sqlite3
 import math
 
@@ -16,7 +17,7 @@ def create_database(con, cur):
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,                          -- Unique identifier for each user
         username TEXT NOT NULL UNIQUE,                                      -- Username for the user, must be unique
         password TEXT NOT NULL,                                             -- Password for the user's account
-        email TEXT,                                                         -- User's email address (optional)
+        email TEXT NOT NULL UNIQUE,                                         -- User's email address (optional)
         role TEXT CHECK(role IN ('user', 'shopkeeper', 'admin')) NOT NULL,  -- Role of the user (user, shopkeeper, admin)
         aura_points INTEGER DEFAULT 0,                                      -- Points representing the user's contributions or reputation
         last_login DATETIME,                                                -- Timestamp of the user's last login
@@ -74,9 +75,11 @@ def create_database(con, cur):
         price REAL NOT NULL,                                        -- Price of the product at the shop
         discount_price REAL,                                        -- Discounted price, if any (optional)
         waste_discount_percentage REAL,                             -- Percentage discount due to expiration or waste reduction
+        waste_quantity TEXT CHECK(waste_quantity IN ('few', 'some', 'many')), -- Approximate number of waste products
         report_date DATETIME DEFAULT CURRENT_TIMESTAMP,             -- When this price entry was reported/created
-        valid_from_date DATETIME,                                   -- When this price becomes valid
-        valid_to_date DATETIME,                                     -- When this price expires or changes (null for current prices)
+        discount_valid_from DATETIME,                               -- When discount price becomes valid
+        discount_valid_to DATETIME,                                 -- When discount price expires
+        waste_valid_to DATETIME,                                    -- When waste discount expires (Valid from report_date)
         user_created INTEGER,                                       -- The user who defined or reported this price
         FOREIGN KEY (product_id) REFERENCES product(product_id),    -- Links to the 'product' table
         FOREIGN KEY (shop_id) REFERENCES shop(shop_id),             -- Links to the 'shop' table
@@ -154,6 +157,76 @@ def remove_user(con, cur, user_id, requester_id):
         print("Permission denied. Only admins or the user themselves can "
               "remove this user.")
 
+
+def authenticate_user(cur, username, password):
+    """
+    Authenticates a user based on the provided username and password.
+    
+    Parameters:
+    - cur: SQLite cursor object
+    - username: The username provided by the user
+    - password: The password provided by the user (in plain text)
+    
+    Returns:
+    - user_id if authentication is successful
+    - -1 if the username is not found
+    - -2 if the password is incorrect
+    """
+    
+    try:
+        # Check if the username exists in the database
+        cur.execute('SELECT user_id, password FROM user WHERE username = ?',
+                    (username,))
+        result = cur.fetchone()
+        
+        if result:
+            user_id, stored_password = result
+            # Compare the provided password with the stored password
+            if password == stored_password:
+                # Update last login:
+                cur.execute('''
+                        UPDATE user
+                        SET last_login = CURRENT_TIMESTAMP
+                        WHERE user_id = ?
+                    ''', (user_id,))
+        
+                return user_id  # Successful authentication
+            else:
+                return -2  # Incorrect password
+        else:
+            return -1  # Username not found
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return -1  # In case of any database error, return -1 (as if user not
+        # found)
+
+
+def username_exists(cur, username):
+    """
+    Checks if a username already exists in the user table.
+    
+    Parameters:
+    - cur: SQLite cursor object
+    - username: The username to check
+    
+    Returns:
+    - True if the username exists
+    - False if the username does not exist
+    """
+    
+    try:
+        # Query the user table to check if the username exists
+        cur.execute('SELECT 1 FROM user WHERE username = ?', (username,))
+        result = cur.fetchone()
+        
+        # Return True if a row was found, False otherwise
+        return result is not None
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return False
+    
 
 def print_users(cur):
     """
@@ -509,44 +582,49 @@ def print_shops(cur):
         
 
 
-def add_price(con, cur, user_id, product_id, shop_id, price,
-              discount_price=None, waste_discount_percentage=None,
-              valid_from_date=None, valid_to_date=None):
+def add_price(con, cur, user_id, product_id, shop_id, price, discount_price=None, waste_discount_percentage=None, 
+              discount_valid_from=None, discount_valid_to=None, waste_valid_to=None, waste_quantity=None):
     """
-    Adds a new price entry to the price table. Anyone can add prices.
-    
+    Adds a new price entry to the price table.
+
     Parameters:
     - con: SQLite connection object
     - cur: SQLite cursor object
     - user_id: ID of the user creating the price entry
     - product_id: ID of the product being priced
     - shop_id: ID of the shop where the product is being sold
-    - price: Price of the product
-    - discount_price: Discounted price, if any (optional)
-    - waste_discount_percentage: Percentage discount due to waste reduction
-    (optional)
-    - valid_from_date: The date when this price becomes valid (optional,
-    default to now)
-    - valid_to_date: The date when this price expires or changes (optional)
+    - price: Base price of the product
+    - discount_price: Discounted campaign price, if any (optional)
+    - waste_discount_percentage: Percentage discount for waste reduction, if any (optional)
+    - discount_valid_from: The date when the campaign discount becomes valid (optional)
+    - discount_valid_to: The date when the campaign discount expires (optional)
+    - waste_valid_to: The date when the waste discount expires (optional)
+    - waste_quantity: Approximate quantity of waste products available ("few", "some", "many")
     """
-    
+
+    # Ensure waste_quantity value is one of the allowed options
+    if waste_quantity not in (None, 'few', 'some', 'many'):
+        print("Error: waste_quantity must be 'few', 'some', or 'many'.")
+        return
+
     try:
+        # Insert the new price entry
         cur.execute('''
-        INSERT INTO price (
-            product_id, shop_id, price, discount_price, 
-            waste_discount_percentage, valid_from_date, valid_to_date, 
-            user_created, report_date
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ''', (product_id, shop_id, price, discount_price,
-              waste_discount_percentage, valid_from_date, valid_to_date,
-              user_id))
+            INSERT INTO price (
+                product_id, shop_id, price, discount_price, waste_discount_percentage, report_date,
+                discount_valid_from, discount_valid_to, waste_valid_to, waste_quantity, user_created
+            )
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?)
+        ''', (product_id, shop_id, price, discount_price, waste_discount_percentage, 
+              discount_valid_from, discount_valid_to, waste_valid_to, waste_quantity, user_id))
         
+        # Commit the transaction
         con.commit()
-        print(f"Price for product {product_id} at shop {shop_id} added "
-              f"successfully.")
+        print(f"Price for product {product_id} at shop {shop_id} added successfully.")
     
     except sqlite3.Error as e:
         print(f"Error: {e}")
+
 
 
 def remove_price(con, cur, user_id, price_id, shop_id):
@@ -597,75 +675,153 @@ def remove_price(con, cur, user_id, price_id, shop_id):
                   "of the shop can remove prices.")
 
 
-def print_prices(cur):
+def get_current_price(cur, product_id, shop_id):
     """
-    Prints each product with its latest price at each shop.
-    
+    Retrieves the current base price and effective discount price for a given product and shop.
+
     Parameters:
     - cur: SQLite cursor object
-    """
-    
-    try:
-        # Query to get all products
-        cur.execute('''
-        SELECT product_id, product_name, barcode
-        FROM product
-        WHERE (barcode, creation_date) IN (
-            SELECT barcode, MAX(creation_date)
-            FROM product
-            GROUP BY barcode
-        )
-        ORDER BY product_id
-        ''')
-        
-        products = cur.fetchall()
-        
-        if products:
-            print("Latest Prices for Each Product at Each Shop:")
-            for product in products:
-                product_id, product_name, barcode = product
-                print(f"Product ID: {product_id}, Barcode: {barcode}, Name: "
-                      f"{product_name}")
+    - product_id: ID of the product
+    - shop_id: ID of the shop where the product is sold
 
-                # Query to get the latest price per shop for this product
-                cur.execute('''
-                SELECT sp.price_id, sp.price, sp.discount_price, 
-                sp.waste_discount_percentage, sp.report_date, 
-                sp.valid_from_date, sp.valid_to_date, s.store_name
-                FROM price sp
-                JOIN shop s ON sp.shop_id = s.shop_id
-                WHERE sp.product_id = ?
-                AND (sp.shop_id, sp.report_date) IN (
-                    SELECT shop_id, MAX(report_date)
-                    FROM price
-                    WHERE product_id = ?
-                    GROUP BY shop_id
-                )
-                ORDER BY s.store_name
-                ''', (product_id, product_id))
-                
-                prices = cur.fetchall()
-                
-                if prices:
-                    print("  Latest Prices per Shop:")
-                    for price in prices:
-                        print(f"    - Shop: {price[7]}")
-                        print(f"      Price ID: {price[0]}")
-                        print(f"      Regular Price: {price[1]}")
-                        print(f"      Discount Price: {price[2]}")
-                        print(f"      Waste Discount (%): {price[3]}")
-                        print(f"      Report Date: {price[4]}")
-                        print(f"      Valid From: {price[5]}")
-                        print(f"      Valid To: {price[6]}")
-                else:
-                    print("  No prices available for this product.")
-                
-                print("-" * 40)
-        else:
-            print("No products found in the database.")
+    Returns:
+    - A tuple (base_price, effective_discount_price) where:
+        - base_price is the regular price of the product at the shop
+        - effective_discount_price is the discount price (if active), potentially combining
+          campaign and waste discounts. Returns None if no discount is active.
+    """
+    # Retrieve the latest base price for the product at the shop
+    cur.execute('''
+    SELECT price
+    FROM price
+    WHERE product_id = ? AND shop_id = ?
+    ORDER BY report_date DESC
+    LIMIT 1
+    ''', (product_id, shop_id))
     
-    except sqlite3.Error as e:
-        print(f"Error fetching prices: {e}")
+    base_price = cur.fetchone()
+    if not base_price:
+        print("No base price found for the given product and shop.")
+        return None, None
+
+    base_price = base_price[0]
+    effective_discount_price = None
+
+    # Get current timestamp
+    current_time = datetime.now()
+
+    # Retrieve active campaign discount price, if available
+    cur.execute('''
+    SELECT discount_price
+    FROM price
+    WHERE product_id = ? AND shop_id = ?
+      AND discount_price IS NOT NULL
+      AND discount_valid_from <= ?
+      AND discount_valid_to > ?
+    ORDER BY report_date DESC
+    LIMIT 1
+    ''', (product_id, shop_id, current_time, current_time))
+    
+    campaign_discount_price = cur.fetchone()
+    if campaign_discount_price:
+        effective_discount_price = campaign_discount_price[0]
+    else:
+        effective_discount_price = base_price
+
+    # Retrieve active waste discount percentage, if available
+    cur.execute('''
+    SELECT waste_discount_percentage
+    FROM price
+    WHERE product_id = ? AND shop_id = ?
+      AND waste_discount_percentage IS NOT NULL
+      AND waste_valid_to > ?
+    ORDER BY report_date DESC
+    LIMIT 1
+    ''', (product_id, shop_id, current_time))
+    
+    waste_discount_percentage = cur.fetchone()
+
+    # Apply waste discount to the effective discount price if applicable
+    if waste_discount_percentage:
+        waste_discount_percentage = waste_discount_percentage[0]
+        effective_discount_price *= (1 - waste_discount_percentage / 100)
+
+    # Return the base price and the effective discount price
+    return base_price, effective_discount_price
+
+
+def print_prices(cur):
+    """
+    Prints each product and its latest price information at each shop.
+    Displays:
+      - Product ID, barcode, brand, and name
+      - For each shop with a price: shop ID, shop name, and latest price details
+    """
+
+    # Query to get all products with their details
+    cur.execute('''
+    SELECT product_id, barcode, brand, product_name
+    FROM product
+    ORDER BY product_id
+    ''')
+
+    products = cur.fetchall()
+
+    if not products:
+        print("No products found in the database.")
+        return
+
+    print("Products and Latest Prices at Each Shop:")
+
+    # Loop through each product
+    for product in products:
+        product_id, barcode, brand, product_name = product
+        print(f"Product ID: {product_id}, Barcode: {barcode}, Brand: {brand}, Name: {product_name}")
+
+        # Query to get shops with price information for this product
+        cur.execute('''
+        SELECT 
+            p.shop_id, 
+            s.store_name, 
+            p.price, 
+            p.discount_price, 
+            p.waste_discount_percentage, 
+            p.report_date, 
+            p.discount_valid_from, 
+            p.discount_valid_to, 
+            p.waste_valid_to
+        FROM price p
+        JOIN shop s ON p.shop_id = s.shop_id
+        WHERE p.product_id = ?
+        ORDER BY p.report_date DESC
+        ''', (product_id,))
+
+        prices = cur.fetchall()
+
+        if not prices:
+            print("  No price information available for this product.")
+        else:
+            # Loop through each shop price entry
+            for price in prices:
+                shop_id, store_name, base_price, discount_price, waste_discount_percentage, report_date, discount_valid_from, discount_valid_to, waste_valid_to = price
+                
+                print(f"  Shop ID: {shop_id}, Shop Name: {store_name}")
+                print(f"    Base Price: {base_price}")
+                if discount_price is not None:
+                    print(f"    Discount Price: {discount_price} (Valid from {discount_valid_from} to {discount_valid_to})")
+                else:
+                    print("    Discount Price: None")
+                
+                if waste_discount_percentage is not None:
+                    print(f"    Waste Discount Percentage: {waste_discount_percentage}% (Valid until {waste_valid_to})")
+                else:
+                    print("    Waste Discount Percentage: None")
+                
+                print(f"    Report Date: {report_date}")
+                print("-" * 40)  # Separator for readability
+
+    print("End of product price listing.")
+
 
 
 

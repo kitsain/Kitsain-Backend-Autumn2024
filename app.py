@@ -12,6 +12,8 @@ import random
 import sqlite3
 from models import db, Product, Shop, User, Price, WorksFor
 
+import database_functions as dbf
+
 app = Flask(__name__)
 app.secret_key = 'asdhfauisdhfuhi'  # Required for flashing messages
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///commerce_data.db'
@@ -19,19 +21,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # db.drop_all()
+    # db.create_all()
+    # datf.add_user("admin", "admin", "admin@email.com", "admin")
+    
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username
         password = request.form.get('password')  # Gets the password
         
-        # Check if username and password match "admin"
-        if username == "admin" and password == "admin":
-            session['user_id'] = 1  # Example user ID for admin
+        if dbf.authenticate_user(username, password):
             return redirect(url_for('index'))
-        else:
-            flash("Invalid username or password. Please try again.", "error")
     
     return render_template('login.html')
 
@@ -115,6 +116,10 @@ def add_hardcoded_user():
 
 @app.route('/index')
 def index():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     # Retrieve the five latest products, assuming Product has a 'created_at' or 'added_date' field
     products = (Product).query.order_by(desc(Product. creation_date)).limit(2).all()
     shops = Shop.query.all()
@@ -128,17 +133,29 @@ def login_page():
 
 @app.route('/products_page')
 def products_page():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
     return render_template('products_page.html', products=products)
 
 @app.route('/shops_page')
 def shops_page():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     shops = (Shop).query.all() 
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
     return render_template('shops_page.html', shops = shops, shopkeepers_data=shopkeepers_data)
 
 @app.route('/users_page')
 def users_page():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     users = (User).query.all()
     shops = (Shop).query.all()  
     products = (Product).query.all()
@@ -150,28 +167,52 @@ def users_page():
 
 @app.route('/add_product', methods=['POST'])
 def add_product_method():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     return add_product()
 
 @app.route('/remove_product/<int:product_id>', methods=['POST'])
 def remove_product_method(product_id):
+    # Check access rights
+    if dbf.confirm_access() != "admin":
+        return redirect(url_for('login'))
+    
     return remove_product(product_id)
 
 @app.route('/update_product', methods=['POST'])
 def update_product_method():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     return update_product()
 
 @app.route('/get_products', methods=['GET'])
 def get_products_method():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     return get_products()
 
 # routes.shops
 
 @app.route('/add_shop', methods=['POST'])
 def add_shop_method():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     return add_shop()
 
 @app.route('/remove_shop/<int:shop_id>', methods=['POST'])
 def remove_shop_method(shop_id):
+    # Check access rights
+    if dbf.confirm_access() != "admin":
+        return redirect(url_for('login'))
+    
     return remove_shop(shop_id)
 
 # routes.users
@@ -182,31 +223,55 @@ def add_user_method():
 
 @app.route('/modify_users/<int:user_id>', methods=['GET', 'POST'])
 def modify_user_method(user_id):
+    # Check access rights
+    if dbf.confirm_access() != "admin":
+        return redirect(url_for('login'))
+    
     return modify_user(user_id)
 
 @app.route('/remove_user/<int:user_id>', methods=['GET', 'POST'])
 def remove_user_method(user_id):
+    # Check access rights
+    if dbf.confirm_access() != "admin":
+        return redirect(url_for('login'))
+    
     return remove_user(user_id)
 
 @app.route('/modify_shopkeepers/<int:shop_id>', methods=['GET', 'POST'])
 def modify_shopkeepers_method(shop_id):
+    # Check access rights
+    if dbf.confirm_access() != "admin":
+        return redirect(url_for('login'))
+    
     return modify_shopkeepers(shop_id)
 
 # routes.filtering
 
 @app.route('/filter_shops', methods=['GET', 'POST'])
 def filter_shops_method():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     return filter_shops
 
 @app.route('/filter_products', methods=['GET', 'POST'])
 def filter_products_method():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     return filter_products()
 
 @app.route('/search_discounts', methods=['GET', 'POST'])
 def search_discount_method():
+    # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+    
     return search_discount()
 
 
 if __name__ == '__main__':
     add_hardcoded_user()
-    app.run(debug=True)
+    app.run(debug=False)
