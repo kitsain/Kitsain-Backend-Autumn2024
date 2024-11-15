@@ -53,25 +53,30 @@
     {% if request.args.get('query') %}
     <!-- Search results container with Remove Search button -->
     <div class="search_results_container mt-6 text-center">
+        <div class="result_elements">
+        <p class="ml-6 results">Found {{ results|length }} products matching your search</p>
         <button id="remove-search" class="remove-search-button">Remove Search</button>
+        </div>
         {% include 'search_results.html' %}
     </div>
     {% endif %}
 
-    <!--TODO-->
-    <!--<script>
-        document.getElementById('remove-search').addEventListener('click', function() {
-            // Clear the query input field
-            const queryInput = document.querySelector('input[name="query"]');
-            queryInput.value = '';
-            
-            // Submit the form with no query value (removes the search query)
-            const form = queryInput.closest('form');
-            form.submit();
-        });
-    </script>-->
+    <script>
+        // Function to handle the "Remove Search" button click
+        document.getElementById("remove-search")?.addEventListener("click", function(event) {
+            // Prevent form submission
+            event.preventDefault();
     
+            // Clear the search input value (you could also reset any other necessary state)
+            const searchInput = document.querySelector("input[name='query']");
+            searchInput.value = '';
+    
+            // Simulate removing the search query and displaying the latest updates
+            window.location.href = '/index';
 
+        });
+    </script>
+    
     <!-- view all products container -->
     <div class="product_container mt-6 text-center">
         <h1 class="ml-6">View all products</h1>

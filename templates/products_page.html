@@ -185,7 +185,11 @@
                 
                 <div class="input-group">
                     <label for="edit_shop">Shop:</label>
-                    <input type="text" id="edit_shop" name="shop" required class="input-field">
+                    <select id="edit_shop" name="shop" required class="input-field">
+                        {% for shop in shops %}
+                            <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 
                 <div class="input-group">
@@ -274,10 +278,44 @@
                 }
             }
         }
+
+        function handleEditProductModal() {
+        // Get the modal for editing products
+        var modal = document.getElementById("editProductModal");
+        // Get the button that opens the modal
+        var editButtons = document.getElementsByClassName("editButton");
+        // Get the <span> element that closes the modal
+        var span = modal.getElementsByClassName("close")[0];
+    
+        // Add click event listeners to all edit buttons
+        Array.from(editButtons).forEach(button => {
+            button.onclick = function(event) {
+                event.preventDefault(); // Prevent default button action
+                modal.style.display = "block";
+
+                // Optionally, populate the modal fields with the product data
+                var productId = button.dataset.productId; // Assuming data-product-id attribute is used
+                populateEditModalFields(productId);
+            };
+        });
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+    }
     
         // Initialize modals
         handleAddProductModal();
         handleFilterProductModal();
+        handleEditProductModal();
     </script>
     
 </body>

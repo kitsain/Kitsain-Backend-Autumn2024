@@ -22,9 +22,9 @@ db.init_app(app)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    db.drop_all()
-    db.create_all()
-    dbf.add_user("admin", "admin", "admin@email.com", "admin")
+    #db.drop_all()
+    #db.create_all()
+    # dbf.add_user("admin", "admin", "admin@email.com", "admin")
     
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username
@@ -124,7 +124,9 @@ def index():
     shops = Shop.query.all()
     users = User.query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
-    return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users, results=None, query=None)
+    closest_shops = None
+
+    return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users, results=None, query=None, closest_shops=None)
 
 @app.route('/')
 def login_page():

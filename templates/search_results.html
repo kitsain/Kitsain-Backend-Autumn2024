@@ -1,6 +1,8 @@
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='search_result.css') }}">
+</head>
 <div class="search-results-container">
     {% if results %}
-        <h2>Found {{ results|length }} products matching your search.</h2>
         <div class="products-container">
             {% for result in results %}
             {% for price in result.prices %}

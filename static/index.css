@@ -137,7 +137,7 @@ p.ml-4 {
 
 
 
-.search-button{
+.search-button {
     padding: 12px;
 
     width: 146px;
@@ -147,6 +147,7 @@ p.ml-4 {
     color:#FFFFFF;
     border-radius: 8px;
 }
+
 
 .action-form {
     display: flex;
@@ -181,6 +182,35 @@ p.ml-4 {
     text-align: center;
 
     color: #511948;
+}
+
+.results{
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 48px;
+
+    color: #511948;
+
+    margin-left: 1.5rem; /* Space from the left side */
+    flex-grow: 1; /* Allow it to take available space */
+}
+
+.result_elements {
+    display: flex;
+    justify-content: space-between; /* Space between the left and right elements */
+    align-items: center; /* Vertically align the elements */
+    width: 100%;
+}
+
+.remove-search-button {
+    width: 146px;
+    height: 52px;
+
+    background: #000000;
+    color:#FFFFFF;
+    border-radius: 8px;
 }
 
 .ml-7 {
