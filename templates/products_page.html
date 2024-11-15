@@ -82,48 +82,51 @@
 
 
 
-<!-- Modal for Adding New Product -->
-<div id="addProductModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 class="section-title">NOT FOUND! ADD NEW PRODUCT?</h2>
-        
-        <form action="{{ url_for('add_product_method') }}" method="POST" class="form">
-            <div class="input-group">
-                <label for="product_name">Product Name:</label>
-                <input type="text" id="product_name" name="product_name" required class="input-field">
-            </div>
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="section-title">NOT FOUND! ADD NEW PRODUCT?</h2>
             
-            <div class="input-group">
-                <label for="shop">Shop:</label>
-                <input type="text" id="shop" name="shop" required class="input-field">
-            </div>
-            
-            <div class="input-group">
-                <label for="price">Price:</label>
-                <input type="number" step="0.01" id="add-price" name="price" required class="input-field">
-            </div>
-            
-            <div class="input-group">
-                <label for="discount_price">Discount Price:</label>
-                <input type="number" step="0.01" id="discount_price" name="discount_price" class="input-field" oninput="calculateWasteDiscount()">
-            </div>
-            
-            <div class="input-group">
-                <label for="waste_discount">Waste Discount (%):</label>
-                <input type="number" step="0.1" id="waste_discount_add" name="waste_discount" class="input-field" oninput="calculateDisountPrice()">
-            </div>
-            
-            <div class="input-group">
-                <label for="expiration_date">Expiration Date:</label>
-                <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
-            </div>
-            
-            <button type="submit" class="btn-primary-add">Add Product</button>
-        </form>
+            <form action="{{ url_for('add_product_method') }}" method="POST" class="form">
+                <div class="input-group">
+                    <label for="product_name">Product Name:</label>
+                    <input type="text" id="product_name" name="product_name" required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="shop">Shop:</label>
+                    <select id="shop" name="shop" required class="input-field">
+                        {% for shop in shops %}
+                            <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="price">Price:</label>
+                    <input type="number" step="0.01" id="add-price" name="price" required class="input-field">
+                </div>
+                
+                <div class="input-group">
+                    <label for="discount_price">Discount Price:</label>
+                    <input type="number" step="0.01" id="discount_price" name="discount_price" class="input-field" oninput="calculateWasteDiscount()">
+                </div>
+                
+                <div class="input-group">
+                    <label for="waste_discount">Waste Discount (%):</label>
+                    <input type="number" step="0.1" id="waste_discount_add" name="waste_discount" class="input-field" oninput="calculateDisountPrice()">
+                </div>
+                
+                <div class="input-group">
+                    <label for="expiration_date">Expiration Date:</label>
+                    <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
+                </div>
+                
+                <button type="submit" class="btn-primary-add">Add Product</button>
+            </form>
+        </div>
     </div>
-</div>
-
+    
 
 
 

@@ -137,7 +137,8 @@ def products_page():
         return redirect(url_for('login'))
     
     products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
-    return render_template('products_page.html', products=products)
+    shops = Shop.query.all()
+    return render_template('products_page.html', products=products, shops=shops)
 
 @app.route('/shops_page')
 def shops_page():

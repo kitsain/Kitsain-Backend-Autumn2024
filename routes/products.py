@@ -13,12 +13,13 @@ def add_product():
     user_id = request.form.get('user_id')
     product_id = generate_unique_user_id()
 
+    print(f"Received shop name: {shop}")
+
     if not product_name or not shop or not price or not discount_price:
-        print("Please provide the product name, shop, and price.", "product")
         return redirect(url_for('products_page'))
 
     try:
-        existing_shop = Shop.query.filter_by(store_name=shop).first()
+        existing_shop = Shop.query.filter_by(shop_id=shop).first()
         if not existing_shop:
             print(f"Shop '{shop}' not found. Please add it first.", "product")
             return redirect(url_for('products_page'))
