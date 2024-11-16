@@ -11,15 +11,38 @@ from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 import sqlite3
 from models import db, Product, Shop, User, Price
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Mail, Message
 
 import database_functions as dbf
 
 app = Flask(__name__)
-app.secret_key = 'asdhfauisdhfuhi'  # Required for flashing messages
+app.secret_key = '7d54098273a7dfa3a5c852409014dc1e9bbd89186a20dc37'  # Required for flashing messages
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///commerce_data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+mail = Mail(app)
+
 db.init_app(app)
+
+@app.route('/send_email')
+def send_reset_email(email, token):
+    reset_url = url_for('reset_password', token=token, _external = True)
+    msg = Message('Password Reset Request', recipients=[email])
+    msg.body = f'Click the link to reset your password: {reset_url}'
+    mail.send(msg)
+
+def generate_password_reset_token(user_id):
+    serializer = URLSafeTimedSerializer(app.secret_key)
+    return serializer.dumps(user_id, salt='password-reset-salt')
+
+def verify_password_reset_token(token):
+    serializer = URLSafeTimedSerializer(app.secret_key)
+    try:
+        return serializer.loads(token, salt='password-reset-salt', max_age = 3600)
+    
+    except Exception: 
+        return None
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -42,11 +65,9 @@ def login():
 @app.route('/email', methods=['GET', 'POST'])
 def email():
     if request.method == 'POST':
-        email = request.form.get('email')
-        # print(email)
 
+        email = request.form.get('email')
         emailagain = request.form.get('emailagain')
-        # print(emailagain)
 
         print("Email: ", email)
 
@@ -55,21 +76,23 @@ def email():
         cur.execute('SELECT * FROM user WHERE email = ?', (email,))
         user = cur.fetchone()
 
-        if user: 
-            print("Käyttäjä löytyi!")
-            print("Käyttäjä: ", user)
-
-        if not user: 
-            print("Käyttäjä: ", user)
-            print("Sähköposti: ", email)
-            print("Käyttäjää ei löytynyt")
-
         if email != emailagain:
             # print("The email fields are not equal")
             flash("Error: The email fields were not equal", category="error")
             session['email'] = email
             session['emailagain'] = emailagain
             return redirect(url_for('email'))
+
+        if user: 
+            print("Käyttäjä löytyi!")
+            print("Käyttäjä: ", user)
+            token = generate_password_reset_token(user.id)
+            send_reset_email(user.email, token)
+
+        if not user: 
+            print("Käyttäjä: ", user)
+            print("Sähköposti: ", email)
+            print("Käyttäjää ei löytynyt")
         
 
         password = "uudempi_salasana"
