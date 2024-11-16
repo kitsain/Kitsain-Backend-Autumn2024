@@ -10,7 +10,6 @@ from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 import sqlite3
 from models import db, Product, Shop, User, Price
-from werkzeug.security import generate_password_hash, check_password_hash
 
 import database_functions as dbf
 
@@ -31,9 +30,7 @@ def login():
         username = request.form.get('username')  # Gets the username
         password = request.form.get('password')  # Gets the password
         
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            # Set session variables or perform login actions
+        if dbf.authenticate_user(username, password):
             return redirect(url_for('index'))
     
     return render_template('login.html')
@@ -74,8 +71,7 @@ def email():
 
         password = "uudempi_salasana"
 
-        cur.execute('UPDATE user SET password = ? WHERE email = ?', (generate_password_hash(password), email)
-)
+        cur.execute('UPDATE user SET password = ? WHERE email = ?', (password, email))
         con.commit()
         con.close()
 
@@ -98,7 +94,7 @@ def add_hardcoded_user():
         # Create a hard-coded user
         hardcoded_user = User(
             username="hardcoded_user",
-            password=generate_password_hash("securepassword123"),  # You should hash the password
+            password="securepassword123",  # You should hash the password
             email="user@example.com",
             role="admin",
             aura_points=100,
