@@ -164,16 +164,28 @@ def users_page():
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops} 
     return render_template('users_page.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users)
 
+
 @app.route('/my_profile_page')
 def my_profile_page():
-    # Check access rights
     if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+
+    user_id = session.get('user_id')  # Get the logged-in user's ID
+    if not user_id:
+        return redirect(url_for('login'))  # Redirect if no user is logged in
+
+    user = User.query.get(user_id)  # Fetch user data from the database
+    if not user:
+        flash("User not found.", category="error")
         return redirect(url_for('login'))
     
     users = (User).query.all()
     shops = (Shop).query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
-    return render_template('my_profile_page.html', users=users, shops=shops, shopkeepers_data=shopkeepers_data) 
+    
+    # Pass the user's data to the template
+    return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+
 
 
 # routes.products

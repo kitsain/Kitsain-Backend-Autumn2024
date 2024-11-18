@@ -236,7 +236,31 @@ p.ml-5{
 }
 
 
-.product_container.mt-6.text-center{
+.added_product_container.mt-6.text-center{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 170px 56px;
+    gap: 44px;
+    isolation: isolate;
+    height: auto;
+    background: #FFF8F0;
+}
+
+.aura_container.mt-6.text-center{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 170px 56px;
+    gap: 44px;
+    isolation: isolate;
+    height: auto;
+    background: #FFF8F0;
+}
+
+.update_profile_container.mt-6.text-center{
     display: flex;
     flex-direction: column;
     justify-content: center;
