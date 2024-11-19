@@ -51,24 +51,81 @@
 
     <!-- Added Products Section -->
     <div class="added_products_container mt-6 text-center">
-        <h1>Added Products</h1>
-        <p>Here you can find the products you've already added</p>
-        <button>View More</button>
-        <p>"Did you spot a new discounted product? Add it by using the EAN code."</p>
+        <div class="added_products_left">
+        <h1 class="subheader">Added Products</h1>
+        <p class="subtext">Here you can find the products you've already added</p>
+        <button class="save_button">View More</button>
+        </div>
+
+        <div class="added_products_right">
+        <p class="bigtext">"Did you spot a new discounted product? Add it by using the EAN code."</p>
         <h2>SCAN EAN</h2>
+        <h3>OR</h3>
+        <input type="text" id="ean" name="ean" class="input-field" value="{{ ean }}" placeholder="Enter EAN code">
+        <button class="save_button">Fetch Item</button>
+        </div>
     </div>
 
     <!-- Aura Points Section -->
     <div class="aura_container mt-6 text-center">
-        <h1>My Aura Points</h1>
-        <p>Help others find discounts and reduce waste. By adding discounted products, you earn Aura points. Once you've accumulated enough points, you can redeem a gift card to a grocery store of your choice.</p>
-        <button>Redeem a gift card</button>
+        <h1 class="subheader">My Aura Points</h1>
+        <p class="subtext-aura">Help others find discounts and reduce waste. By adding discounted products, you earn Aura points. Once you've accumulated enough points, you can redeem a gift card to a grocery store of your choice.</p>
+        <button class="save_button">Redeem a gift card</button>
+        <div class="point-containers">
+            <div class="point-container">
+                <p class="point_header">Total Points</p>
+                <p class="total_points">3500</p>
+                <p class="point_change">+200</p>
+            </div>
+            <div class="point-container">
+                <p class="point_header">Points Earned/month</p>
+                <p class="total_points">500</p>
+                <p class="point_change">+50</p>
+            </div>
+        </div>
+
+        <div class="default-graph-picture"></div>
     </div>
 
     <!-- Update Profile Section -->
     <div class="update_profile_container mt-6 text-center">
+        <div class="update_profile_right">
+        <h1 class="subheader">Update Profile Information</h1>
+        <p class="subtext">Keep your details up to date</p>
+        </div>
+
+        <div class="update_profile_left">
+        <label for="full_name">Full name</label>
+        <input type="text" id="full_name" name="full_name" class="input-field" value="{{ full_name }}" placeholder="Enter your full name">
+
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" class="input-field" value="{{ email }}" placeholder="Enter your email">
+    
+        <button class="save_button">Save Changes</button>   
+        </div> 
     </div>
 
+    <!-- Reducing waste Section -->
+    <div class="reducing_waste_container mt-6 text-center">
+        <div class="reducing_waste_left">
+        <h1 class="subheader">Read more about reducing waste.</h1>
+        <p class="subtext">Stay tuned for current news.</p>
+        <button class="save_button">Read more</button>    
+        </div>
+
+        <div class="reducing_waste_right">
+        <p>About us</p>
+        <p class="recry_text">Interested in becoming a part of the Kitsain team?</p>
+        </div>
+    </div>
+
+
+    <!-- Information section -->
+    <div class="information_container mt-6 text-center">
+        <p>Contact Us: support@example.com</p>
+        <p>Follow Us: @YourStore</p>
+        <p>Terms & Conditions</p>  
+    </div>
 
 </body>
 </html>
