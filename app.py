@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import CheckConstraint, text
 from datetime import datetime
 from sqlalchemy import desc
 from flask import session
+import uuid
 from routes.products import add_product, remove_product, update_product, get_products, search_discount
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
@@ -17,6 +19,14 @@ app = Flask(__name__)
 app.secret_key = 'asdhfauisdhfuhi'  # Required for flashing messages
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///commerce_data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = '<email here>'
+app.config['MAIL_PASSWORD'] = '<password here>'
+
+mail = Mail(app)
 
 db.init_app(app)
 
@@ -39,11 +49,9 @@ def login():
 @app.route('/email', methods=['GET', 'POST'])
 def email():
     if request.method == 'POST':
-        email = request.form.get('email')
-        # print(email)
 
+        email = request.form.get('email')
         emailagain = request.form.get('emailagain')
-        # print(emailagain)
 
         print("Email: ", email)
 
@@ -52,28 +60,48 @@ def email():
         cur.execute('SELECT * FROM user WHERE email = ?', (email,))
         user = cur.fetchone()
 
-        if user: 
-            print("Käyttäjä löytyi!")
-            print("Käyttäjä: ", user)
-
-        if not user: 
-            print("Käyttäjä: ", user)
-            print("Sähköposti: ", email)
-            print("Käyttäjää ei löytynyt")
-
         if email != emailagain:
             # print("The email fields are not equal")
             flash("Error: The email fields were not equal", category="error")
             session['email'] = email
             session['emailagain'] = emailagain
             return redirect(url_for('email'))
-        
 
-        password = "uudempi_salasana"
+        if not user: 
+            print("Käyttäjä: ", user)
+            print("Sähköposti: ", email)
+            print("Käyttäjää ei löytynyt")
+            flash("Email not found in the system", category="error")
+            return redirect(url_for('email'))
 
-        cur.execute('UPDATE user SET password = ? WHERE email = ?', (password, email))
+        # if user: 
+        #     print("Käyttäjä löytyi!")
+        #     print("Käyttäjä: ", user)
+
+        reset_token = str(uuid.uuid4())
+        session['reset_token'] = reset_token
+
+        # Save token to the database (simple example using session)
+        # In production, consider a separate table for tokens with expiration
+        con = sqlite3.connect("commerce_data.db")
+        cur = con.cursor()
+        cur.execute('UPDATE user SET password = ? WHERE email = ?', (reset_token, email))
         con.commit()
         con.close()
+
+        # Send email
+        reset_link = url_for('reset_password', token=reset_token, _external=True)
+        msg = Message("Password Reset Request",
+                      sender="your_email@example.com",
+                      recipients=[email])
+        msg.body = f"Click the link to reset your password: {reset_link}"
+        mail.send(msg)
+
+        # password = "uudempi_salasana"
+
+        # cur.execute('UPDATE user SET password = ? WHERE email = ?', (password, email))
+        # con.commit()
+        # con.close()
 
         # session.pop('email', None)
         # session.pop('emailagain', None)
@@ -82,6 +110,38 @@ def email():
     email = session.get('email', '')
     emailagain = session.get('emailagain', '')
     return render_template("newPassword.html", email=email, emailagain=emailagain)
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if request.method == 'POST':
+        new_password = request.form.get('fname')
+        confirm_password = request.form.get('lname')
+        
+        if not new_password or not confirm_password:
+            return "Both password fields are required", 400
+        
+        if new_password != confirm_password:
+            return "Passwords do not match", 400
+
+        # Update password in the database (example with SQLite)
+        try:
+            # Assuming you have a `users` table with a `reset_token` column
+            conn = sqlite3.connect('commerce_data.db')
+            cur = conn.cursor()
+            cur.execute("""
+                UPDATE user
+                SET password = ?
+                WHERE password = ?
+            """, (dbf.generate_password_hash(new_password), token))
+            conn.commit()
+            conn.close()
+        except sqlite3.IntegrityError as e:
+            print(f"Database error: {e}")
+            return "Database error occurred", 500
+
+        return "Password reset successful", 200
+
+    return render_template('resetPassword.html', token=token)
 
 @app.route('/forgot_password')
 def forgot_password():
@@ -299,4 +359,4 @@ def search_discount_method():
 
 if __name__ == '__main__':
     add_hardcoded_user()
-    app.run(debug=False)
+    app.run(debug=True)
