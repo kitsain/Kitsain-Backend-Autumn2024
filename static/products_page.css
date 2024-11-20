@@ -205,6 +205,7 @@ p.ml-4{
     background-color: rgba(0, 0, 0, 0.5); 
 }
 
+
 .modal-content {
     margin: 15% auto; 
     
@@ -212,7 +213,8 @@ p.ml-4{
     box-sizing: border-box;
 
     position: relative;
-    width: 815px;
+    width: auto;
+    max-width: 80%;
     height: auto;
 
     background: #FFF8F0;
@@ -236,16 +238,23 @@ p.ml-4{
 h2.section-title{
     border:none;
     background: #FFF8F0;
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 48px;
+    text-align: center;
+
+    color: #511948;
 }
 
 .btn-primary-add{ 
+    box-sizing: border-box;
     padding: 12px;
-    margin:10px;
 
-    background: #000000;
-    color: #FFFFFF;
+    background: rgba(81, 25, 72, 0.47);
+    border: 1px solid #000000;
     border-radius: 8px;
-
 }
  
 
@@ -273,7 +282,8 @@ h2.section-title{
 
 .input-group {
     display: flex; 
-    align-items: center; 
+    flex-direction: column;
+    align-items: flex-start;
     margin-bottom: 15px; 
 }
 
@@ -368,17 +378,134 @@ h2.section-title{
 }
 
 .price-container {
-    display: flex; /* Use flexbox to align items in a row */
-    align-items: center; /* Center items vertically */
+    display: flex; 
+    align-items: center; 
 }
 
 .product-price {
-    margin-left: 10px; /* Add some space between the two prices */
-    font-weight: bold; /* Make the original price bold */
+    margin-left: 10px; 
+    font-weight: bold; 
 }
 
 .product-discount_price {
-    text-decoration: line-through; /* Overline for discount price */
-    color: red; /* Optional: Change the color of the discount price for emphasis */
+    text-decoration: line-through; 
+    color: red; 
 }
 
+.adding-section {
+    display: flex; 
+    flex-direction: row; 
+    justify-content: flex-end;
+    padding: 5px;
+    gap:300px;
+}
+
+.input-groups {
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center;
+    align-items: flex-end; 
+    padding: 5px;
+    flex: 1; 
+}
+
+.input-group:last-child {
+    align-self: center; 
+}
+
+.section-title {
+    flex:1;
+}
+
+.add-headers {
+    text-align: center; 
+}
+
+.input-field {
+    width: 550px;  
+    padding: 10px; 
+    box-sizing: border-box; 
+}
+
+.btn-secondary-add {
+    padding: 8px;
+
+    width: auto;
+    height: 36px;
+
+    background: rgba(81, 25, 72, 0.47);
+    border-radius: 6px;
+}
+
+.all-buttons-add {
+    display: flex;
+    flex-direction: column; 
+    gap: 10px; 
+    align-items: center; 
+}
+
+.bottom-buttons {
+    display: flex;
+    flex-direction: row; 
+    gap: 10px;
+    justify-content: center; 
+}
+
+.btn-primary-add-discard {
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+
+    border: 1px solid #000000;
+    border-radius: 8px;
+
+    background-color: rgba(255, 255, 255, 0.5); 
+    opacity: 0.8; 
+}
+
+.adding-section {
+    position: relative; 
+    padding: 20px 0;
+}
+
+.adding-section::before,
+.adding-section::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px; 
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.adding-section::before {
+    top: 0;
+}
+
+.adding-section::after {
+    bottom: 0;
+}
+
+.btn-primary-add-more {
+    margin-top: 25px;
+    box-sizing: border-box;
+    padding: 12px;
+
+    background: rgba(81, 25, 72, 0.47);
+    border: 1px solid #000000;
+    border-radius: 8px;
+}
+
+.btn-secondary-add:hover {
+    background-color: #e0e0e0;
+    border-color: #888;
+}
+
+.btn-secondary-add.selected {
+    background-color: #6B3B48;
+    color: #fff;
+}

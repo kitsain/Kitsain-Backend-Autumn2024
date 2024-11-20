@@ -82,54 +82,105 @@
         </div>
     </div>
 
-
-
     <div id="addProductModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2 class="section-title">NOT FOUND! ADD NEW PRODUCT?</h2>
-            
+            <div class="add-headers">
+            <h2 class="section-title">Add Product / Update Product Details</h2>
+            <p>Add a product or modify product information with ease.</p>
+            </div>
+
             <form action="{{ url_for('add_product_method') }}" method="POST" class="form">
-                <div class="input-group">
-                    <label for="product_name">Product Name:</label>
-                    <input type="text" id="product_name" name="product_name" required class="input-field">
+
+                <div class="adding-section">
+                    <h2 class="section-title">Product Details</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="barcode">Barcode</label>
+                            <input type="text" id="barcode" name="barcode" required class="input-field" placeholder="Enter barcode / filled automatically if barcode scanned">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="product_name">Product Name</label>
+                            <input type="text" id="product_name" name="product_name" required class="input-field" placeholder="Enter product name / filled automatically if barcode is found">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="shop">Shop</label>
+                            <select id="shop" name="shop" required class="input-field" placeholder="Select the nearest shop from list / is added automatically if GPS allowed">
+                                {% for shop in shops %}
+                                    <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="shop">Shop:</label>
-                    <select id="shop" name="shop" required class="input-field">
-                        {% for shop in shops %}
-                            <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
-                        {% endfor %}
-                    </select>
+
+                <div class="adding-section">
+                    <h2 class="section-title">Price Details</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="price">Normal Price</label>
+                            <input type="number" step="0.01" id="add-price" name="price" required class="input-field" placeholder="Enter normal price">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="discount_price">Discount Price</label>
+                            <input type="number" step="0.01" id="discount_price" name="discount_price" class="input-field" oninput="calculateWasteDiscount()" placeholder="Enter discount price">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="discount_valid_from">Valid From</label>
+                            <input type="date" id="discount_valid_from" name="discount_valid_from" required class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="discount_valid_to">Valid To</label>
+                            <input type="date" id="discount_valid_to" name="discount_valid_to" required class="input-field">
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="price">Price:</label>
-                    <input type="number" step="0.01" id="add-price" name="price" required class="input-field">
+
+                <div class="adding-section">
+                    <h2 class="section-title">Waste Discount Label</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="waste_discount">Waste Discount (%)</label>
+                            <input type="number" step="0.1" id="waste_discount_add" name="waste_discount" class="input-field" oninput="calculateDisountPrice()" placeholder="Enter discount percentage">
+                        </div>
+            
+                        <div class="input-group">
+                            <label for="expiration_date">Expiration Date</label>
+                            <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="product_amount">Amount in Stock</label>
+                            <div class="btn-group" role="group" aria-label="Stock Amount Options">
+                                <button type="button" class="btn btn-secondary-add" id="fewButton" data-value="Few">Few</button>
+                                <button type="button" class="btn btn-secondary-add" id="moderateButton" data-value="Moderate">Moderate</button>
+                                <button type="button" class="btn btn-secondary-add" id="manyButton" data-value="Many">Many</button>
+                            </div>
+                            <input type="hidden" id="product_amount" name="product_amount" value="">
+                        </div>
+                        
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="discount_price">Discount Price:</label>
-                    <input type="number" step="0.01" id="discount_price" name="discount_price" class="input-field" oninput="calculateWasteDiscount()">
+
+                <div class="all-buttons-add">
+                    <button type="submit" class="btn-primary-add-more">More product information</button>
+                    <div class="bottom-buttons">
+                        <button type="submit" class="btn-primary-add-discard">Discard Changes</button>
+                        <button type="submit" class="btn-primary-add">Save Changes</button>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="waste_discount">Waste Discount (%):</label>
-                    <input type="number" step="0.1" id="waste_discount_add" name="waste_discount" class="input-field" oninput="calculateDisountPrice()">
-                </div>
-                
-                <div class="input-group">
-                    <label for="expiration_date">Expiration Date:</label>
-                    <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
-                </div>
-                
-                <button type="submit" class="btn-primary-add">Add Product</button>
+
             </form>
         </div>
     </div>
-    
-
 
 
     <!-- product container --> 
@@ -318,6 +369,20 @@
         handleAddProductModal();
         handleFilterProductModal();
         handleEditProductModal();
+    </script>
+
+    <script>
+        document.querySelectorAll(".btn-secondary-add").forEach(button => {
+        button.addEventListener("click", function () {
+            document.querySelectorAll(".btn-secondary-add").forEach(btn => btn.classList.remove("selected"));
+
+            this.classList.add("selected");
+
+            const selectedValue = this.getAttribute("data-value");
+            document.getElementById("product_amount").value = selectedValue;
+        });
+    });
+
     </script>
     
 </body>
