@@ -34,7 +34,7 @@ db.init_app(app)
 def login():
     #db.drop_all()
     #db.create_all()
-    # dbf.add_user("admin", "admin", "admin@email.com", "admin")
+    #dbf.add_user("admin", "admin", "admin@email.com", "admin")
     
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username
@@ -358,5 +358,5 @@ def search_discount_method():
 
 
 if __name__ == '__main__':
-    add_hardcoded_user()
+    #add_hardcoded_user()
     app.run(debug=True)
