@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import desc
 from flask import session
 import uuid
-from routes.products import add_product, remove_product, update_product, get_products, search_discount
+from routes.products import add_product_from_html, remove_product, update_product, get_products, search_discount
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
@@ -32,9 +32,9 @@ db.init_app(app)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    #db.drop_all()
-    #db.create_all()
-    #dbf.add_user("admin", "admin", "admin@email.com", "admin")
+    db.drop_all()
+    db.create_all()
+    dbf.add_user("admin", "admin", "admin@email.com", "admin")
     
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username
@@ -256,7 +256,7 @@ def add_product_method():
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
         
-    return add_product()
+    return add_product_from_html()
 
 @app.route('/remove_product/<int:product_id>', methods=['POST'])
 def remove_product_method(product_id):

@@ -2,63 +2,103 @@ from flask import request, redirect, url_for, jsonify, render_template
 from models import db, Product, Shop, Price, User
 from datetime import datetime
 import random
+from database_functions import add_product, add_price
 
-def add_product():
-    product_name = request.form.get('product_name')
-    shop = request.form.get('shop')
-    price = request.form.get('price')
-    discount_price = request.form.get('discount_price')
-    waste_discount = request.form.get('waste_discount')
-    expiration_date = request.form.get('expiration_date')
-    user_id = request.form.get('user_id')
-    product_id = generate_unique_user_id()
+from flask import request, redirect, url_for, session
 
-    print(f"Received shop name: {shop}")
 
-    if not product_name or not shop or not price or not discount_price:
-        return redirect(url_for('products_page'))
-
+def add_product_from_html():
+    """
+    Gathers product information from an HTML form and passes it to the main add_product function.
+    """
     try:
-        existing_shop = Shop.query.filter_by(shop_id=shop).first()
-        if not existing_shop:
-            print(f"Shop '{shop}' not found. Please add it first.", "product")
+        # Retrieve data from the form
+        product_name = request.form.get('product_name')
+        weight_g = request.form.get('weight_g')
+        volume_l = request.form.get('volume_l')
+        barcode = request.form.get('barcode')
+        category = request.form.get('category')
+        esg_score = request.form.get('esg_score')
+        co2_footprint = request.form.get('co2_footprint')
+        brand = request.form.get('brand')
+        sub_brand = request.form.get('sub_brand')
+        parent_company = request.form.get('parent_company')
+        information_links = request.form.get('information_links')
+        gluten_free = request.form.get('gluten_free') == 'on'  # Checkbox handling
+        
+        shop_id = request.form.get('shop')
+        price = request.form.get('price')
+        discount_price = request.form.get('discount_price')
+        discount_valid_from = request.form.get('discount_valid_from')
+        discount_valid_to = request.form.get('discount_valid_to')
+        waste_discount = request.form.get('waste_discount')
+        expiration_date = request.form.get('expiration_date')
+        product_amount = request.form.get('product_amount')
+
+        try:
+            discount_valid_from = datetime.strptime(discount_valid_from, '%Y-%m-%d').date() if discount_valid_from else None
+            discount_valid_to = datetime.strptime(discount_valid_to, '%Y-%m-%d').date() if discount_valid_to else None
+            expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d').date() if expiration_date else None
+        except ValueError as ve:
+            print(f"Invalid date format: {ve}")
             return redirect(url_for('products_page'))
 
-        new_product = Product(
-            product_id=product_id,
+        # Retrieve user ID from session
+        user_id = session.get('user_id')
+        if not user_id:
+            print("User not authenticated. Redirecting to login.")
+            return redirect(url_for('login'))
+
+        # Call the main add_product function
+        add_product(
             product_name=product_name,
-            user_created=user_id,
-            creation_date=datetime.now()
+            weight_g=weight_g,
+            volume_l=volume_l,
+            barcode=barcode,
+            category=category,
+            esg_score=esg_score,
+            co2_footprint=co2_footprint,
+            brand=brand,
+            sub_brand=sub_brand,
+            parent_company=parent_company,
+            information_links=information_links,
+            gluten_free=gluten_free,
         )
 
-        db.session.add(new_product)
-        db.session.commit()
-
-        # valid_to_date = datetime.strptime(expiration_date, '%Y-%m-%d') if expiration_date else None
-
-        discount_valid_to = datetime.strptime(expiration_date, '%Y-%m-%d') if expiration_date else None
-
-        new_price = Price(
-            product_id=new_product.product_id,
-            shop_id=existing_shop.shop_id,
-            price=float(price),
-            discount_price=float(discount_price),
+        add_price(
+            product_id=get_product_id_by_name(product_name),
+            shop_id=shop_id,
+            price=price,
+            discount_price=discount_price,
+            waste_discount_percentage=waste_discount,
+            discount_valid_from=discount_valid_from,
             discount_valid_to=discount_valid_to,
-            waste_discount_percentage=float(waste_discount) if waste_discount else None,
-            user_created=user_id
+            waste_valid_to=expiration_date,
+            waste_quantity=product_amount
         )
 
-        db.session.add(new_price)
-        db.session.commit()
+        return redirect(url_for('products_page'))
 
-        print(f"Product \"{product_name}\" added successfully to \"{shop}\".")
-    except ValueError:
-        print("Please provide valid data. Ensure the price and waste discount are numbers.")
     except Exception as e:
-        db.session.rollback()  # Rollback any changes if there's an error
-        print(f"Database error: {e}", "product")
+        print(f"Error gathering product info from HTML: {e}")
+        return redirect(url_for('products_page'))
+    
 
-    return redirect(url_for('products_page'))
+def get_product_id_by_name(product_name):
+    """
+    Retrieve the product_id based on the product_name from the Product model.
+    """
+    try:
+        product = Product.query.filter_by(product_name=product_name).first()
+        if product:
+            return product.product_id
+        else:
+            print(f"No product found with name: {product_name}")
+            return None
+    except Exception as e:
+        print(f"Error fetching product_id for product_name '{product_name}': {e}")
+        return None
+
 
 def generate_unique_user_id():
     while True:

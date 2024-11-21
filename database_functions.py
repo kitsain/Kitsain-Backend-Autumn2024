@@ -292,8 +292,8 @@ def add_price(product_id, shop_id, price, discount_price=None, waste_discount_pe
         print("Not allowed")
         return
     
-    if waste_quantity not in (None, 'few', 'some', 'many'):
-        print("Error: waste_quantity must be 'few', 'some', or 'many'.")
+    if waste_quantity not in (None, 'Few', 'Moderate', 'Many'):
+        print("Error: waste_quantity must be 'Few', 'Moderate', or 'Many'.")
         return
 
     try:

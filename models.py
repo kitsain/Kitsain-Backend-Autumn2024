@@ -102,5 +102,5 @@ class Price(db.Model):
 
     # Constraints
     __table_args__ = (
-        CheckConstraint("waste_quantity IN ('few', 'some', 'many')", name="valid_waste_quantity"),
+        CheckConstraint("waste_quantity IN ('Few', 'Moderate', 'Many')", name="valid_waste_quantity"),
     )
