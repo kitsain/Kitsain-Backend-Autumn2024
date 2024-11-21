@@ -47,8 +47,6 @@ h1.ml-2{
     border: 2px solid rgba(0, 0, 0, 0.15);
     border-radius: 6px;
     margin-left: 10px;
-
-
 }
 
 
@@ -400,6 +398,32 @@ h2.section-title{
     gap:300px;
 }
 
+.adding-detail-section {
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    padding:5px;
+}
+
+.detailed-sections {
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 50px;
+    gap:50px;
+}
+
+.input-field-required {
+    display: block; 
+    width: 500px; 
+    padding: 10px; 
+    margin: 10px 0; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    box-sizing: border-box;
+    font-size: 16px; 
+}
+
 .input-groups {
     display: flex; 
     flex-direction: column; 
@@ -450,6 +474,11 @@ h2.section-title{
     gap: 10px;
     justify-content: center; 
 }
+
+.margin-top {
+    margin-top: 10px; 
+}
+
 
 .btn-primary-add-discard {
     box-sizing: border-box;

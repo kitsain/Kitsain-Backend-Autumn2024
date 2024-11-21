@@ -24,7 +24,7 @@ def add_product_from_html():
         sub_brand = request.form.get('sub_brand')
         parent_company = request.form.get('parent_company')
         information_links = request.form.get('information_links')
-        gluten_free = request.form.get('gluten_free') == 'on'  # Checkbox handling
+        gluten_free = request.form.get('gluten_free') == 'on'  
         
         shop_id = request.form.get('shop')
         price = request.form.get('price')
@@ -79,6 +79,45 @@ def add_product_from_html():
 
         return redirect(url_for('products_page'))
 
+    except Exception as e:
+        print(f"Error gathering product info from HTML: {e}")
+        return redirect(url_for('products_page'))
+    
+def add_product_detail():
+    try:
+        barcode = request.form.get('barcode')
+        brand = request.form.get('brand')
+        parent_company = request.form.get('parent_company')
+        volume = request.form.get('volume_ml')
+        gluten_free = request.form.get('gluten_free')
+        CO2 = request.form.get('CO2')
+        product_image_url = request.form.get('product_image_url')
+        product_name = request.form.get('product_name')
+        sub_brand = request.form.get('sub_brand')
+        weight = request.form.get('weight')
+        category = request.form.get('category')
+        esg_score = request.form.get('esg_score')
+        product_page_url = request.form.get('product_page_url')
+        product_image = request.form.get('product_image')
+
+        information_links = ",".join(filter(None, [product_page_url, product_image_url]))
+
+        add_product(
+            product_name=product_name,
+            weight_g=weight,
+            volume_l=volume,
+            barcode=barcode,
+            category=category,
+            esg_score=esg_score,
+            co2_footprint=CO2,
+            brand=brand,
+            sub_brand=sub_brand,
+            parent_company=parent_company,
+            information_links=information_links,
+            gluten_free=gluten_free
+        )
+
+        return redirect(url_for('products_page'))
     except Exception as e:
         print(f"Error gathering product info from HTML: {e}")
         return redirect(url_for('products_page'))
