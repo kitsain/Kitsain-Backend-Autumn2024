@@ -23,8 +23,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = '<email here>'
-app.config['MAIL_PASSWORD'] = '<password here>'
+app.config['MAIL_USERNAME'] = ''
+app.config['MAIL_PASSWORD'] = ''
 
 mail = Mail(app)
 
@@ -125,7 +125,6 @@ def reset_password(token):
 
         # Update password in the database (example with SQLite)
         try:
-            # Assuming you have a `users` table with a `reset_token` column
             conn = sqlite3.connect('commerce_data.db')
             cur = conn.cursor()
             cur.execute("""
@@ -135,11 +134,15 @@ def reset_password(token):
             """, (dbf.generate_password_hash(new_password), token))
             conn.commit()
             conn.close()
+
+            session.pop(new_password, None)
+            session.pop(confirm_password, None)
+
         except sqlite3.IntegrityError as e:
             print(f"Database error: {e}")
             return "Database error occurred", 500
 
-        return "Password reset successful", 200
+        return render_template('passwordSetSuccessfully.html')
 
     return render_template('resetPassword.html', token=token)
 
