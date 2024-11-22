@@ -26,11 +26,13 @@
                 <form action="{{ url_for('my_profile_page') }}" method="GET" class="d-inline">
                     <button class="btn btn-info ml-2">Profile</button>
                 </form>
-                <select class="ml-2">
+                <!-- Google Translate element -->
+                <div id="google_translate_element"></div>
+                <!-- <select class="ml-2">
                     <option>EN</option>
-                    <option>FI</option>
+                    <option>FI</option> -->
                     <!-- Add more languages as needed -->
-                </select>
+                <!-- </select> -->
             </div>
 
     <!-- Central search box for shops -->
@@ -216,6 +218,6 @@
         handleAddShopModal();
         handleFilterShopModal();
     </script>
-
+    <script src="../static/language_support.js"></script>
 </body>
 </html>

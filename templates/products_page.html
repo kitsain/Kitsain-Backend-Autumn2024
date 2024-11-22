@@ -6,6 +6,7 @@
     <title>Product Management</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='products_page.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
 </head>
 <body>
 
@@ -26,11 +27,18 @@
             <form action="{{ url_for('my_profile_page') }}" method="GET" class="d-inline">
                 <button class="btn btn-info ml-2">Profile</button>
             </form>
-            <select class="ml-2">
+            <!-- Google Translate element -->
+            <div id="google_translate_element"></div>
+
+
+
+            <!-- <select class="ml-2">
                 <option>EN</option>
-                <option>FI</option>
+                <option>FI</option> -->
                 <!-- Add more languages as needed -->
-            </select>
+            <!-- </select> -->
+
+
         </div>
 
     <!-- Central search box for products -->
@@ -671,6 +679,8 @@
         };
     });
     </script>
+
+    <script src="../static/language_support.js"></script>
     
 </body>
 </html>
