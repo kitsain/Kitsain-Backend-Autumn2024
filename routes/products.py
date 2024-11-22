@@ -32,12 +32,12 @@ def add_product_from_html():
         information_links = request.form.get('information_links')
         gluten_free = request.form.get('gluten_free') == 'on'  
         
-        shop_id = request.form.get('shop')
-        price = request.form.get('price')
+        shop_id = request.form.get('shop_add')
+        price = request.form.get('add-price')
         discount_price = request.form.get('discount_price')
         discount_valid_from = request.form.get('discount_valid_from')
         discount_valid_to = request.form.get('discount_valid_to')
-        waste_discount = request.form.get('waste_discount')
+        waste_discount = request.form.get('waste_discount_add')
         expiration_date = request.form.get('expiration_date')
         product_amount = request.form.get('product_amount')
 
@@ -94,16 +94,13 @@ def add_product_detail():
     try:
         product_data = {}
 
-        # Check if the CSV file exists
         if os.path.exists(CSV_FILE_PATH):
             with open(CSV_FILE_PATH, mode='r') as file:
                 reader = csv.reader(file)
-                # Loop through each row in the CSV
                 for row in reader:
-                    # Assuming the format is 'barcode, product_name, shop, price, ...'
-                    if len(row) >= 10:  # Ensure the row contains all the expected columns
-                        barcode = row[0]  # The barcode is in the first column
-                        product_name = row[1]  # The product name is in the second column
+                    if len(row) >= 10: 
+                        barcode = row[0]  
+                        product_name = row[1]  
                         shop = row[2]
                         price = row[3]
                         discount_price = row[4]
@@ -126,32 +123,99 @@ def add_product_detail():
                         product_data['product_amount'] = product_amount
 
                         # Print the row to show it
-                        print(f"Barcode: {barcode}, Product Name: {product_name}, Shop: {shop}, Price: {price}, Discount Price: {discount_price}, "
-                              f"Discount Valid From: {discount_valid_from}, Discount Valid To: {discount_valid_to}, Waste Discount: {waste_discount}, "
-                              f"Expiration Date: {expiration_date}, Product Amount: {product_amount}")
+                        #print(f"Barcode: {barcode}, Product Name: {product_name}, Shop: {shop}, Price: {price}, Discount Price: {discount_price}, "
+                              #f"Discount Valid From: {discount_valid_from}, Discount Valid To: {discount_valid_to}, Waste Discount: {waste_discount}, "
+                              #f"Expiration Date: {expiration_date}, Product Amount: {product_amount}")
 
-        # Finally, print the last product data collected
-        print("Product data from CSV:", product_data)
+        #print("Product data from CSV:", product_data)
 
-        # Extract data from session (or use defaults if not found)
         barcode = product_data.get('barcode')
         product_name = product_data.get('product_name')
-        shop = session.get('product_data', {}).get('shop', '')
+
+        #discount_price = product_data.get('discount_price', '')
+        #discount_valid_from = product_data.get('discount_valid_from', '')
+        #discount_valid_to = product_data.get('discount_valid_to')
+        #waste_discount = product_data.get('waste_discount', '')
+        #product_amount = product_data.get('product_amount', '')
+
         price = session.get('product_data', {}).get('price', '')
         discount_price = session.get('product_data', {}).get('discount_price', '')
         discount_valid_from = session.get('product_data', {}).get('discount_valid_from', '')
         discount_valid_to = session.get('product_data', {}).get('discount_valid_to', '')
         waste_discount = session.get('product_data', {}).get('waste_discount', '')
-        expiration_date = session.get('product_data', {}).get('expiration_date', '')
         product_amount = session.get('product_data', {}).get('product_amount', '')
+
+        shop=product_data.get('shop', '')
+        expiration_date = product_data.get('expiration_date', '')
+
 
         # Open the CSV file in write mode to overwrite it (this clears it)
         with open(CSV_FILE_PATH, mode='w', newline='') as file:
-            writer = csv.writer(file)
+            pass
             
  
-            #TODO: fill those values into database
-            return redirect(url_for('products_page'))
+        #additional information
+        weight_g = float(request.form.get('weight', 0) or 0)
+        volume_l = float(request.form.get('volume_ml', 0) or 0)
+        barcode = request.form.get('barcode')
+        category = request.form.get('category')
+        esg_score = request.form.get('esg_score')
+        co2_footprint = request.form.get('CO2')
+        brand = request.form.get('brand')
+        sub_brand = request.form.get('sub_brand')
+        parent_company = request.form.get('parent_company')
+        gluten_free = request.form.get('gluten_free') == 'on'
+
+        information_links = {
+        "product_image_url": request.form.get("product_image_url"),
+        "product_page_url": request.form.get("product_page_url"),
+        }
+
+        information_links_str = str(information_links)
+
+        discount_valid_from = datetime.strptime(discount_valid_from, '%Y-%m-%d').date() if discount_valid_from else None
+        discount_valid_to = datetime.strptime(discount_valid_to, '%Y-%m-%d').date() if discount_valid_to else None
+        expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d').date() if expiration_date else None
+
+        user_id = session.get('user_id')
+        if not user_id:
+            print("User not authenticated. Redirecting to login.")
+            return redirect(url_for('login'))
+
+
+        # Call the main add_product function
+        add_product(
+            product_name=product_name,
+            weight_g=weight_g,
+            volume_l=volume_l,
+            barcode=barcode,
+            category=category,
+            esg_score=esg_score,
+            co2_footprint=co2_footprint,
+            brand=brand,
+            sub_brand=sub_brand,
+            parent_company=parent_company,
+            information_links=information_links_str,
+            gluten_free=gluten_free,
+        )
+
+        product_id = get_product_id_by_name(product_name)
+        if not product_id:
+            raise ValueError(f"Product '{product_name}' not found in the database.")
+
+        add_price(
+            product_id=product_id,
+            shop_id=shop,
+            price=price,
+            discount_price=discount_price,
+            waste_discount_percentage=waste_discount,
+            discount_valid_from=discount_valid_from,
+            discount_valid_to=discount_valid_to,
+            waste_valid_to=expiration_date,
+            waste_quantity=product_amount
+        )
+        
+        return redirect(url_for('products_page'))
 
     except Exception as e:
         print(f"Error adding product detail: {e}")
