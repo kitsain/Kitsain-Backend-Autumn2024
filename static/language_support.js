@@ -1,13 +1,16 @@
-
-// Google Translate initialization function
 function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-        pageLanguage: 'en', // default language
-        includedLanguages: 'en,fi' // Available languages: English and Finnish
-    }, 'google_translate_element');
+new google.translate.TranslateElement({
+    // default language english
+    pageLanguage: 'en',
+    // languages available: English, Finnish, Swedish
+    includedLanguages: 'en,fi,sv',
+    // simple layout
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+
+}, 'google_translate_element');
 }
 
-// Function to load the Google Translate script
+// loads the google translate script
 function loadGoogleTranslateScript() {
     const script = document.createElement('script');
     script.type = 'text/javascript';
@@ -15,5 +18,4 @@ function loadGoogleTranslateScript() {
     document.body.appendChild(script);
 }
 
-// Initialize the page with the default language (English)
 loadGoogleTranslateScript();
