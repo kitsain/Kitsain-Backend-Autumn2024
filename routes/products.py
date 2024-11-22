@@ -1,17 +1,23 @@
-from flask import request, redirect, url_for, jsonify, render_template
+from flask import json, request, redirect, url_for, jsonify, render_template
 from models import db, Product, Shop, Price, User
 from datetime import datetime
 import random
+from sqlalchemy.orm.exc import NoResultFound
 from database_functions import add_product, add_price
+import csv
+from flask import session, jsonify, request
+import os
 
 from flask import request, redirect, url_for, session
 
+CSV_FILE_PATH = 'routes/product_data.csv'
 
 def add_product_from_html():
     """
     Gathers product information from an HTML form and passes it to the main add_product function.
     """
     try:
+
         # Retrieve data from the form
         product_name = request.form.get('product_name')
         weight_g = request.form.get('weight_g')
@@ -83,45 +89,74 @@ def add_product_from_html():
         print(f"Error gathering product info from HTML: {e}")
         return redirect(url_for('products_page'))
     
+
 def add_product_detail():
     try:
-        barcode = request.form.get('barcode')
-        brand = request.form.get('brand')
-        parent_company = request.form.get('parent_company')
-        volume = request.form.get('volume_ml')
-        gluten_free = request.form.get('gluten_free')
-        CO2 = request.form.get('CO2')
-        product_image_url = request.form.get('product_image_url')
-        product_name = request.form.get('product_name')
-        sub_brand = request.form.get('sub_brand')
-        weight = request.form.get('weight')
-        category = request.form.get('category')
-        esg_score = request.form.get('esg_score')
-        product_page_url = request.form.get('product_page_url')
-        product_image = request.form.get('product_image')
+        product_data = {}
 
-        information_links = ",".join(filter(None, [product_page_url, product_image_url]))
+        # Check if the CSV file exists
+        if os.path.exists(CSV_FILE_PATH):
+            with open(CSV_FILE_PATH, mode='r') as file:
+                reader = csv.reader(file)
+                # Loop through each row in the CSV
+                for row in reader:
+                    # Assuming the format is 'barcode, product_name, shop, price, ...'
+                    if len(row) >= 10:  # Ensure the row contains all the expected columns
+                        barcode = row[0]  # The barcode is in the first column
+                        product_name = row[1]  # The product name is in the second column
+                        shop = row[2]
+                        price = row[3]
+                        discount_price = row[4]
+                        discount_valid_from = row[5]
+                        discount_valid_to = row[6]
+                        waste_discount = row[7]
+                        expiration_date = row[8]
+                        product_amount = row[9]
+                        
+                        # Store the read data in the dictionary
+                        product_data['barcode'] = barcode
+                        product_data['product_name'] = product_name
+                        product_data['shop'] = shop
+                        product_data['price'] = price
+                        product_data['discount_price'] = discount_price
+                        product_data['discount_valid_from'] = discount_valid_from
+                        product_data['discount_valid_to'] = discount_valid_to
+                        product_data['waste_discount'] = waste_discount
+                        product_data['expiration_date'] = expiration_date
+                        product_data['product_amount'] = product_amount
 
-        add_product(
-            product_name=product_name,
-            weight_g=weight,
-            volume_l=volume,
-            barcode=barcode,
-            category=category,
-            esg_score=esg_score,
-            co2_footprint=CO2,
-            brand=brand,
-            sub_brand=sub_brand,
-            parent_company=parent_company,
-            information_links=information_links,
-            gluten_free=gluten_free
-        )
+                        # Print the row to show it
+                        print(f"Barcode: {barcode}, Product Name: {product_name}, Shop: {shop}, Price: {price}, Discount Price: {discount_price}, "
+                              f"Discount Valid From: {discount_valid_from}, Discount Valid To: {discount_valid_to}, Waste Discount: {waste_discount}, "
+                              f"Expiration Date: {expiration_date}, Product Amount: {product_amount}")
 
-        return redirect(url_for('products_page'))
+        # Finally, print the last product data collected
+        print("Product data from CSV:", product_data)
+
+        # Extract data from session (or use defaults if not found)
+        barcode = product_data.get('barcode')
+        product_name = product_data.get('product_name')
+        shop = session.get('product_data', {}).get('shop', '')
+        price = session.get('product_data', {}).get('price', '')
+        discount_price = session.get('product_data', {}).get('discount_price', '')
+        discount_valid_from = session.get('product_data', {}).get('discount_valid_from', '')
+        discount_valid_to = session.get('product_data', {}).get('discount_valid_to', '')
+        waste_discount = session.get('product_data', {}).get('waste_discount', '')
+        expiration_date = session.get('product_data', {}).get('expiration_date', '')
+        product_amount = session.get('product_data', {}).get('product_amount', '')
+
+        # Open the CSV file in write mode to overwrite it (this clears it)
+        with open(CSV_FILE_PATH, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            
+ 
+            #TODO: fill those values into database
+            return redirect(url_for('products_page'))
+
     except Exception as e:
-        print(f"Error gathering product info from HTML: {e}")
+        print(f"Error adding product detail: {e}")
         return redirect(url_for('products_page'))
-    
+
 
 def get_product_id_by_name(product_name):
     """

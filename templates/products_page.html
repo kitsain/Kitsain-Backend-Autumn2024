@@ -54,8 +54,8 @@
             <span class="close">&times;</span>            
             <form action="{{ url_for('filter_products_method') }}" method="POST" class="form">
                 <div class="input-group">
-                    <label for="product_name">Product Name:</label>
-                    <input type="text" id="product_name" name="product_name" class="input-field" value="{{ product_name }}">
+                    <label for="product_name_filter">Product Name:</label>
+                    <input type="text" id="product_name_filter" name="product_name_filter" class="input-field" value="{{ product_name_filter }}">
                 </div>
                 
                 <div class="input-group">
@@ -74,8 +74,8 @@
                 </div>
                 
                 <div class="input-group">
-                    <label for="expiration_date">Expiration Date:</label>
-                    <input type="date" id="expiration_date" name="expiration_date" class="input-field" value="{{ expiration_date }}">
+                    <label for="filter_expiration_date">Expiration Date:</label>
+                    <input type="date" id="filter_expiration_date" name="filter_expiration_date" class="input-field" value="{{ expiration_date }}">
                 </div>
                 
                 <button type="submit" class="btn-primary-add">Filter</button>
@@ -109,8 +109,8 @@
                         </div>
                         
                         <div class="input-group">
-                            <label for="shop">Shop</label>
-                            <select id="shop" name="shop" required class="input-field" placeholder="Select the nearest shop from list / is added automatically if GPS allowed">
+                            <label for="shop_add">Shop</label>
+                            <select id="shop_add" name="shop_add" required class="input-field" placeholder="Select the nearest shop from list / is added automatically if GPS allowed">
                                 {% for shop in shops %}
                                     <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
                                 {% endfor %}
@@ -200,8 +200,8 @@
                 <div class="adding-detailed-section">
 
                         <div class="input-group">
-                            <label for="barcode">Barcode</label>
-                            <input type="text" id="barcode" name="barcode" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
+                            <label for="barcode_detailed">Barcode</label>
+                            <input type="text" id="barcode_detailed" name="barcode_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
                         </div>
 
                         <div class="input-group">
@@ -243,8 +243,8 @@
                 <div class="adding-detailed-section">
 
                     <div class="input-group">
-                        <label for="product_name">Product Name</label>
-                        <input type="text" id="product_name" name="product_name" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
+                        <label for="product_name_detailed">Product Name</label>
+                        <input type="text" id="product_name_detailed" name="product_name_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
                     </div>
 
                     <div class="input-group">
@@ -341,7 +341,7 @@
 
                 <div class="input-group">
                     <label for="edit_product_name">Product Name:</label>
-                    <input type="text" id="edit_product_name" name="product_name" required class="input-field">
+                    <input type="text" id="edit_product_name" name="edit_product_name" required class="input-field">
                 </div>
                 
                 <div class="input-group">
@@ -365,7 +365,7 @@
                 
                 <div class="input-group">
                     <label for="edit_expiration_date">Expiration Date:</label>
-                    <input type="date" id="edit_expiration_date" name="expiration_date" required class="input-field">
+                    <input type="date" id="edit_expiration_date" name="edit_expiration_date" required class="input-field">
                 </div>
                 
                     <button type="submit" class="btn-primary-save">Save Changes</button>
@@ -488,19 +488,77 @@
     const closeAddDetailedInfoModal = addDetailedInfoModal.querySelector('.close');
     const addProductForm = document.getElementById('add-product-form');
 
-    // When "More product information" button is clicked
-    const moreInfoBtn = document.getElementById('moreInfoBtn');
+    // Get the input fields for detailed
+    const barcodeDetailedInput = document.getElementById('barcode_detailed');
+    const productNameDetailedInput = document.getElementById('product_name_detailed');
 
-    moreInfoBtn.addEventListener('click', function(event) {
-        // Prevent form submission
-        //event.preventDefault();
-        
-        // Ensure the form is valid before proceeding
+    // Get the input fields for detailed and other elements
+    const barcodeInput = document.getElementById('barcode');
+    const productNameInput = document.getElementById('product_name');
+    const shopInput = document.getElementById('shop_add');
+    const priceInput = document.getElementById('add-price');
+    const discountPriceInput = document.getElementById('discount_price');
+    const discountValidFromInput = document.getElementById('discount_valid_from');
+    const discountValidToInput = document.getElementById('discount_valid_to');
+    const wasteDiscountInput = document.getElementById('waste_discount_add');
+    const expirationDateInput = document.getElementById('expiration_date');
+    const productAmountInput = document.getElementById('product_amount');
+
+
+    // Handle "More product information" button click
+    moreInfoBtn.addEventListener('click', function () {
+
         if (addProductForm.checkValidity()) {
-            // If valid, close the addProductModal and open the addDetailedInfoModal
+            barcodeDetailedInput.value = barcodeInput.value;
+            productNameDetailedInput.value = productNameInput.value;
+
+            localStorage.setItem('barcode', barcodeInput.value);
+            localStorage.setItem('product_name', productNameInput.value);
+            localStorage.setItem('shop', shopInput.value);
+            localStorage.setItem('price', priceInput.value);
+            localStorage.setItem('discount_price', discountPriceInput.value);
+            localStorage.setItem('discount_valid_from', discountValidFromInput.value);
+            localStorage.setItem('discount_valid_to', discountValidToInput.value);
+            localStorage.setItem('waste_discount', wasteDiscountInput.value);
+            localStorage.setItem('expiration_date', expirationDateInput.value);
+            localStorage.setItem('product_amount', productAmountInput.value);
+
+            console.log(shopInput.value);
+            console.log(expirationDateInput.value);
+
+            // Send the data to the server using Fetch API
+            fetch('/save_product_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    barcode: barcodeInput.value,
+                    product_name: productNameInput.value,
+                    shop: shopInput.value,
+                    price: priceInput.value,
+                    discount_price: discountPriceInput.value,
+                    discount_valid_from: discountValidFromInput.value,
+                    discount_valid_to: discountValidToInput.value,
+                    waste_discount: wasteDiscountInput.value,
+                    expiration_date: expirationDateInput.value,
+                    product_amount: productAmountInput.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Product data saved:', data);
+                // Optionally do something with the response from the server
+            })
+            .catch(error => {
+                console.error('Error saving product data:', error);
+            });
+
+            //addProductForm.submit();
 
             addProductModal.style.display = 'none';
             addDetailedInfoModal.style.display = 'block';
+
         } else {
             // Show validation errors if the form is invalid
             addProductForm.reportValidity();
