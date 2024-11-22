@@ -43,7 +43,7 @@
         <div class="profile-picture-bigger"></div>
 
         <div class="user-info">
-        <p class="ml-4">{{user.username}}, </p>
+        <p class="ml-4">{{ user.username }}, </p>
         <p class="ml-5">welcome to your profile!</p>
         </div>
 
@@ -80,13 +80,13 @@
         <div class="point-containers">
             <div class="point-container">
                 <p class="point_header">Total Points</p>
-                <p class="total_points">3500</p>
-                <p class="point_change">+200</p>
+                <p class="total_points">{{ stats.total_points }}</p>
+                <p class="point_change">+{{ stats.recently_added_points }}</p>
             </div>
             <div class="point-container">
                 <p class="point_header">Points Earned/month</p>
-                <p class="total_points">500</p>
-                <p class="point_change">+50</p>
+                <p class="total_points">{{ stats.current_month_points }}</p>
+                <p class="point_change">+{{ stats.difference_between_months }}</p>
             </div>
         </div>
 

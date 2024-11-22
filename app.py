@@ -11,7 +11,7 @@ from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 import sqlite3
-from models import db, Product, Shop, User, Price
+from models import db, Product, Shop, User, Price, Aurapoints
 
 import database_functions as dbf
 
@@ -244,12 +244,11 @@ def my_profile_page():
     
     users = (User).query.all()
     shops = (Shop).query.all()
+    stats = (Aurapoints).query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
     
     # Pass the user's data to the template
-    return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
-
-
+    return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data, stats=stats)
 
 # routes.products
 
@@ -428,6 +427,54 @@ def search_discount_method():
         return redirect(url_for('login'))
     
     return search_discount()
+
+@app.route('/aura_stats/<int:user_id>', methods=['GET'])
+def get_aura_stats(user_id):
+    # Get total points
+    total_points = (
+        db.session.query(func.sum(Aurapoints.points))
+        .filter(Aurapoints.user_id == user_id)
+        .scalar() or 0
+    )
+
+    # Get lastly added points
+    latest_addition_query = (
+        db.session.query(Aurapoints.points)
+        .filter(Aurapoints.user_id == user_id)
+        .order_by(Aurapoints.timestamp.desc())
+        .first()
+    )
+    recently_added_points = latest_addition_query[0] if latest_addition_query else 0
+
+    # Get current month's points
+    current_month_points = (
+        db.session.query(func.sum(Aurapoints.points))
+        .filter(Aurapoints.user_id == user_id)
+        .filter(extract('month', Aurapoints.timestamp) == datetime.now().month)
+        .scalar() or 0
+    )
+
+    # Get last month's points
+    last_month = (datetime.now().month - 1) or 12
+    last_month_points = (
+        db.session.query(func.sum(Aurapoints.points))
+        .filter(Aurapoints.user_id == user_id)
+        .filter(extract('month', Aurapoints.timestamp) == last_month)
+        .scalar() or 0
+    )
+
+    # Get difference between current month and last month
+    difference_between_months = current_month_points - last_month_points
+
+    # Return in JSON-format
+    return jsonify({
+        'total_points': total_points,
+        'recently_added_points': recently_added_points,
+        'current_month_points': current_month_points,
+        'last_month_points': last_month_points,
+        'difference_between_months': difference_between_months
+    })
+
 
 
 if __name__ == '__main__':
