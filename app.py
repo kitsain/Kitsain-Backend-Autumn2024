@@ -142,7 +142,7 @@ def reset_password(token):
             print(f"Database error: {e}")
             return "Database error occurred", 500
 
-        return "Password reset successful", 200
+        return render_template('passwordSetSuccessfully.html')
 
     return render_template('resetPassword.html', token=token)
 
