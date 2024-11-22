@@ -337,46 +337,105 @@
     </div>
 
 
-    <!-- Modal for Editing Product -->
-    <div id="editProductModal" class="modal">
+
+
+       <!--Modal for editing a product-->
+       <div id="editProductModal" class="modal">
         <div class="modal-content">
             <span class="close-edit">&times;</span>
-            <h2 class="section-title">Edit Product</h2>
-            
-            <form id="editForm" class="form">
-                <!-- Separate fields with labels -->
-                <input type="hidden" id="edit_product_id" name="product_id">
+            <div class="add-headers">
+            <h2 class="section-title">Add Product / Update Product Details</h2>
+            <p>Add a product or modify product information with ease.</p>
+            </div>
 
-                <div class="input-group">
-                    <label for="edit_product_name">Product Name:</label>
-                    <input type="text" id="edit_product_name" name="edit_product_name" required class="input-field">
+            <input type="hidden" id="edit_product_id" name="product_id">
+
+            <form id="editForm" class="form">
+                <div class="adding-section">
+                    <h2 class="section-title">Product Details</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="edit_barcode">Barcode</label>
+                            <input type="text" id="edit_barcode" name="edit_barcode" required class="input-field" placeholder="Enter barcode / filled automatically if barcode scanned">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_product_name">Product Name</label>
+                            <input type="text" id="edit_product_name" name="edit_product_name" required class="input-field" placeholder="Enter product name / filled automatically if barcode is found">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="edit_shop">Shop</label>
+                            <select id="edit_shop" name="edit_shop" required class="input-field" placeholder="Select the nearest shop from list / is added automatically if GPS allowed">
+                                {% for shop in shops %}
+                                    <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="edit_shop">Shop:</label>
-                    <select id="edit_shop" name="shop" required class="input-field">
-                        {% for shop in shops %}
-                            <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
-                        {% endfor %}
-                    </select>
+
+                <div class="adding-section">
+                    <h2 class="section-title">Price Details</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="edit_price">Normal Price</label>
+                            <input type="number" step="0.01" id="edit_price" name="edit_price" required class="input-field" placeholder="Enter normal price">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="edit_discount_price">Discount Price</label>
+                            <input type="number" step="0.01" id="edit_discount_price" name="edit_discount_price" class="input-field" oninput="calculateWasteDiscount()" placeholder="Enter discount price">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="edit_discount_valid_from">Valid From</label>
+                            <input type="date" id="edit_discount_valid_from" name="edit_discount_valid_from" required class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_discount_valid_to">Valid To</label>
+                            <input type="date" id="edit_discount_valid_to" name="edit_discount_valid_to" required class="input-field">
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="edit_price">Price:</label>
-                    <input type="number" step="0.01" id="edit_price" name="price" required class="input-field" >
+
+                <div class="adding-section">
+                    <h2 class="section-title">Waste Discount Label</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="edit_waste_discount">Waste Discount (%)</label>
+                            <input type="number" step="0.1" id="edit_waste_discount" name="edit_waste_discount" class="input-field" oninput="calculateDisountPrice()" placeholder="Enter discount percentage">
+                        </div>
+            
+                        <div class="input-group">
+                            <label for="edit_expiration_date">Expiration Date</label>
+                            <input type="date" id="edit_expiration_date" name="edit_expiration_date" required class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_product_amount">Amount in Stock</label>
+                            <div class="btn-group margin-top" role="group" aria-label="Stock Amount Options">
+                                <button type="button" class="btn btn-secondary-add" id="fewButton" data-value="Few">Few</button>
+                                <button type="button" class="btn btn-secondary-add" id="moderateButton" data-value="Moderate">Moderate</button>
+                                <button type="button" class="btn btn-secondary-add" id="manyButton" data-value="Many">Many</button>
+                            </div>
+                            <input type="hidden" id="edit_product_amount" name="edit_product_amount" value="">
+                        </div>
+                        
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="edit_waste_discount">Waste Discount (%):</label>
-                    <input type="number" step="0.1" id="edit_waste_discount" name="waste_discount" required class="input-field">
+
+                <div class="all-buttons-add">
+                    <button type="button" class="btn-primary-add-more" id="moreInfoBtn">More product information</button>
+                    <div class="bottom-buttons">
+                        <button type="button" class="btn-primary-add-discard" id="discardChangesBtn">Discard Changes</button>
+                        <button type="submit" class="btn-primary-add">Save Changes</button>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="edit_expiration_date">Expiration Date:</label>
-                    <input type="date" id="edit_expiration_date" name="edit_expiration_date" required class="input-field">
-                </div>
-                
-                    <button type="submit" class="btn-primary-save">Save Changes</button>
             </form>
         </div>
     </div>
