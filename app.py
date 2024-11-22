@@ -120,9 +120,16 @@ def reset_password(token):
         # if not new_password or not confirm_password:
         #     return "Both password fields are required", 400
 
-        if new_password != confirm_password:
+        # Muuta tähän kympin tilalle globaali vakio
+        if len(new_password) < 10:
+            flash("Error: New password is too short (min 10 chars)")
+            return render_template('resetPassword.html', token=token)
+
+        elif new_password != confirm_password:
             flash("Error: The password fields were not equal", category="error")
             return render_template('resetPassword.html', token=token)
+        
+        
 
         # Update password in the database (example with SQLite)
         try:
