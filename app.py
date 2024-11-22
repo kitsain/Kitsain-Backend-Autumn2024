@@ -116,12 +116,13 @@ def reset_password(token):
     if request.method == 'POST':
         new_password = request.form.get('fname')
         confirm_password = request.form.get('lname')
-        
-        if not new_password or not confirm_password:
-            return "Both password fields are required", 400
-        
+
+        # if not new_password or not confirm_password:
+        #     return "Both password fields are required", 400
+
         if new_password != confirm_password:
-            return "Passwords do not match", 400
+            flash("Error: The password fields were not equal", category="error")
+            return render_template('resetPassword.html', token=token)
 
         # Update password in the database (example with SQLite)
         try:
