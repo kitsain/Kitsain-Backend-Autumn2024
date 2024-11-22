@@ -19,18 +19,24 @@
         <form action="{{ url_for('products_page') }}" method="GET" class="d-inline">
             <button type="submit" class="btn btn-primary ml-2">Products</button>
         </form>
-        <form >
+        <form action="{{ url_for('shops_page') }}" method="GET" class="d-inline">
             <button type="submit" class="btn btn-primary ml-2">Stores</button>
         </form>
+        <!-- <form >
+            <button type="submit" class="btn btn-primary ml-2">Stores</button>
+        </form> -->
         <button class="btn btn-success ml-2">Add</button>
         <form action="{{ url_for('my_profile_page') }}" method="GET" class="d-inline">
             <button class="btn btn-info ml-2">Profile</button>
         </form>
-        <select class="ml-2">
-            <option>EN</option>
-            <option>FI</option>
-            <!-- Add more languages as needed -->
-        </select>
+        <div id="google_translate_element">
+            <!-- <select class="ml-2">
+                <option>EN</option>
+                <option>FI</option> -->
+                <!-- Add more languages as needed -->
+            <!-- </select> -->
+        </div>
+
     </div>
 
     <!-- Central search box for products -->
@@ -138,6 +144,8 @@
             </div>
         </div>        
     </div>
+    
+    <script src="../static/language_support.js"></script>
 
 </body>
 </html>
