@@ -87,7 +87,7 @@ def email():
         # In production, consider a separate table for tokens with expiration
         con = sqlite3.connect("commerce_data.db")
         cur = con.cursor()
-        cur.execute('UPDATE user SET password = ? WHERE email = ?', (reset_token, email))
+        cur.execute('UPDATE user SET reset_token = ? WHERE email = ?', (reset_token, email))
         con.commit()
         con.close()
 
@@ -119,6 +119,13 @@ def reset_password(token):
         new_password = request.form.get('fname')
         confirm_password = request.form.get('lname')
 
+        if token is None:
+            print("Token puuttuu!")
+            raise ValueError("Token cannot be None")
+        
+        else: 
+            print("Päästiin Token-tarkituksesta ohi!")
+
         # if not new_password or not confirm_password:
         #     return "Both password fields are required", 400
 
@@ -144,6 +151,23 @@ def reset_password(token):
             flash("Error: Your password must have at least one special character")
             return render_template('resetPassword.html', token=token)
 
+        conn = sqlite3.connect('commerce_data.db')
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM user
+            WHERE reset_token = ?
+        """, (token,))
+
+        count = cur.fetchone()[0]
+        conn.close()
+
+        if count < 1: 
+            flash("Error: Unfortunately this reset token has already been used.")
+            return render_template('resetPassword.html', token=token)
+
+
         # Update password in the database (example with SQLite)
         try:
             conn = sqlite3.connect('commerce_data.db')
@@ -151,8 +175,14 @@ def reset_password(token):
             cur.execute("""
                 UPDATE user
                 SET password = ?
-                WHERE password = ?
+                WHERE reset_token = ?
             """, (dbf.generate_password_hash(new_password), token))
+            conn.commit()
+            cur.execute("""
+                UPDATE user
+                SET reset_token = NULL
+                WHERE reset_token = ?
+            """, (token,))
             conn.commit()
             conn.close()
 

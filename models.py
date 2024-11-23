@@ -21,6 +21,7 @@ class User(db.Model):
     aura_points = db.Column(db.Integer, default=0)
     last_login = db.Column(db.DateTime, default=db.func.current_timestamp())
     creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
+    reset_token = db.Column(db.String, nullable=True)  # Uusi sarake tokenille
 
     # Constraint on role
     __table_args__ = (
