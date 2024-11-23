@@ -115,6 +115,23 @@ def email():
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+
+    if request.method == 'GET': 
+        conn = sqlite3.connect('commerce_data.db')
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM user
+            WHERE reset_token = ?
+        """, (token,))
+
+        count = cur.fetchone()[0]
+        conn.close()
+
+        if count < 1: 
+            return render_template('resetLinkExpired.html', token=token)
+
     if request.method == 'POST':
         new_password = request.form.get('fname')
         confirm_password = request.form.get('lname')
@@ -140,7 +157,7 @@ def reset_password(token):
         has_capital = any(char.isupper() for char in new_password)
 
         if not has_capital: 
-            flash("Error: You password must have at least one capital letter")
+            flash("Error: Your password must have at least one capital letter")
             return render_template('resetPassword.html', token=token)
         
         special_characters = "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`"
@@ -150,23 +167,6 @@ def reset_password(token):
         if not has_special: 
             flash("Error: Your password must have at least one special character")
             return render_template('resetPassword.html', token=token)
-
-        conn = sqlite3.connect('commerce_data.db')
-        cur = conn.cursor()
-
-        cur.execute("""
-            SELECT COUNT(*)
-            FROM user
-            WHERE reset_token = ?
-        """, (token,))
-
-        count = cur.fetchone()[0]
-        conn.close()
-
-        if count < 1: 
-            flash("Error: Unfortunately this reset token has already been used.")
-            return render_template('resetPassword.html', token=token)
-
 
         # Update password in the database (example with SQLite)
         try:
