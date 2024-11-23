@@ -28,6 +28,8 @@ app.config['MAIL_PASSWORD'] = ''
 
 mail = Mail(app)
 
+MIN_PASSWORD_LENGHT = 10
+
 db.init_app(app)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -120,8 +122,7 @@ def reset_password(token):
         # if not new_password or not confirm_password:
         #     return "Both password fields are required", 400
 
-        # Muuta tähän kympin tilalle globaali vakio
-        if len(new_password) < 10:
+        if len(new_password) < MIN_PASSWORD_LENGHT:
             flash("Error: New password is too short (min 10 chars)")
             return render_template('resetPassword.html', token=token)
 
@@ -129,7 +130,19 @@ def reset_password(token):
             flash("Error: The password fields were not equal", category="error")
             return render_template('resetPassword.html', token=token)
         
+        has_capital = any(char.isupper() for char in new_password)
+
+        if not has_capital: 
+            flash("Error: You password must have at least one capital letter")
+            return render_template('resetPassword.html', token=token)
         
+        special_characters = "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`"
+
+        has_special = any(char in special_characters for char in new_password)
+
+        if not has_special: 
+            flash("Error: Your password must have at least one special character")
+            return render_template('resetPassword.html', token=token)
 
         # Update password in the database (example with SQLite)
         try:
