@@ -147,7 +147,7 @@ def reset_password(token):
         has_capital = any(char.isupper() for char in new_password)
 
         if not has_capital: 
-            flash("Error: Your password must have at least one capital letter")
+            flash("Error: Your password must have at least one capital letter.")
             return render_template('resetPassword.html', token=token)
         
         special_characters = "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`"
@@ -155,11 +155,17 @@ def reset_password(token):
         has_special = any(char in special_characters for char in new_password)
 
         if not has_special: 
-            flash("Error: Your password must have at least one special character")
+            flash("Error: Your password must have at least one special character.")
             return render_template('resetPassword.html', token=token)
         
-        print("New passwordin arvo rivillä 171: ", new_password)
-        print("Confirm passwordin arvo rivillä 171: ", confirm_password)
+        has_numbers = any(char.isdigit() for char in new_password)
+
+        if not has_numbers:
+            flash("Error: Your password must have at least one number.")
+            return render_template('resetPassword.html', token=token)
+        
+        print("New passwordin arvo: ", new_password)
+        print("Confirm passwordin arvo: ", confirm_password)
 
         # Update password in the database (example with SQLite)
         try:
