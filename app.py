@@ -6,6 +6,8 @@ from datetime import datetime
 from sqlalchemy import desc
 from flask import session
 import uuid
+import hashlib
+import secrets
 from routes.products import add_product_from_html, remove_product, update_product, get_products, search_discount, add_product_detail
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
@@ -80,16 +82,15 @@ def email():
         #     print("Käyttäjä löytyi!")
         #     print("Käyttäjä: ", user)
 
-        reset_token = str(uuid.uuid4())
+        # reset_token = str(uuid.uuid4())
+        reset_token = secrets.token_urlsafe(32)
         session['reset_token'] = reset_token
+
+        hashed_token = hashlib.sha256(reset_token.encode()).hexdigest()
 
         # Save token to the database (simple example using session)
         # In production, consider a separate table for tokens with expiration
-        con = sqlite3.connect("commerce_data.db")
-        cur = con.cursor()
-        cur.execute('UPDATE user SET reset_token = ? WHERE email = ?', (reset_token, email))
-        con.commit()
-        con.close()
+        cur.execute('UPDATE user SET reset_token = ? WHERE email = ?', (hashed_token, email))
 
         # Send email
         reset_link = url_for('reset_password', token=reset_token, _external=True)
@@ -99,14 +100,10 @@ def email():
         msg.body = f"Click the link to reset your password: {reset_link}"
         mail.send(msg)
 
-        # password = "uudempi_salasana"
-
-        # cur.execute('UPDATE user SET password = ? WHERE email = ?', (password, email))
-        # con.commit()
-        # con.close()
-
         # session.pop('email', None)
         # session.pop('emailagain', None)
+        con.commit()
+        con.close()
         return render_template("passwordSetConfirmation.html")
     
     email = session.get('email', '')
@@ -116,6 +113,9 @@ def email():
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
 
+    hashed_token = hashlib.sha256(token.encode()).hexdigest()
+    print("Hashed token: ", hashed_token)
+
     if request.method == 'GET': 
         conn = sqlite3.connect('commerce_data.db')
         cur = conn.cursor()
@@ -124,7 +124,7 @@ def reset_password(token):
             SELECT COUNT(*)
             FROM user
             WHERE reset_token = ?
-        """, (token,))
+        """, (hashed_token,))
 
         count = cur.fetchone()[0]
         conn.close()
@@ -133,8 +133,8 @@ def reset_password(token):
             return render_template('resetLinkExpired.html', token=token)
 
     if request.method == 'POST':
-        new_password = request.form.get('fname')
-        confirm_password = request.form.get('lname')
+        new_password = request.form.get('password')
+        confirm_password = request.form.get('newpassword')
 
         if token is None:
             print("Token puuttuu!")
@@ -167,6 +167,9 @@ def reset_password(token):
         if not has_special: 
             flash("Error: Your password must have at least one special character")
             return render_template('resetPassword.html', token=token)
+        
+        print("New passwordin arvo rivillä 171: ", new_password)
+        print("Confirm passwordin arvo rivillä 171: ", confirm_password)
 
         # Update password in the database (example with SQLite)
         try:
@@ -176,13 +179,14 @@ def reset_password(token):
                 UPDATE user
                 SET password = ?
                 WHERE reset_token = ?
-            """, (dbf.generate_password_hash(new_password), token))
+            """, (dbf.generate_password_hash(new_password), hashed_token))
+            # (dbf.generate_password_hash(new_password)
             conn.commit()
             cur.execute("""
                 UPDATE user
                 SET reset_token = NULL
                 WHERE reset_token = ?
-            """, (token,))
+            """, (hashed_token,))
             conn.commit()
             conn.close()
 
