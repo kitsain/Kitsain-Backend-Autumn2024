@@ -5,7 +5,6 @@ from sqlalchemy import CheckConstraint, text
 from datetime import datetime
 from sqlalchemy import desc
 from flask import session
-import uuid
 import hashlib
 import secrets
 from routes.products import add_product_from_html, remove_product, update_product, get_products, search_discount, add_product_detail
@@ -65,7 +64,6 @@ def email():
         user = cur.fetchone()
 
         if email != emailagain:
-            # print("The email fields are not equal")
             flash("Error: The email fields were not equal", category="error")
             session['email'] = email
             session['emailagain'] = emailagain
@@ -77,12 +75,7 @@ def email():
             print("Käyttäjää ei löytynyt")
             flash("Email not found in the system", category="error")
             return redirect(url_for('email'))
-
-        # if user: 
-        #     print("Käyttäjä löytyi!")
-        #     print("Käyttäjä: ", user)
-
-        # reset_token = str(uuid.uuid4())
+        
         reset_token = secrets.token_urlsafe(32)
         session['reset_token'] = reset_token
 
@@ -143,9 +136,6 @@ def reset_password(token):
         else: 
             print("Päästiin Token-tarkituksesta ohi!")
 
-        # if not new_password or not confirm_password:
-        #     return "Both password fields are required", 400
-
         if len(new_password) < MIN_PASSWORD_LENGHT:
             flash("Error: New password is too short (min 10 chars)")
             return render_template('resetPassword.html', token=token)
@@ -180,7 +170,6 @@ def reset_password(token):
                 SET password = ?
                 WHERE reset_token = ?
             """, (dbf.generate_password_hash(new_password), hashed_token))
-            # (dbf.generate_password_hash(new_password)
             conn.commit()
             cur.execute("""
                 UPDATE user
@@ -303,8 +292,6 @@ def my_profile_page():
     
     # Pass the user's data to the template
     return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
-
-
 
 # routes.products
 
