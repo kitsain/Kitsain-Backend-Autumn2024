@@ -87,10 +87,10 @@ def email():
 
         # Send email
         reset_link = url_for('reset_password', token=reset_token, _external=True)
-        msg = Message("Password Reset Request",
+        msg = Message("Kitsain password reset request",
                       sender="your_email@example.com",
                       recipients=[email])
-        msg.body = f"Click the link to reset your password: {reset_link}"
+        msg.body = f"Hello!\n\nThank you for using Kitsain. You can reset your password with the following link: {reset_link} \n\nPlease note that the preceding link expires after resetting the password with it and cannot reused.\n\nSincerely,\nKitsain"
         mail.send(msg)
 
         # session.pop('email', None)
