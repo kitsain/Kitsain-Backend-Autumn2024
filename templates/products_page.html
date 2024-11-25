@@ -315,10 +315,32 @@
                         <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
                         <p class="product-expiration">{{ price.waste_valid_to.strftime('%d.%m.%Y') if price.waste_valid_to else 'N/A' }}</p>
                         </div>
+
                         <div class="product_buttons">
-                            <button type="submit" class="btn-primary-edit" id="EditButton">Edit</button>
+                            <button type="submit" class="btn-primary-edit" id="EditButton" onclick="populateEditModals('{{product.product_id}}')">Edit</button>
                             <button type="button" class="btn-secondary-delete" onclick="deleteProduct('{{ product.product_id }}')">Delete</button>
                         </div>
+
+                        <!-- Hidden Fields -->
+                        <input type="hidden" class="hidden-field" id="barcode" value="{{ product.barcode }}">
+                        <input type="hidden" class="hidden-field" id="shop-id" value="{{ price.shop.shop_id if price.shop else '' }}">
+                        <input type="hidden" class="hidden-field" id="amount-in-stock" value="{{ price.waste_quantity }}">
+                        <input type="hidden" class="hidden-field" id="discount_valid_from" value="{{ price.discount_valid_from }}">
+                        <input type="hidden" class="hidden-field" id="discount_valid_to" value="{{ price.discount_valid_to }}">
+
+                        <input type="hidden" class="hidden-field" id="gluten_free" value="{{ product.gluten_free }}">
+                        <input type="hidden" class="hidden-field" id="co2_footprint" value="{{ product.co2_footprint }}">
+                        <input type="hidden" class="hidden-field" id="esg-score" value="{{ product.esg_score }}">
+                        <input type="hidden" class="hidden-field" id="product-image-url" value="{{ product.product_image_url }}">
+                        <input type="hidden" class="hidden-field" id="brand" value="{{ product.brand }}">
+                        <input type="hidden" class="hidden-field" id="sub_brand" value="{{ product.sub_brand }}">
+                        <input type="hidden" class="hidden-field" id="parent_company" value="{{ product.parent_company }}">
+                        <input type="hidden" class="hidden-field" id="weight" value="{{ product.weight }}">
+                        <input type="hidden" class="hidden-field" id="volume_ml" value="{{ product.volume_ml }}">
+                        <input type="hidden" class="hidden-field" id="category" value="{{ product.category }}">
+                        <input type="hidden" class="hidden-field" id="esg_score" value="{{ product.esg_score }}">
+                        <input type="hidden" class="hidden-field" id="CO2" value="{{ product.CO2 }}">
+
                     </div>
                 {% endfor %}
             {% endfor %}
@@ -339,8 +361,8 @@
 
 
 
-       <!--Modal for editing a product-->
-       <div id="editProductModal" class="modal">
+    <!--Modal for editing a product-->
+    <div id="editProductModal" class="modal">
         <div class="modal-content">
             <span class="close-edit">&times;</span>
             <div class="add-headers">
@@ -419,9 +441,9 @@
                         <div class="input-group">
                             <label for="edit_product_amount">Amount in Stock</label>
                             <div class="btn-group margin-top" role="group" aria-label="Stock Amount Options">
-                                <button type="button" class="btn btn-secondary-add" id="fewButton" data-value="Few">Few</button>
-                                <button type="button" class="btn btn-secondary-add" id="moderateButton" data-value="Moderate">Moderate</button>
-                                <button type="button" class="btn btn-secondary-add" id="manyButton" data-value="Many">Many</button>
+                                <button type="button" class="btn btn-secondary-add-edit" id="fewButton-edit" data-value="Few">Few</button>
+                                <button type="button" class="btn btn-secondary-add-edit" id="moderateButton-edit" data-value="Moderate">Moderate</button>
+                                <button type="button" class="btn btn-secondary-add-edit" id="manyButton-edit" data-value="Many">Many</button>
                             </div>
                             <input type="hidden" id="edit_product_amount" name="edit_product_amount" value="">
                         </div>
@@ -511,22 +533,8 @@
         function handleEditProductModal() {
         // Get the modal for editing products
         var modal = document.getElementById("editProductModal");
-        // Get the button that opens the modal
-        var editButtons = document.getElementsByClassName("editButton");
         // Get the <span> element that closes the modal
         var span = modal.getElementsByClassName("close")[0];
-    
-        // Add click event listeners to all edit buttons
-        Array.from(editButtons).forEach(button => {
-            button.onclick = function(event) {
-                event.preventDefault(); // Prevent default button action
-                modal.style.display = "block";
-
-                // Optionally, populate the modal fields with the product data
-                var productId = button.dataset.productId; // Assuming data-product-id attribute is used
-                populateEditModalFields(productId);
-            };
-        });
 
         // When the user clicks on <span> (x), close the modal
         span.onclick = function() {
@@ -547,20 +555,47 @@
         handleEditProductModal();
     </script>
 
-
-
-    <script>
-        document.querySelectorAll(".btn-secondary-add").forEach(button => {
-        button.addEventListener("click", function () {
+<script>
+document.querySelectorAll(".btn-secondary-add").forEach(button => {
+    button.addEventListener("click", function () {
+        // Check if the clicked button already has the 'active' class
+        if (this.classList.contains("selected")) {
+            // If it does, unselect it by removing the 'selected' class
+            this.classList.remove("selected");
+            document.getElementById("product_amount").value = ""; // Optional: Clear the value
+        } else {
+            // If it doesn't, unselect all other buttons first
             document.querySelectorAll(".btn-secondary-add").forEach(btn => btn.classList.remove("selected"));
-
+            // Add the 'selected' class to the clicked button
             this.classList.add("selected");
-
             const selectedValue = this.getAttribute("data-value");
-            document.getElementById("product_amount").value = selectedValue;
+            document.getElementById("product_amount").value = selectedValue; // Set the value
+        }
+    });
+});
+</script>
+
+<script>
+    document.querySelectorAll(".btn-secondary-add-edit").forEach(button => {
+        button.addEventListener("click", function () {
+            // Check if the clicked button already has the 'active' class
+            if (this.classList.contains("active")) {
+                // If it does, unselect it by removing the 'selected' class
+                this.classList.remove("active");
+                document.getElementById("product_amount").value = ""; // Optional: Clear the value
+            } else {
+                // If it doesn't, unselect all other buttons first
+                document.querySelectorAll(".btn-secondary-add-edit").forEach(btn => btn.classList.remove("active"));
+                // Add the 'selected' class to the clicked button
+                this.classList.add("active");
+                const selectedValue = this.getAttribute("data-value");
+                document.getElementById("product_amount").value = selectedValue; // Set the value
+            }
         });
     });
     </script>
+    
+
 
 
     <script>
@@ -578,6 +613,36 @@
         // Get the modal and the "Discard Changes" button
         var modal = document.getElementById("addProductModal");
         var discardBtn = document.getElementById("discardChangesBtn");
+        var closeBtn = document.getElementsByClassName("close")[0];
+
+        // Function to close the modal
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Close the modal when the "Discard Changes" button is clicked
+        discardBtn.onclick = function() {
+            closeModal();
+        }
+
+        // Also close the modal when the "×" button is clicked
+        closeBtn.onclick = function() {
+            closeModal();
+        }
+
+        // Optional: Close the modal if the user clicks outside the modal content
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+
+        
+    <script>
+        // Get the modal and the "Discard Changes" button
+        var modal = document.getElementById("editProductModal");
+        var discardBtn = document.getElementById("edit_discardChangesBtn");
         var closeBtn = document.getElementsByClassName("close")[0];
 
         // Function to close the modal

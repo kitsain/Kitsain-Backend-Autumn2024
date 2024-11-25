@@ -252,6 +252,9 @@ def products_page():
         return redirect(url_for('login'))
     
     products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
+
+    
+
     shops = Shop.query.all()
     return render_template('products_page.html', products=products, shops=shops)
 
@@ -325,7 +328,7 @@ def remove_product_method(product_id):
     
     return remove_product(product_id)
 
-@app.route('/update_product', methods=['POST'])
+@app.route('/update_product', methods=['POST', 'PUT'])
 def update_product_method():
     # Check access rights
     if dbf.confirm_access() == None:

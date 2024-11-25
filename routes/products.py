@@ -158,7 +158,7 @@ def add_product_detail():
         #additional information
         weight_g = float(request.form.get('weight', 0) or 0)
         volume_l = float(request.form.get('volume_ml', 0) or 0)
-        barcode = request.form.get('barcode')
+        #barcode = request.form.get('barcode')
         category = request.form.get('category')
         esg_score = request.form.get('esg_score')
         co2_footprint = request.form.get('CO2')
@@ -215,7 +215,7 @@ def add_product_detail():
             waste_valid_to=expiration_date,
             waste_quantity=product_amount
         )
-        
+
         return redirect(url_for('products_page'))
 
     except Exception as e:
@@ -264,25 +264,38 @@ def remove_product(product_id):
 
     return redirect(url_for('products_page'))
 
+from flask import request, jsonify
+
 def update_product():
+    # Get JSON data from the request
     data = request.get_json() 
 
+    # Extract values from the JSON data
     product_id = data.get('product_id')
     product_name = data.get('product_name')
     shop = data.get('shop')
     price = data.get('price')
     waste_discount = data.get('waste_discount')
     expiration_date = data.get('expiration_date')
+    product_amount = data.get('product_amount')  # Few, Moderate, Many
+    discount_price = data.get('discount_price')
+    discount_valid_from = data.get('discount_valid_from')
+    discount_valid_to = data.get('discount_valid_to')
 
-    success = update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date)
+    # Call a function to update the product in the database
+    success = update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date, 
+                                    product_amount, discount_price, discount_valid_from, discount_valid_to)
 
+    # Check if the update was successful and return appropriate response
     if success:
         return jsonify({"message": "Succeeded to update product."}), 200
     else:
         return jsonify({"message": "Failed to update product."}), 500
 
 
-def update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date):
+def update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date, 
+                          product_amount, discount_price, discount_valid_from, discount_valid_to):
+    # Get the product by its ID
     product = Product.query.get(product_id)
     
     if not product:
@@ -293,7 +306,11 @@ def update_product_in_db(product_id, product_name, shop, price, waste_discount, 
     product.shop = shop  
     product.price = price
     product.waste_discount_percentage = waste_discount
-    product.valid_to_date = expiration_date 
+    product.valid_to_date = expiration_date
+    product.product_amount = product_amount  # New field for stock amount (Few, Moderate, Many)
+    product.discount_price = discount_price  # New field for discount price
+    product.discount_valid_from = discount_valid_from  # New field for discount validity start
+    product.discount_valid_to = discount_valid_to  # New field for discount validity end
     
     try:
         db.session.commit()  # Save changes to the database
@@ -302,6 +319,7 @@ def update_product_in_db(product_id, product_name, shop, price, waste_discount, 
         db.session.rollback()  # Rollback in case of error
         print(f"Error updating product: {e}")
         return False
+
     
 def get_products():
     try:

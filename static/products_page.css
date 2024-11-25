@@ -538,3 +538,23 @@ h2.section-title{
     background-color: #6B3B48;
     color: #fff;
 }
+
+.btn-secondary-add-edit {
+    padding: 8px;
+
+    width: auto;
+    height: 36px;
+
+    background: rgba(81, 25, 72, 0.47);
+    border-radius: 6px;
+}
+
+.btn-secondary-add-edit:hover {
+    background-color: #e0e0e0;
+    border-color: #888;
+}
+
+.btn-secondary-add-edit.active {
+    background-color: #6B3B48;
+    color: #fff;
+}
