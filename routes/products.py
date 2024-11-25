@@ -132,18 +132,19 @@ def add_product_detail():
         barcode = product_data.get('barcode')
         product_name = product_data.get('product_name')
 
-        #discount_price = product_data.get('discount_price', '')
-        #discount_valid_from = product_data.get('discount_valid_from', '')
-        #discount_valid_to = product_data.get('discount_valid_to')
-        #waste_discount = product_data.get('waste_discount', '')
-        #product_amount = product_data.get('product_amount', '')
+        discount_price = product_data.get('discount_price', '')
+        discount_valid_from = product_data.get('discount_valid_from', '')
+        discount_valid_to = product_data.get('discount_valid_to')
+        waste_discount = product_data.get('waste_discount', '')
+        price = product_data.get('price', '')
+        product_amount = product_data.get('product_amount', '')
 
-        price = session.get('product_data', {}).get('price', '')
-        discount_price = session.get('product_data', {}).get('discount_price', '')
-        discount_valid_from = session.get('product_data', {}).get('discount_valid_from', '')
-        discount_valid_to = session.get('product_data', {}).get('discount_valid_to', '')
-        waste_discount = session.get('product_data', {}).get('waste_discount', '')
-        product_amount = session.get('product_data', {}).get('product_amount', '')
+        #price = session.get('product_data', {}).get('price', '')
+        #discount_price = session.get('product_data', {}).get('discount_price', '')
+        #discount_valid_from = session.get('product_data', {}).get('discount_valid_from', '')
+        #discount_valid_to = session.get('product_data', {}).get('discount_valid_to', '')
+        #waste_discount = session.get('product_data', {}).get('waste_discount', '')
+        #product_amount = session.get('product_data', {}).get('product_amount', '')
 
         shop=product_data.get('shop', '')
         expiration_date = product_data.get('expiration_date', '')
@@ -264,18 +265,14 @@ def remove_product(product_id):
     return redirect(url_for('products_page'))
 
 def update_product():
-    data = request.get_json()  # Get the JSON data from the request
+    data = request.get_json() 
 
-    # Extract data from the request
     product_id = data.get('product_id')
     product_name = data.get('product_name')
     shop = data.get('shop')
     price = data.get('price')
     waste_discount = data.get('waste_discount')
     expiration_date = data.get('expiration_date')
-
-    # Logic to update the product in your database
-    # Example: use SQLAlchemy to update the product record
 
     success = update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date)
 
