@@ -82,7 +82,7 @@ function populateEditModals(productId) {
     // Populate stock amount buttons based on the value
     const stockAmount = productBox.querySelector("#amount-in-stock")?.value;
 
-    const stockButtons = document.querySelectorAll(".btn-secondary-add-edit");
+    //const stockButtons = document.querySelectorAll(".btn-secondary-add-edit");
     
     // Remove any active class from buttons
     //stockButtons.forEach(button => button.classList.remove('active'));
@@ -115,8 +115,8 @@ function populateEditModals(productId) {
     setFieldValue("edit_discount_valid_from", formatDateForInput(discountValidFrom));
     setFieldValue("edit_discount_valid_to", formatDateForInput(discountValidTo));
 
+    // additional infomation
     setFieldValue("edit_gluten_free", productBox.querySelector("#gluten_free")?.value || "");
-    setFieldValue("edit_co2_footprint", productBox.querySelector("#co2_footprint")?.value || "");
     setFieldValue("edit_esg_score", productBox.querySelector("#esg-score")?.value || "");
     setFieldValue("edit_product_image_url", productBox.querySelector("#product-image-url")?.value || "");
     setFieldValue("edit_brand", productBox.querySelector("#brand")?.value || "");
@@ -126,6 +126,17 @@ function populateEditModals(productId) {
     setFieldValue("edit_volume_ml", productBox.querySelector("#volume_ml")?.value || "");
     setFieldValue("edit_category", productBox.querySelector("#category")?.value || "");
     setFieldValue("edit_CO2", productBox.querySelector("#CO2")?.value || "");
+
+    // Handle Gluten Free field
+    const glutenFreeValue = productBox.querySelector("#gluten_free")?.value;
+    console.log(glutenFreeValue);
+    if (glutenFreeValue === "True") {
+        document.getElementById("yesButton-edit").classList.add('active');
+        document.getElementById("edit_gluten_free").value = "Yes";
+    } else if (glutenFreeValue === "False") {
+        document.getElementById("noButton-edit").classList.add('active');
+        document.getElementById("edit_gluten_free").value = "No";
+    }
 
     // Show the modal
     editModal.style.display = "block";
@@ -148,6 +159,7 @@ document.getElementById("editForm").addEventListener("submit", function(event) {
 
     // Get values from form inputs
     const product_id = document.getElementById("edit_product_id").value;
+    const barcode = document.getElementById("edit_barcode").value;
     const product_name = document.getElementById("edit_product_name").value;
     const shop = document.getElementById("edit_shop").value;
     const price = document.getElementById("edit_price").value;
@@ -161,6 +173,7 @@ document.getElementById("editForm").addEventListener("submit", function(event) {
     // Create the request payload
     const payload = {
         product_id,
+        barcode,
         product_name,
         shop,
         price,
@@ -186,6 +199,86 @@ document.getElementById("editForm").addEventListener("submit", function(event) {
 
         // Close the modal
         document.getElementById("editProductModal").style.display = "none";  // Hide modal
+
+        // Redirect to products page
+        window.location.href = "/products_page";  // Or the appropriate URL for your products page
+    })
+    .catch(error => {
+        console.error('Error updating product:', error);
+    });
+});
+
+document.getElementById("editDetailedForm").addEventListener("submit", function(event) {
+    event.preventDefault();  // Prevent default form submission
+
+    // Get values from both forms (editForm and editDetailedForm)
+    const product_id = document.getElementById("edit_product_id").value;
+    
+    // Values from the editForm
+    const product_name = document.getElementById("edit_product_name").value;
+    const shop = document.getElementById("edit_shop").value;
+    const price = document.getElementById("edit_price").value;
+    const waste_discount = document.getElementById("edit_waste_discount").value;
+    const expiration_date = document.getElementById("edit_expiration_date").value;
+    const product_amount = document.querySelector(".btn-secondary-add-edit.active")?.getAttribute("data-value");
+    const discount_price = document.getElementById("edit_discount_price").value;
+    const discount_valid_from = document.getElementById("edit_discount_valid_from").value;
+    const discount_valid_to = document.getElementById("edit_discount_valid_to").value;
+
+    // Values from the editDetailedForm
+    const barcode = document.getElementById("edit_barcode_detailed").value;
+    const brand = document.getElementById("edit_brand").value;
+    const parent_company = document.getElementById("edit_parent_company").value;
+    const volume_ml = document.getElementById("edit_volume_ml").value;
+    const gluten_free = document.getElementById("edit_gluten_free").value;
+    const co2 = document.getElementById("edit_CO2").value;
+    const product_image_url = document.getElementById("edit_product_image_url").value;
+    const sub_brand = document.getElementById("edit_sub_brand").value;
+    const weight = document.getElementById("edit_weight").value;
+    const category = document.getElementById("edit_category").value;
+    const esg_score = document.getElementById("edit_esg_score").value;
+    const product_page_url = document.getElementById("edit_product_page_url").value;
+    const product_image = document.getElementById("edit_product_image").value;
+
+    // Create the combined payload
+    const payload = {
+        product_id,
+        product_name,
+        shop,
+        price,
+        waste_discount,
+        expiration_date,
+        product_amount,
+        discount_price,
+        discount_valid_from,
+        discount_valid_to,
+        barcode,
+        brand,
+        parent_company,
+        volume_ml,
+        gluten_free,
+        co2,
+        product_image_url,
+        sub_brand,
+        weight,
+        category,
+        esg_score,
+        product_page_url,
+        product_image
+    };
+
+    // Send PUT request to update the product
+    fetch('/edit_product_detail', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Close the modal
+        document.getElementById("editDetailedInfoModal").style.display = "none";  // Hide modal
 
         // Redirect to products page
         window.location.href = "/products_page";  // Or the appropriate URL for your products page

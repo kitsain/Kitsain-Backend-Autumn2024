@@ -461,6 +461,115 @@
             </form>
         </div>
     </div>
+
+
+    <!-- Modal for adding detailed information about product-->
+    <div id="editDetailedInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="add-headers">
+            <h2 class="section-title">Detailed Product Information</h2>
+            <p>In this view, you can add or edit detailed product information.</p>
+            </div>
+
+            <form class="form" id="editDetailedForm">
+
+            
+            <input type="hidden" id="edit_product_id" name="product_id">
+
+            <div class="detailed-sections">
+                <div class="adding-detailed-section">
+
+                        <div class="input-group">
+                            <label for="edit_barcode_detailed">Barcode</label>
+                            <input type="text" id="edit_barcode_detailed" name="edit_barcode_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_brand">Brand</label>
+                            <input type="text" id="edit_brand" name="edit_brand" class="input-field-required" placeholder="Enter brand">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="edit_parent_company">Parent Company</label>
+                            <input type="text" id="edit_parent_company" name="edit_parent_company" class="input-field-required" placeholder="Enter Parent Company">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_volume_ml">Volume (ml)</label>
+                            <input type="text" id="edit_volume_ml" name="edit_volume_ml" class="input-field-required" placeholder="Enter Volume">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_gluten_free">Gluten Free</label>
+                            <div class="btn-group margin-top" role="group" aria-label="Gluten Free Options">
+                                <button type="button" class="btn btn-secondary-add-edit" id="yesButton-edit" data-value="Yes">Yes</button>
+                                <button type="button" class="btn btn-secondary-add-edit" id="noButton-edit" data-value="No">No</button>
+                            </div>
+                            <input type="hidden" id="edit_gluten_free" name="edit_gluten_free" value="">
+                        </div>                      
+
+                        <div class="input-group">
+                            <label for="edit_CO2">CO2 Footprint</label>
+                            <input type="text" id="edit_CO2" name="edit_CO2" class="input-field-required" placeholder="Enter CO2 Footprint">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="Product Image URL">Product Image URL</label>
+                            <input type="text" id="edit_product_image_url" name="edit_product_image_url" class="input-field-required" placeholder="Enter Product Image URL">
+                        </div>
+
+                </div>
+
+                <div class="adding-detailed-section">
+
+                    <div class="input-group">
+                        <label for="edit_product_name_detailed">Product Name</label>
+                        <input type="text" id="edit_product_name_detailed" name="edit_product_name_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="edit_sub_brand">Sub-brand</label>
+                        <input type="text" id="edit_sub_brand" name="edit_sub_brand" class="input-field-required" placeholder="Enter Sub-brand">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="edit_weight">Weight (g)</label>
+                        <input type="number" step="0.01" id="edit_weight" name="edit_weight" class="input-field-required" placeholder="Enter Weight">
+                        </div>
+
+                    <div class="input-group">
+                        <label for="edit_category">Category</label>
+                        <input type="text" id="edit_category" name="edit_category" class="input-field-required" placeholder="Enter Category">
+                    </div>
+                        
+                    <div class="input-group">
+                        <label for="edit_esg_score">ESG Score</label>
+                        <input type="number" step="0.01" id="edit_esg_score" name="edit_esg_score" class="input-field-required" placeholder="Enter ESG Score">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="edit_product_page_url">Product Page URL</label>
+                        <input type="text" id="edit_product_page_url" name="edit_product_page_url" class="input-field-required" placeholder="Enter Product Page URL">
+                    </div>
+                        
+                    <div class="input-group">
+                        <label for="edit_product_image">Add Image</label>
+                        <input type="text" id="edit_product_image" name="edit_product_image" class="input-field-required" placeholder="Enter Product Page URL">
+                    </div>
+                </div>
+            </div>
+
+                <div class="all-buttons-add">
+                    <div class="bottom-buttons">
+                        <button type="button" class="btn-primary-add-discard" id="cancelBtn-edit">Cancel</button>
+                        <button type="submit" class="btn-primary-add" id="addDetailedInfo-edit">Accept</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
         
         
     </section>
@@ -473,87 +582,6 @@
     <script src="{{ url_for('static', filename='js/calculateWasteDiscount.js') }}"></script>
 
 
-    <script>
-        // Function to handle opening and closing the Add Product modal
-        function handleAddProductModal() {
-            // Get the modal for adding products
-            var modal = document.getElementById("addProductModal");
-            // Get the button that opens the modal
-            var btn = document.getElementById("addButton");
-            // Get the <span> element that closes the modal
-            var span = modal.getElementsByClassName("close")[0];
-    
-            // When the user clicks the button, open the modal 
-            btn.onclick = function(event) {
-                event.preventDefault(); // Prevent form submission
-                modal.style.display = "block";
-            }
-    
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-    
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        }
-    
-        // Function to handle opening and closing the Filter Products modal
-        function handleFilterProductModal() {
-            // Get the modal for filtering products
-            var modal = document.getElementById("filterProductModal");
-            // Get the button that opens the modal
-            var btn = document.getElementById("filterButton");
-            // Get the <span> element that closes the modal
-            var span = modal.getElementsByClassName("close")[0];
-    
-            // When the user clicks the button, open the modal 
-            btn.onclick = function(event) {
-                event.preventDefault(); // Prevent form submission
-                modal.style.display = "block";
-            }
-    
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-    
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        }
-
-        function handleEditProductModal() {
-        // Get the modal for editing products
-        var modal = document.getElementById("editProductModal");
-        // Get the <span> element that closes the modal
-        var span = modal.getElementsByClassName("close")[0];
-
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        };
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        };
-    }
-
-        // Initialize modals
-        handleAddProductModal();
-        handleFilterProductModal();
-        handleEditProductModal();
-    </script>
 
 <script>
 document.querySelectorAll(".btn-secondary-add").forEach(button => {
@@ -676,6 +704,34 @@ document.querySelectorAll(".btn-secondary-add").forEach(button => {
 
         // Get buttons to trigger modal changes
         const cancelBtn = document.getElementById("cancelBtn");
+
+        // Close the 'Add Detailed Info' Modal and go back to the previous modal
+        if (cancelBtn) {
+            cancelBtn.onclick = function () {
+                addDetailedInfo.style.display = "none"; // Hide detailed info modal
+                previousModal.style.display = "block"; // Show previous modal
+            };
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function (event) {
+            if (event.target === addDetailedInfo) {
+                addDetailedInfo.style.display = "none";
+            } else if (event.target === previousModal) {
+                previousModal.style.display = "none";
+            }
+        };
+    });
+    </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get modal elements
+        const addDetailedInfo = document.getElementById("editDetailedInfoModal");
+        const previousModal = document.getElementById("editProductModal");
+
+        // Get buttons to trigger modal changes
+        const cancelBtn = document.getElementById("cancelBtn-edit");
 
         // Close the 'Add Detailed Info' Modal and go back to the previous modal
         if (cancelBtn) {

@@ -7,7 +7,7 @@ from sqlalchemy import desc
 from flask import session
 import hashlib
 import secrets
-from routes.products import add_product_from_html, remove_product, update_product, get_products, search_discount, add_product_detail
+from routes.products import add_product_from_html, remove_product, update_product, get_products, search_discount, add_product_detail, edit_product_detail
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
@@ -319,6 +319,14 @@ def add_product_detail_method():
         return redirect(url_for('login'))
         
     return add_product_detail()
+
+@app.route('/edit_product_detail', methods=['POST', 'PUT'])
+def edit_product_detail_method():
+        # Check access rights
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+        
+    return edit_product_detail()
 
 @app.route('/remove_product/<int:product_id>', methods=['POST'])
 def remove_product_method(product_id):

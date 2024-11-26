@@ -1,3 +1,99 @@
+    function handleAddProductModal() {
+        var modal = document.getElementById("addProductModal");
+        var btn = document.getElementById("addButton");
+        var span = modal.getElementsByClassName("close")[0];
+
+        btn.onclick = function(event) {
+            event.preventDefault(); 
+            modal.style.display = "block";
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    }
+
+    function handleFilterProductModal() {
+        var modal = document.getElementById("filterProductModal");
+        var btn = document.getElementById("filterButton");
+        var span = modal.getElementsByClassName("close")[0];
+
+        btn.onclick = function(event) {
+            event.preventDefault(); 
+            modal.style.display = "block";
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    }
+
+    function handleEditProductModal() {
+        var modal = document.getElementById("editProductModal");
+        var span = modal.getElementsByClassName("close-edit")[0];
+
+        var moreInfoBtn = document.getElementById("edit_moreInfoBtn");
+
+        var detailedModal = document.getElementById("editDetailedInfoModal");
+        var detailedSpan = detailedModal.getElementsByClassName("close-edit")[0];
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        };
+
+
+        window.onclick = function(event) {
+            if (event.target == modal || event.target == detailedModal) {
+                modal.style.display = "none";
+                detailedModal.style.display = "none";
+            }
+        };
+
+        moreInfoBtn.onclick = function() {
+            modal.style.display = "none";
+            detailedModal.style.display = "block";
+
+            // pre-fill data in the detailed info modal
+            document.getElementById("edit_barcode_detailed").value = document.getElementById("edit_barcode").value;
+            document.getElementById("edit_product_name_detailed").value = document.getElementById("edit_product_name").value;
+        };
+    }
+
+    function handleEditDetailedInfoModal() {
+        var modal = document.getElementById("editDetailedInfoModal");
+        var span = modal.getElementsByClassName("close")[0]; // Close button in detailed modal
+
+        // Close the 'editDetailedInfoModal' when clicking the 'X'
+        span.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        // Close the 'editDetailedInfoModal' if clicked outside the modal
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+    }
+
+    handleEditDetailedInfoModal();
+    handleAddProductModal();
+    handleFilterProductModal();
+    handleEditProductModal();
+   
+   
    // Get the button and modal elements
    const addProductModal = document.getElementById('addProductModal');
    const addDetailedInfoModal = document.getElementById('addDetailedInfoModal');
@@ -80,6 +176,7 @@
            addProductForm.reportValidity();
        }
    });
+
 
    // Close the addDetailedInfoModal when the close button is clicked
    closeAddDetailedInfoModal.addEventListener('click', function() {

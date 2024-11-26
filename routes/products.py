@@ -272,6 +272,7 @@ def update_product():
 
     # Extract values from the JSON data
     product_id = data.get('product_id')
+    barcode = data.get('barcode')
     product_name = data.get('product_name')
     shop = data.get('shop')
     price = data.get('price')
@@ -284,7 +285,7 @@ def update_product():
 
     # Call a function to update the product in the database
     success = update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date, 
-                                    product_amount, discount_price, discount_valid_from, discount_valid_to)
+                                    product_amount, discount_price, discount_valid_from, discount_valid_to, barcode)
 
     # Check if the update was successful and return appropriate response
     if success:
@@ -320,10 +321,100 @@ def update_product_in_db(product_id, product_name, shop, price, waste_discount, 
         print(f"Error updating product: {e}")
         return False
 
+
+def edit_product_detail():
+    # Get JSON data from the request
+    data = request.get_json() 
+
+    # Extract the fields dynamically from the payload
+    product_id = data.get('product_id')
+    product_name = data.get('product_name')
+    shop = data.get('shop')
+    price = data.get('price')
+    waste_discount = data.get('waste_discount')
+    expiration_date = data.get('expiration_date')
+    product_amount = data.get('product_amount')
+    discount_price = data.get('discount_price')
+    discount_valid_from = data.get('discount_valid_from')
+    discount_valid_to = data.get('discount_valid_to')
+    barcode = data.get('barcode')
+
+    #additional information
+    brand = data.get('brand')
+    parent_company = data.get('parent_company')
+    volume_ml = data.get('volume_ml')
+    gluten_free = data.get('gluten_free')
+    co2 = data.get('co2')
+    product_image_url = data.get('product_image_url')
+    sub_brand = data.get('sub_brand')
+    weight = data.get('weight')
+    category = data.get('category')
+    esg_score = data.get('esg_score')
+    product_page_url = data.get('product_page_url')
+    product_image = data.get('product_image')
+
+    # Call a function to update the product with the new fields in the database
+    success = update_product_in_db(
+        product_id, product_name, shop, price, waste_discount, expiration_date, product_amount, discount_price, discount_valid_from, discount_valid_to, barcode, 
+        brand, parent_company, volume_ml, gluten_free, co2, product_image_url, sub_brand, weight, category, esg_score, product_page_url, product_image
+    )
+
+    # Check if the update was successful and return appropriate response
+    if success:
+        return jsonify({"message": "Succeeded to update product."}), 200
+    else:
+        return jsonify({"message": "Failed to update product."}), 500
     
+
+def update_product_in_db(product_id, product_name, shop, price, waste_discount, expiration_date, product_amount, discount_price, discount_valid_from, discount_valid_to, barcode, 
+        brand=None, parent_company=None, volume_ml=None, gluten_free=None, co2=None, product_image_url=None, sub_brand=None, weight=None, category=None, esg_score=None, product_page_url=None, product_image=None):
+    product = Product.query.get(product_id)
+    
+    if not product:
+        return False  
+
+    # basic info
+    product.product_id = product_id
+    product.product_name = product_name
+    product.barcode = barcode
+    product.shop = shop  
+    product.price = price
+    product.waste_discount_percentage = waste_discount
+    product.valid_to_date = expiration_date
+    product.product_amount = product_amount  
+    product.discount_price = discount_price  
+    product.discount_valid_from = discount_valid_from  
+    product.discount_valid_to = discount_valid_to 
+
+    if isinstance(gluten_free, str):
+        gluten_free = gluten_free.lower() == 'true'
+
+    # Additional fields
+    product.brand = brand
+    product.parent_company = parent_company
+    product.volume_ml = volume_ml
+    product.gluten_free = gluten_free
+    product.co2_footprint = co2
+    product.product_image_url = product_image_url
+    product.sub_brand = sub_brand
+    product.weight = weight
+    product.category = category
+    product.esg_score = esg_score
+    product.product_page_url = product_page_url
+    product.product_image = product_image
+
+    try:
+        db.session.commit()  
+        return True  
+    except Exception as e:
+        db.session.rollback() 
+        print(f"Error updating product: {e}")
+        return False
+
+
+
 def get_products():
     try:
-        # Query all products along with their associated prices and shops using outer joins
         products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
         
         # Prepare a list to hold the product data
