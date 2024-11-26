@@ -22,6 +22,7 @@ class User(db.Model):
     last_login = db.Column(db.DateTime, default=db.func.current_timestamp())
     creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
     reset_token = db.Column(db.String, nullable=True)  # Uusi sarake tokenille
+    reset_token_expiration = db.Column(db.Integer, nullable=True)
 
     # Constraint on role
     __table_args__ = (
