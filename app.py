@@ -7,6 +7,7 @@ from sqlalchemy import desc
 from flask import session
 import hashlib
 import secrets
+import time
 from routes.products import add_product_from_html, remove_product, update_product, get_products, search_discount, add_product_detail, edit_product_detail
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
@@ -29,7 +30,11 @@ app.config['MAIL_PASSWORD'] = ''
 
 mail = Mail(app)
 
+# Global constants
 MIN_PASSWORD_LENGHT = 10
+
+# Salasanalinkki vanhenee tunnin päästä
+EXPIRATION_LIMIT_IN_SECONDS = 3600
 
 db.init_app(app)
 
@@ -80,17 +85,18 @@ def email():
         session['reset_token'] = reset_token
 
         hashed_token = hashlib.sha256(reset_token.encode()).hexdigest()
+        expiration_time = int(time.time()) + EXPIRATION_LIMIT_IN_SECONDS
 
         # Save token to the database (simple example using session)
         # In production, consider a separate table for tokens with expiration
-        cur.execute('UPDATE user SET reset_token = ? WHERE email = ?', (hashed_token, email))
+        cur.execute('UPDATE user SET reset_token = ?, reset_token_expiry = ? WHERE email = ?', (hashed_token, expiration_time, email))
 
         # Send email
         reset_link = url_for('reset_password', token=reset_token, _external=True)
         msg = Message("Kitsain password reset request",
                       sender="your_email@example.com",
                       recipients=[email])
-        msg.body = f"Hello!\n\nThank you for using Kitsain. You can reset your password with the following link: {reset_link} \n\nPlease note that the preceding link expires after resetting the password with it and cannot reused.\n\nSincerely,\nKitsain"
+        msg.body = f"Hello!\n\nThank you for using Kitsain. You can reset your password with the following link: {reset_link} \n\nPlease note that the preceding link expires after 1 hour and cannot be reused for resetting the password.\n\nSincerely,\nKitsain"
         mail.send(msg)
 
         # session.pop('email', None)
@@ -109,20 +115,26 @@ def reset_password(token):
     hashed_token = hashlib.sha256(token.encode()).hexdigest()
     print("Hashed token: ", hashed_token)
 
+    conn = sqlite3.connect('commerce_data.db')
+    cur = conn.cursor()
+
     if request.method == 'GET': 
-        conn = sqlite3.connect('commerce_data.db')
-        cur = conn.cursor()
-
+        
         cur.execute("""
-            SELECT COUNT(*)
-            FROM user
-            WHERE reset_token = ?
-        """, (hashed_token,))
+        SELECT reset_token_expiry
+        FROM user
+        WHERE reset_token = ?
+    """, (hashed_token,))
+        result = cur.fetchone()
 
-        count = cur.fetchone()[0]
-        conn.close()
+        # Jos koko tokenia ei löydy ylipäätään, se on vanhentunut
+        if not result: 
+            return render_template('resetLinkExpired.html', token=token)
+        
+        expiration_time = result[0]
+        current_time = int(time.time())
 
-        if count < 1: 
+        if current_time > expiration_time: 
             return render_template('resetLinkExpired.html', token=token)
 
     if request.method == 'POST':
