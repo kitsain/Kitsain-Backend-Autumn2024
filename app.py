@@ -38,6 +38,11 @@ EXPIRATION_LIMIT_IN_SECONDS = 3600
 
 db.init_app(app)
 
+@app.route('/update_password', methods=['GET', 'POST'])
+def update_password():
+
+    pass
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     db.drop_all()
