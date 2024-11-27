@@ -12,6 +12,7 @@ from routes.products import add_product_from_html, remove_product, update_produc
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
+from get_data import fetch_product_from_OFF
 import sqlite3
 from models import db, Product, Shop, User, Price
 
@@ -40,9 +41,9 @@ db.init_app(app)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    db.drop_all()
-    db.create_all()
-    dbf.add_user("admin", "admin", "admin@email.com", "admin")
+    # db.drop_all()
+    # db.create_all()
+    # dbf.add_user("admin", "admin", "admin@email.com", "admin")
     
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username
@@ -269,6 +270,19 @@ def products_page():
 
     shops = Shop.query.all()
     return render_template('products_page.html', products=products, shops=shops)
+
+@app.route('/fetch_product_details/<barcode>', methods=['GET'])
+def fetch_product_details(barcode):
+    """
+    Fetch product details from OpenFoodFacts and return as JSON response.
+    """
+    try:
+        product_data = fetch_product_from_OFF(barcode)
+        return jsonify(product_data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/shops_page')
 def shops_page():
