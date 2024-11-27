@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Management</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='products_page.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
 </head>
 <body>
 
@@ -22,12 +24,21 @@
                 <button type="submit" class="btn btn-primary ml-2-2">Stores</button>
             </form>
             <button class="btn btn-success ml-2">Add</button>
-            <button class="btn btn-info ml-2">My Profile</button>
-            <select class="ml-2">
+            <form action="{{ url_for('my_profile_page') }}" method="GET" class="d-inline">
+                <button class="btn btn-info ml-2">Profile</button>
+            </form>
+            <!-- Google Translate element -->
+            <div id="google_translate_element"></div>
+
+
+
+            <!-- <select class="ml-2">
                 <option>EN</option>
-                <option>FI</option>
+                <option>FI</option> -->
                 <!-- Add more languages as needed -->
-            </select>
+            <!-- </select> -->
+
+
         </div>
 
     <!-- Central search box for products -->
@@ -51,8 +62,8 @@
             <span class="close">&times;</span>            
             <form action="{{ url_for('filter_products_method') }}" method="POST" class="form">
                 <div class="input-group">
-                    <label for="product_name">Product Name:</label>
-                    <input type="text" id="product_name" name="product_name" class="input-field" value="{{ product_name }}">
+                    <label for="product_name_filter">Product Name:</label>
+                    <input type="text" id="product_name_filter" name="product_name_filter" class="input-field" value="{{ product_name_filter }}">
                 </div>
                 
                 <div class="input-group">
@@ -71,8 +82,8 @@
                 </div>
                 
                 <div class="input-group">
-                    <label for="expiration_date">Expiration Date:</label>
-                    <input type="date" id="expiration_date" name="expiration_date" class="input-field" value="{{ expiration_date }}">
+                    <label for="filter_expiration_date">Expiration Date:</label>
+                    <input type="date" id="filter_expiration_date" name="filter_expiration_date" class="input-field" value="{{ expiration_date }}">
                 </div>
                 
                 <button type="submit" class="btn-primary-add">Filter</button>
@@ -80,54 +91,212 @@
         </div>
     </div>
 
-
-
+    <!--Modal for adding a new product-->
     <div id="addProductModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2 class="section-title">NOT FOUND! ADD NEW PRODUCT?</h2>
+            <div class="add-headers">
+            <h2 class="section-title">Add Product / Update Product Details</h2>
+            <p>Add a product or modify product information with ease.</p>
+            </div>
+
+            <form action="{{ url_for('add_product_method') }}" method="POST" id="add-product-form" class="form">
+
+                <div class="adding-section">
+                    <h2 class="section-title">Product Details</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="barcode">Barcode</label>
+                            <input type="text" id="barcode" name="barcode" required class="input-field" placeholder="Enter barcode / filled automatically if barcode scanned">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="product_name">Product Name</label>
+                            <input type="text" id="product_name" name="product_name" required class="input-field" placeholder="Enter product name / filled automatically if barcode is found">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="shop_add">Shop</label>
+                            <select id="shop_add" name="shop_add" required class="input-field" placeholder="Select the nearest shop from list / is added automatically if GPS allowed">
+                                {% for shop in shops %}
+                                    <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="adding-section">
+                    <h2 class="section-title">Price Details</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="add-price">Normal Price</label>
+                            <input type="number" step="0.01" id="add-price" name="add-price" required class="input-field" placeholder="Enter normal price">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="discount_price">Discount Price</label>
+                            <input type="number" step="0.01" id="discount_price" name="discount_price" class="input-field" oninput="calculateWasteDiscount()" placeholder="Enter discount price">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="discount_valid_from">Valid From</label>
+                            <input type="date" id="discount_valid_from" name="discount_valid_from" required class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="discount_valid_to">Valid To</label>
+                            <input type="date" id="discount_valid_to" name="discount_valid_to" required class="input-field">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="adding-section">
+                    <h2 class="section-title">Waste Discount Label</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="waste_discount_add">Waste Discount (%)</label>
+                            <input type="number" step="0.1" id="waste_discount_add" name="waste_discount_add" class="input-field" oninput="calculateDisountPrice()" placeholder="Enter discount percentage">
+                        </div>
             
-            <form action="{{ url_for('add_product_method') }}" method="POST" class="form">
-                <div class="input-group">
-                    <label for="product_name">Product Name:</label>
-                    <input type="text" id="product_name" name="product_name" required class="input-field">
+                        <div class="input-group">
+                            <label for="expiration_date">Expiration Date</label>
+                            <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="product_amount">Amount in Stock</label>
+                            <div class="btn-group margin-top" role="group" aria-label="Stock Amount Options">
+                                <button type="button" class="btn btn-secondary-add" id="fewButton" data-value="Few">Few</button>
+                                <button type="button" class="btn btn-secondary-add" id="moderateButton" data-value="Moderate">Moderate</button>
+                                <button type="button" class="btn btn-secondary-add" id="manyButton" data-value="Many">Many</button>
+                            </div>
+                            <input type="hidden" id="product_amount" name="product_amount" value="">
+                        </div>
+                        
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="shop">Shop:</label>
-                    <select id="shop" name="shop" required class="input-field">
-                        {% for shop in shops %}
-                            <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
-                        {% endfor %}
-                    </select>
+
+                <div class="all-buttons-add">
+                    <button type="button" class="btn-primary-add-more" id="moreInfoBtn">More product information</button>
+                    <div class="bottom-buttons">
+                        <button type="button" class="btn-primary-add-discard" id="discardChangesBtn">Discard Changes</button>
+                        <button type="submit" class="btn-primary-add">Save Changes</button>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="price">Price:</label>
-                    <input type="number" step="0.01" id="add-price" name="price" required class="input-field">
-                </div>
-                
-                <div class="input-group">
-                    <label for="discount_price">Discount Price:</label>
-                    <input type="number" step="0.01" id="discount_price" name="discount_price" class="input-field" oninput="calculateWasteDiscount()">
-                </div>
-                
-                <div class="input-group">
-                    <label for="waste_discount">Waste Discount (%):</label>
-                    <input type="number" step="0.1" id="waste_discount_add" name="waste_discount" class="input-field" oninput="calculateDisountPrice()">
-                </div>
-                
-                <div class="input-group">
-                    <label for="expiration_date">Expiration Date:</label>
-                    <input type="date" id="expiration_date" name="expiration_date" required class="input-field">
-                </div>
-                
-                <button type="submit" class="btn-primary-add">Add Product</button>
+
             </form>
         </div>
     </div>
-    
 
+
+    <!-- Modal for adding detailed information about product-->
+    <div id="addDetailedInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="add-headers">
+            <h2 class="section-title">Detailed Product Information</h2>
+            <p>In this view, you can add or edit detailed product information.</p>
+            </div>
+
+            <form action="{{ url_for('add_product_detail_method') }}" method="POST" class="form">
+
+            <div class="detailed-sections">
+                <div class="adding-detailed-section">
+
+                        <div class="input-group">
+                            <label for="barcode_detailed">Barcode</label>
+                            <input type="text" id="barcode_detailed" name="barcode_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="brand">Brand</label>
+                            <input type="text" id="brand" name="brand" class="input-field-required" placeholder="Enter brand">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="parent_company">Parent Company</label>
+                            <input type="text" id="parent_company" name="parent_company" class="input-field-required" placeholder="Enter Parent Company">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="volume_ml">Volume (ml)</label>
+                            <input type="text" id="volume_ml" name="volume_ml" class="input-field-required" placeholder="Enter Volume">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="gluten_free">Gluten Free</label>
+                            <div class="btn-group margin-top" role="group" aria-label="Gluten Free Options">
+                                <button type="button" class="btn btn-secondary-add" id="yesButton" data-value="Yes">Yes</button>
+                                <button type="button" class="btn btn-secondary-add" id="noButton" data-value="No">No</button>
+                            </div>
+                            <input type="hidden" id="gluten_free" name="gluten_free" value="">
+                        </div>                      
+
+                        <div class="input-group">
+                            <label for="CO2">CO2 Footprint</label>
+                            <input type="text" id="CO2" name="CO2" class="input-field-required" placeholder="Enter CO2 Footprint">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="Product Image URL">Product Image URL</label>
+                            <input type="text" id="product_image_url" name="product_image_url" class="input-field-required" placeholder="Enter Product Image URL">
+                        </div>
+
+                </div>
+
+                <div class="adding-detailed-section">
+
+                    <div class="input-group">
+                        <label for="product_name_detailed">Product Name</label>
+                        <input type="text" id="product_name_detailed" name="product_name_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="sub_brand">Sub-brand</label>
+                        <input type="text" id="sub_brand" name="sub_brand" class="input-field-required" placeholder="Enter Sub-brand">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="weight">Weight (g)</label>
+                        <input type="number" step="0.01" id="weight" name="weight" class="input-field-required" placeholder="Enter Weight">
+                        </div>
+
+                    <div class="input-group">
+                        <label for="category">Category</label>
+                        <input type="text" id="category" name="category" class="input-field-required" placeholder="Enter Category">
+                    </div>
+                        
+                    <div class="input-group">
+                        <label for="esg_score">ESG Score</label>
+                        <input type="number" step="0.01" id="esg_score" name="esg_score" class="input-field-required" placeholder="Enter ESG Score">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="product_page_url">Product Page URL</label>
+                        <input type="text" id="product_page_url" name="product_page_url" class="input-field-required" placeholder="Enter Product Page URL">
+                    </div>
+                        
+                    <div class="input-group">
+                        <label for="product_image">Add Image</label>
+                        <input type="text" id="product_image" name="product_image" class="input-field-required" placeholder="Enter Product Page URL">
+                    </div>
+                </div>
+            </div>
+
+                <div class="all-buttons-add">
+                    <div class="bottom-buttons">
+                        <button type="button" class="btn-primary-add-discard" id="cancelBtn">Cancel</button>
+                        <button type="submit" class="btn-primary-add" id="addDetailedInfo">Accept</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
 
 
     <!-- product container --> 
@@ -144,12 +313,34 @@
                         </div>
                         <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
                         <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
-                        <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
+                        <p class="product-expiration">{{ price.waste_valid_to.strftime('%d.%m.%Y') if price.waste_valid_to else 'N/A' }}</p>
                         </div>
+
                         <div class="product_buttons">
-                            <button type="submit" class="btn-primary-edit" id="EditButton">Edit</button>
+                            <button type="submit" class="btn-primary-edit" id="EditButton" onclick="populateEditModals('{{product.product_id}}')">Edit</button>
                             <button type="button" class="btn-secondary-delete" onclick="deleteProduct('{{ product.product_id }}')">Delete</button>
                         </div>
+
+                        <!-- Hidden Fields -->
+                        <input type="hidden" class="hidden-field" id="barcode" value="{{ product.barcode }}">
+                        <input type="hidden" class="hidden-field" id="shop-id" value="{{ price.shop.shop_id if price.shop else '' }}">
+                        <input type="hidden" class="hidden-field" id="amount-in-stock" value="{{ price.waste_quantity }}">
+                        <input type="hidden" class="hidden-field" id="discount_valid_from" value="{{ price.discount_valid_from }}">
+                        <input type="hidden" class="hidden-field" id="discount_valid_to" value="{{ price.discount_valid_to }}">
+
+                        <input type="hidden" class="hidden-field" id="gluten_free" value="{{ product.gluten_free }}">
+                        <input type="hidden" class="hidden-field" id="co2_footprint" value="{{ product.co2_footprint }}">
+                        <input type="hidden" class="hidden-field" id="esg-score" value="{{ product.esg_score }}">
+                        <input type="hidden" class="hidden-field" id="product-image-url" value="{{ product.product_image_url }}">
+                        <input type="hidden" class="hidden-field" id="brand" value="{{ product.brand }}">
+                        <input type="hidden" class="hidden-field" id="sub_brand" value="{{ product.sub_brand }}">
+                        <input type="hidden" class="hidden-field" id="parent_company" value="{{ product.parent_company }}">
+                        <input type="hidden" class="hidden-field" id="weight" value="{{ product.weight }}">
+                        <input type="hidden" class="hidden-field" id="volume_ml" value="{{ product.volume_ml }}">
+                        <input type="hidden" class="hidden-field" id="category" value="{{ product.category }}">
+                        <input type="hidden" class="hidden-field" id="esg_score" value="{{ product.esg_score }}">
+                        <input type="hidden" class="hidden-field" id="CO2" value="{{ product.CO2 }}">
+
                     </div>
                 {% endfor %}
             {% endfor %}
@@ -168,46 +359,214 @@
     </div>
 
 
-    <!-- Modal for Editing Product -->
+
+
+    <!--Modal for editing a product-->
     <div id="editProductModal" class="modal">
         <div class="modal-content">
             <span class="close-edit">&times;</span>
-            <h2 class="section-title">Edit Product</h2>
-            
-            <form id="editForm" class="form">
-                <!-- Separate fields with labels -->
-                <input type="hidden" id="edit_product_id" name="product_id">
+            <div class="add-headers">
+            <h2 class="section-title">Add Product / Update Product Details</h2>
+            <p>Add a product or modify product information with ease.</p>
+            </div>
 
-                <div class="input-group">
-                    <label for="edit_product_name">Product Name:</label>
-                    <input type="text" id="edit_product_name" name="product_name" required class="input-field">
+            <input type="hidden" id="edit_product_id" name="product_id">
+
+            <form id="editForm" class="form">
+                <div class="adding-section">
+                    <h2 class="section-title">Product Details</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="edit_barcode">Barcode</label>
+                            <input type="text" id="edit_barcode" name="edit_barcode" required class="input-field" placeholder="Enter barcode / filled automatically if barcode scanned">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_product_name">Product Name</label>
+                            <input type="text" id="edit_product_name" name="edit_product_name" required class="input-field" placeholder="Enter product name / filled automatically if barcode is found">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="edit_shop">Shop</label>
+                            <select id="edit_shop" name="edit_shop" required class="input-field" placeholder="Select the nearest shop from list / is added automatically if GPS allowed">
+                                {% for shop in shops %}
+                                    <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="edit_shop">Shop:</label>
-                    <select id="edit_shop" name="shop" required class="input-field">
-                        {% for shop in shops %}
-                            <option value="{{ shop.shop_id }}">{{ shop.store_name }}</option>
-                        {% endfor %}
-                    </select>
+
+                <div class="adding-section">
+                    <h2 class="section-title">Price Details</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="edit_price">Normal Price</label>
+                            <input type="number" step="0.01" id="edit_price" name="edit_price" required class="input-field" placeholder="Enter normal price">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="edit_discount_price">Discount Price</label>
+                            <input type="number" step="0.01" id="edit_discount_price" name="edit_discount_price" class="input-field" oninput="calculateWasteDiscount()" placeholder="Enter discount price">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="edit_discount_valid_from">Valid From</label>
+                            <input type="date" id="edit_discount_valid_from" name="edit_discount_valid_from" required class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_discount_valid_to">Valid To</label>
+                            <input type="date" id="edit_discount_valid_to" name="edit_discount_valid_to" required class="input-field">
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="edit_price">Price:</label>
-                    <input type="number" step="0.01" id="edit_price" name="price" required class="input-field" >
+
+                <div class="adding-section">
+                    <h2 class="section-title">Waste Discount Label</h2>
+
+                    <div class="input-groups">
+                        <div class="input-group">
+                            <label for="edit_waste_discount">Waste Discount (%)</label>
+                            <input type="number" step="0.1" id="edit_waste_discount" name="edit_waste_discount" class="input-field" oninput="calculateDisountPrice()" placeholder="Enter discount percentage">
+                        </div>
+            
+                        <div class="input-group">
+                            <label for="edit_expiration_date">Expiration Date</label>
+                            <input type="date" id="edit_expiration_date" name="edit_expiration_date" required class="input-field">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_product_amount">Amount in Stock</label>
+                            <div class="btn-group margin-top" role="group" aria-label="Stock Amount Options">
+                                <button type="button" class="btn btn-secondary-add-edit" id="fewButton-edit" data-value="Few">Few</button>
+                                <button type="button" class="btn btn-secondary-add-edit" id="moderateButton-edit" data-value="Moderate">Moderate</button>
+                                <button type="button" class="btn btn-secondary-add-edit" id="manyButton-edit" data-value="Many">Many</button>
+                            </div>
+                            <input type="hidden" id="edit_product_amount" name="edit_product_amount" value="">
+                        </div>
+                        
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="edit_waste_discount">Waste Discount (%):</label>
-                    <input type="number" step="0.1" id="edit_waste_discount" name="waste_discount" required class="input-field">
+
+                <div class="all-buttons-add">
+                    <button type="button" class="btn-primary-add-more" id="edit_moreInfoBtn">More product information</button>
+                    <div class="bottom-buttons">
+                        <button type="button" class="btn-primary-add-discard" id="edit_discardChangesBtn">Discard Changes</button>
+                        <button type="submit" class="btn-primary-add">Save Changes</button>
+                    </div>
                 </div>
-                
-                <div class="input-group">
-                    <label for="edit_expiration_date">Expiration Date:</label>
-                    <input type="date" id="edit_expiration_date" name="expiration_date" required class="input-field">
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal for adding detailed information about product-->
+    <div id="editDetailedInfoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="add-headers">
+            <h2 class="section-title">Detailed Product Information</h2>
+            <p>In this view, you can add or edit detailed product information.</p>
+            </div>
+
+            <form class="form" id="editDetailedForm">
+
+            
+            <input type="hidden" id="edit_product_id" name="product_id">
+
+            <div class="detailed-sections">
+                <div class="adding-detailed-section">
+
+                        <div class="input-group">
+                            <label for="edit_barcode_detailed">Barcode</label>
+                            <input type="text" id="edit_barcode_detailed" name="edit_barcode_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_brand">Brand</label>
+                            <input type="text" id="edit_brand" name="edit_brand" class="input-field-required" placeholder="Enter brand">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="edit_parent_company">Parent Company</label>
+                            <input type="text" id="edit_parent_company" name="edit_parent_company" class="input-field-required" placeholder="Enter Parent Company">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_volume_ml">Volume (ml)</label>
+                            <input type="text" id="edit_volume_ml" name="edit_volume_ml" class="input-field-required" placeholder="Enter Volume">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="edit_gluten_free">Gluten Free</label>
+                            <div class="btn-group margin-top" role="group" aria-label="Gluten Free Options">
+                                <button type="button" class="btn btn-secondary-add-edit" id="yesButton-edit" data-value="Yes">Yes</button>
+                                <button type="button" class="btn btn-secondary-add-edit" id="noButton-edit" data-value="No">No</button>
+                            </div>
+                            <input type="hidden" id="edit_gluten_free" name="edit_gluten_free" value="">
+                        </div>                      
+
+                        <div class="input-group">
+                            <label for="edit_CO2">CO2 Footprint</label>
+                            <input type="text" id="edit_CO2" name="edit_CO2" class="input-field-required" placeholder="Enter CO2 Footprint">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="Product Image URL">Product Image URL</label>
+                            <input type="text" id="edit_product_image_url" name="edit_product_image_url" class="input-field-required" placeholder="Enter Product Image URL">
+                        </div>
+
                 </div>
-                
-                    <button type="submit" class="btn-primary-save">Save Changes</button>
+
+                <div class="adding-detailed-section">
+
+                    <div class="input-group">
+                        <label for="edit_product_name_detailed">Product Name</label>
+                        <input type="text" id="edit_product_name_detailed" name="edit_product_name_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="edit_sub_brand">Sub-brand</label>
+                        <input type="text" id="edit_sub_brand" name="edit_sub_brand" class="input-field-required" placeholder="Enter Sub-brand">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="edit_weight">Weight (g)</label>
+                        <input type="number" step="0.01" id="edit_weight" name="edit_weight" class="input-field-required" placeholder="Enter Weight">
+                        </div>
+
+                    <div class="input-group">
+                        <label for="edit_category">Category</label>
+                        <input type="text" id="edit_category" name="edit_category" class="input-field-required" placeholder="Enter Category">
+                    </div>
+                        
+                    <div class="input-group">
+                        <label for="edit_esg_score">ESG Score</label>
+                        <input type="number" step="0.01" id="edit_esg_score" name="edit_esg_score" class="input-field-required" placeholder="Enter ESG Score">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="edit_product_page_url">Product Page URL</label>
+                        <input type="text" id="edit_product_page_url" name="edit_product_page_url" class="input-field-required" placeholder="Enter Product Page URL">
+                    </div>
+                        
+                    <div class="input-group">
+                        <label for="edit_product_image">Add Image</label>
+                        <input type="text" id="edit_product_image" name="edit_product_image" class="input-field-required" placeholder="Enter Product Page URL">
+                    </div>
+                </div>
+            </div>
+
+                <div class="all-buttons-add">
+                    <div class="bottom-buttons">
+                        <button type="button" class="btn-primary-add-discard" id="cancelBtn-edit">Cancel</button>
+                        <button type="submit" class="btn-primary-add" id="addDetailedInfo-edit">Accept</button>
+                    </div>
+                </div>
+
             </form>
         </div>
     </div>
@@ -222,101 +581,180 @@
 
     <script src="{{ url_for('static', filename='js/calculateWasteDiscount.js') }}"></script>
 
-    <script>
-        // Function to handle opening and closing the Add Product modal
-        function handleAddProductModal() {
-            // Get the modal for adding products
-            var modal = document.getElementById("addProductModal");
-            // Get the button that opens the modal
-            var btn = document.getElementById("addButton");
-            // Get the <span> element that closes the modal
-            var span = modal.getElementsByClassName("close")[0];
-    
-            // When the user clicks the button, open the modal 
-            btn.onclick = function(event) {
-                event.preventDefault(); // Prevent form submission
-                modal.style.display = "block";
-            }
-    
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-    
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        }
-    
-        // Function to handle opening and closing the Filter Products modal
-        function handleFilterProductModal() {
-            // Get the modal for filtering products
-            var modal = document.getElementById("filterProductModal");
-            // Get the button that opens the modal
-            var btn = document.getElementById("filterButton");
-            // Get the <span> element that closes the modal
-            var span = modal.getElementsByClassName("close")[0];
-    
-            // When the user clicks the button, open the modal 
-            btn.onclick = function(event) {
-                event.preventDefault(); // Prevent form submission
-                modal.style.display = "block";
-            }
-    
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-    
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        }
 
-        function handleEditProductModal() {
-        // Get the modal for editing products
-        var modal = document.getElementById("editProductModal");
-        // Get the button that opens the modal
-        var editButtons = document.getElementsByClassName("editButton");
-        // Get the <span> element that closes the modal
-        var span = modal.getElementsByClassName("close")[0];
-    
-        // Add click event listeners to all edit buttons
-        Array.from(editButtons).forEach(button => {
-            button.onclick = function(event) {
-                event.preventDefault(); // Prevent default button action
-                modal.style.display = "block";
 
-                // Optionally, populate the modal fields with the product data
-                var productId = button.dataset.productId; // Assuming data-product-id attribute is used
-                populateEditModalFields(productId);
-            };
+<script>
+document.querySelectorAll(".btn-secondary-add").forEach(button => {
+    button.addEventListener("click", function () {
+        // Check if the clicked button already has the 'active' class
+        if (this.classList.contains("selected")) {
+            // If it does, unselect it by removing the 'selected' class
+            this.classList.remove("selected");
+            document.getElementById("product_amount").value = ""; // Optional: Clear the value
+        } else {
+            // If it doesn't, unselect all other buttons first
+            document.querySelectorAll(".btn-secondary-add").forEach(btn => btn.classList.remove("selected"));
+            // Add the 'selected' class to the clicked button
+            this.classList.add("selected");
+            const selectedValue = this.getAttribute("data-value");
+            document.getElementById("product_amount").value = selectedValue; // Set the value
+        }
+    });
+});
+</script>
+
+<script>
+    document.querySelectorAll(".btn-secondary-add-edit").forEach(button => {
+        button.addEventListener("click", function () {
+            // Check if the clicked button already has the 'active' class
+            if (this.classList.contains("active")) {
+                // If it does, unselect it by removing the 'selected' class
+                this.classList.remove("active");
+                document.getElementById("product_amount").value = ""; // Optional: Clear the value
+            } else {
+                // If it doesn't, unselect all other buttons first
+                document.querySelectorAll(".btn-secondary-add-edit").forEach(btn => btn.classList.remove("active"));
+                // Add the 'selected' class to the clicked button
+                this.classList.add("active");
+                const selectedValue = this.getAttribute("data-value");
+                document.getElementById("product_amount").value = selectedValue; // Set the value
+            }
         });
+    });
+    </script>
+    
 
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
+
+
+    <script>
+        document.getElementById('yesButton').addEventListener('click', function() {
+        document.getElementById('gluten_free').value = 'Yes';
+    });
+
+    document.getElementById('noButton').addEventListener('click', function() {
+        document.getElementById('gluten_free').value = 'No';
+    });
+    </script>
+
+
+    <script>
+        // Get the modal and the "Discard Changes" button
+        var modal = document.getElementById("addProductModal");
+        var discardBtn = document.getElementById("discardChangesBtn");
+        var closeBtn = document.getElementsByClassName("close")[0];
+
+        // Function to close the modal
+        function closeModal() {
             modal.style.display = "none";
-        };
+        }
 
-        // When the user clicks anywhere outside of the modal, close it
+        // Close the modal when the "Discard Changes" button is clicked
+        discardBtn.onclick = function() {
+            closeModal();
+        }
+
+        // Also close the modal when the "×" button is clicked
+        closeBtn.onclick = function() {
+            closeModal();
+        }
+
+        // Optional: Close the modal if the user clicks outside the modal content
         window.onclick = function(event) {
             if (event.target == modal) {
-                modal.style.display = "none";
+                closeModal();
+            }
+        }
+    </script>
+
+        
+    <script>
+        // Get the modal and the "Discard Changes" button
+        var modal = document.getElementById("editProductModal");
+        var discardBtn = document.getElementById("edit_discardChangesBtn");
+        var closeBtn = document.getElementsByClassName("close")[0];
+
+        // Function to close the modal
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Close the modal when the "Discard Changes" button is clicked
+        discardBtn.onclick = function() {
+            closeModal();
+        }
+
+        // Also close the modal when the "×" button is clicked
+        closeBtn.onclick = function() {
+            closeModal();
+        }
+
+        // Optional: Close the modal if the user clicks outside the modal content
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get modal elements
+        const addDetailedInfo = document.getElementById("addDetailedInfoModal");
+        const previousModal = document.getElementById("addProductModal");
+
+        // Get buttons to trigger modal changes
+        const cancelBtn = document.getElementById("cancelBtn");
+
+        // Close the 'Add Detailed Info' Modal and go back to the previous modal
+        if (cancelBtn) {
+            cancelBtn.onclick = function () {
+                addDetailedInfo.style.display = "none"; // Hide detailed info modal
+                previousModal.style.display = "block"; // Show previous modal
+            };
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function (event) {
+            if (event.target === addDetailedInfo) {
+                addDetailedInfo.style.display = "none";
+            } else if (event.target === previousModal) {
+                previousModal.style.display = "none";
             }
         };
-    }
-    
-        // Initialize modals
-        handleAddProductModal();
-        handleFilterProductModal();
-        handleEditProductModal();
+    });
     </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get modal elements
+        const addDetailedInfo = document.getElementById("editDetailedInfoModal");
+        const previousModal = document.getElementById("editProductModal");
+
+        // Get buttons to trigger modal changes
+        const cancelBtn = document.getElementById("cancelBtn-edit");
+
+        // Close the 'Add Detailed Info' Modal and go back to the previous modal
+        if (cancelBtn) {
+            cancelBtn.onclick = function () {
+                addDetailedInfo.style.display = "none"; // Hide detailed info modal
+                previousModal.style.display = "block"; // Show previous modal
+            };
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function (event) {
+            if (event.target === addDetailedInfo) {
+                addDetailedInfo.style.display = "none";
+            } else if (event.target === previousModal) {
+                previousModal.style.display = "none";
+            }
+        };
+    });
+    </script>
+
+    <script src="../static/language_support.js"></script>
+
+    <script src="../static/js/productModals.js"></script>
     
 </body>
 </html>

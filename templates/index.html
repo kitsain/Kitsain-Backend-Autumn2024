@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kitsain</title>
     <link rel="stylesheet" href="../static/index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -21,13 +22,21 @@
         <form action="{{ url_for('shops_page') }}" method="GET" class="d-inline">
             <button type="submit" class="btn btn-primary ml-2">Stores</button>
         </form>
+        <!-- <form >
+            <button type="submit" class="btn btn-primary ml-2">Stores</button>
+        </form> -->
         <button class="btn btn-success ml-2">Add</button>
-        <button class="btn btn-info ml-2">My Profile</button>
-        <select class="ml-2">
-            <option>EN</option>
-            <option>FI</option>
-            <!-- Add more languages as needed -->
-        </select>
+        <form action="{{ url_for('my_profile_page') }}" method="GET" class="d-inline">
+            <button class="btn btn-info ml-2">Profile</button>
+        </form>
+        <div id="google_translate_element">
+            <!-- <select class="ml-2">
+                <option>EN</option>
+                <option>FI</option> -->
+                <!-- Add more languages as needed -->
+            <!-- </select> -->
+        </div>
+
     </div>
 
     <!-- Central search box for products -->
@@ -77,13 +86,37 @@
         });
     </script>
     
-    <!-- view all products container -->
+    <!-- View all products container -->
     <div class="product_container mt-6 text-center">
         <h1 class="ml-6">View all products</h1>
         <p class="ml-7">Click here to view all products added so far</p>
         <form action="{{ url_for('products_page') }}" method="GET" class="action-form">
             <button type="submit" class="btn btn-primary view">View</button>
         </form>
+
+        <p></p>
+        <p></p>
+
+        <h1 class="ml-6">Add / Edit Info</h1>
+        <p>Type barcode to add a new product or edit a product</p>
+        <form action="javascript:void(0);" class="action-form-barcode" id="barcodeSearchForm">
+            <input type="text" id="barcodeInput" class="form-control search-box ml-3-2" name="query" 
+                placeholder="Type barcode" value="">
+            <button type="button" class="btn btn-primary mt-3" id="searchButton">Search</button>
+        </form>
+    </div>
+
+    <!-- Modal for Product Not Found -->
+    <div id="productNotFoundModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 1000;">
+        <div style="margin: 100px auto; padding: 20px; width: 400px; background-color: white; border-radius: 10px; text-align: center;">
+            <h2>Product Not Found</h2>
+            <p>The product with the entered barcode was not found. Would you like to add it?</p>
+            <form action="{{ url_for('add_product_method') }}" method="POST">
+                <input type="hidden" name="barcode" id="modalBarcode">
+                <button type="submit" class="btn btn-primary">Add Product</button>
+            </form>
+            <button onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+        </div>
     </div>
 
     <!-- Stores near you container -->
@@ -111,6 +144,8 @@
             </div>
         </div>        
     </div>
+    
+    <script src="../static/language_support.js"></script>
 
 </body>
 </html>

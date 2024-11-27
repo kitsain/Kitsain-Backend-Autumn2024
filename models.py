@@ -21,6 +21,8 @@ class User(db.Model):
     aura_points = db.Column(db.Integer, default=0)
     last_login = db.Column(db.DateTime, default=db.func.current_timestamp())
     creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
+    reset_token = db.Column(db.String, nullable=True)  # Uusi sarake tokenille
+    reset_token_expiration = db.Column(db.Integer, nullable=True)
 
     # Constraint on role
     __table_args__ = (
@@ -102,5 +104,5 @@ class Price(db.Model):
 
     # Constraints
     __table_args__ = (
-        CheckConstraint("waste_quantity IN ('few', 'some', 'many')", name="valid_waste_quantity"),
+        CheckConstraint("waste_quantity IN ('Few', 'Moderate', 'Many')", name="valid_waste_quantity"),
     )
