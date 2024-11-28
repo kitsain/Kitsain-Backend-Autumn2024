@@ -6,24 +6,54 @@
     {% if results %}
         <div class="products-container">
             {% for result in results %}
-            {% for price in result.prices %}
-                <div class="product-box" data-product-id="{{ result.product_id }}">
-                    <div class="placeholder-image"></div>
-                    <div class="product_info">
-                    <h3 class="product-name">{{ result.product_name }}</h3>
-                    <div class="price-container">
-                        <p class="product-discount_price">{{ price.price }} €</p>
-                        <p class="product-price">{{ price.discount_price }} €</p>
+                {% for price in result.prices %}
+                    <div class="product-box" data-product-id="{{ result.product_id }}">
+                        <div class="placeholder-image"></div>
+                        <div class="product_info">
+                            <h3 class="product-name">{{ result.product_name }}</h3>
+                            <div class="price-container">
+                                <p class="product-discount_price">{{ price.price }} €</p>
+                                <p class="product-price">{{ price.discount_price }} €</p>
+                            </div>
+                            <p class="product-discount">- {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
+                            <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
+                            <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
+
+                            <!-- Details Section -->
+                            <div class="product-details-container">
+                                <button class="show-more-btn" onclick="toggleDetails(this)">+</button>
+                                <div class="additional-details" style="display: none;">
+                                    <p><strong>Barcode:</strong> {{ result.barcode }}</p>
+                                    <p><strong>Brand:</strong> {{ result.brand }}</p>
+                                    <p><strong>Sub-brand:</strong> {{ result.sub_brand }}</p>
+                                    <p><strong>Parent Company:</strong> {{ result.parent_company }}</p>
+                                    <p><strong>Weight:</strong> {{ result.weight }}</p>
+                                    <p><strong>Volume (ml):</strong> {{ result.volume_ml }}</p>
+                                    <p><strong>Category:</strong> {{ result.category }}</p>
+                                    <p><strong>CO2 Footprint:</strong> {{ result.CO2 }}</p>
+                                    <p><strong>EcoScore:</strong> {{ result.esg_score }}</p>
+                                    <p><strong>Gluten Free:</strong> {{ result.gluten_free }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
-                    <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
-                    <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
-                    </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
             {% endfor %}
         </div>
     {% else %}
         <p>No products found matching your search.</p>
     {% endif %}
 </div>
+
+<script>
+function toggleDetails(button) {
+    const details = button.nextElementSibling;
+    if (details.style.display === "none" || details.style.display === "") {
+        details.style.display = "block";
+        button.textContent = "-"; // Change button to "-"
+    } else {
+        details.style.display = "none";
+        button.textContent = "+"; // Change button back to "+"
+    }
+}
+</script>

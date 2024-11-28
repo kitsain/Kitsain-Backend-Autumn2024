@@ -1,11 +1,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- product container --> 
-    <div class="products-container">
-        {% for product in products %}
-            {% for price in product.prices %}
-                <div class="product-box" data-product-id="{{ product.product_id }}">
-                    <div class="placeholder-image"></div>
-                    <div class="product_info">
+
+<!-- product container --> 
+<div class="products-container">
+    {% for product in products %}
+        {% for price in product.prices %}
+            <div class="product-box" data-product-id="{{ product.product_id }}">
+                <div class="placeholder-image"></div>
+                <div class="product_info">
                     <h3 class="product-name">{{ product.product_name }}</h3>
                     <div class="price-container">
                         <p class="product-discount_price">{{ price.price }} €</p>
@@ -14,11 +15,39 @@
                     <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
                     <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
                     <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
-                    </div>
-                </div>
-            {% endfor %}
-        {% endfor %}
-    </div>
 
-</body>
-</html>
+                                      
+                    <div class="product-details-container">
+                        <button class="show-more-btn" onclick="toggleDetails(this)">+</button>
+                        <div class="additional-details" style="display: none;">
+                            <p><strong>Barcode:</strong> {{ product.barcode }}</p>
+                            <p><strong>Brand:</strong> {{ product.brand }}</p>
+                            <p><strong>Sub-brand:</strong> {{ product.sub_brand }}</p>
+                            <p><strong>Parent Company:</strong> {{ product.parent_company }}</p>
+                            <p><strong>Weight:</strong> {{ product.weight }}</p>
+                            <p><strong>Volume (ml):</strong> {{ product.volume_ml }}</p>
+                            <p><strong>Category:</strong> {{ product.category }}</p>
+                            <p><strong>CO2 Footprint:</strong> {{ product.CO2 }}</p>
+                            <p><strong>EcoScore:</strong> {{ product.esg_score }}</p>
+                            <p><strong>Gluten Free:</strong> {{ product.gluten_free }}</p>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+<script>
+function toggleDetails(button) {
+    const details = button.nextElementSibling;
+    if (details.style.display === "none") {
+        details.style.display = "block";
+        button.textContent = "-"; 
+    } else {
+        details.style.display = "none";
+        button.textContent = "+"; 
+    }
+}
+</script>

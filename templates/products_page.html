@@ -29,16 +29,6 @@
             </form>
             <!-- Google Translate element -->
             <div id="google_translate_element"></div>
-
-
-
-            <!-- <select class="ml-2">
-                <option>EN</option>
-                <option>FI</option> -->
-                <!-- Add more languages as needed -->
-            <!-- </select> -->
-
-
         </div>
 
     <!-- Central search box for products -->
@@ -299,13 +289,14 @@
     </div>
 
 
+
     <!-- product container --> 
-        <div class="products-container">
-            {% for product in products %}
-                {% for price in product.prices %}
-                    <div class="product-box" data-product-id="{{ product.product_id }}">
-                        <div class="placeholder-image"></div>
-                        <div class="product_info">
+    <div class="products-container">
+        {% for product in products %}
+            {% for price in product.prices %}
+                <div class="product-box" data-product-id="{{ product.product_id }}">
+                    <div class="placeholder-image"></div>
+                    <div class="product_info">
                         <h3 class="product-name">{{ product.product_name }}</h3>
                         <div class="price-container">
                             <p class="product-discount_price">{{ price.price }} €</p>
@@ -313,38 +304,53 @@
                         </div>
                         <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
                         <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
-                        <p class="product-expiration">{{ price.waste_valid_to.strftime('%d.%m.%Y') if price.waste_valid_to else 'N/A' }}</p>
+                        <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
+                    
+                        <div class="product-details-container">
+                            <button class="show-more-btn" onclick="toggleDetails(this)">+</button>
+                            <div class="additional-details" style="display: none;">
+                                <p><strong>Barcode:</strong> {{ product.barcode }}</p>
+                                <p><strong>Brand:</strong> {{ product.brand }}</p>
+                                <p><strong>Sub-brand:</strong> {{ product.sub_brand }}</p>
+                                <p><strong>Parent Company:</strong> {{ product.parent_company }}</p>
+                                <p><strong>Weight:</strong> {{ product.weight }}</p>
+                                <p><strong>Volume (ml):</strong> {{ product.volume_ml }}</p>
+                                <p><strong>Category:</strong> {{ product.category }}</p>
+                                <p><strong>CO2 Footprint:</strong> {{ product.CO2 }}</p>
+                                <p><strong>EcoScore:</strong> {{ product.esg_score }}</p>
+                                <p><strong>Gluten Free:</strong> {{ product.gluten_free }}</p>
+                            </div>
                         </div>
-
-                        <div class="product_buttons">
-                            <button type="submit" class="btn-primary-edit" id="EditButton" onclick="populateEditModals('{{product.product_id}}')">Edit</button>
-                            <button type="button" class="btn-secondary-delete" onclick="deleteProduct('{{ product.product_id }}')">Delete</button>
-                        </div>
-
-                        <!-- Hidden Fields -->
-                        <input type="hidden" class="hidden-field" id="barcode" value="{{ product.barcode }}">
-                        <input type="hidden" class="hidden-field" id="shop-id" value="{{ price.shop.shop_id if price.shop else '' }}">
-                        <input type="hidden" class="hidden-field" id="amount-in-stock" value="{{ price.waste_quantity }}">
-                        <input type="hidden" class="hidden-field" id="discount_valid_from" value="{{ price.discount_valid_from }}">
-                        <input type="hidden" class="hidden-field" id="discount_valid_to" value="{{ price.discount_valid_to }}">
-
-                        <input type="hidden" class="hidden-field" id="gluten_free" value="{{ product.gluten_free }}">
-                        <input type="hidden" class="hidden-field" id="co2_footprint" value="{{ product.co2_footprint }}">
-                        <input type="hidden" class="hidden-field" id="esg-score" value="{{ product.esg_score }}">
-                        <input type="hidden" class="hidden-field" id="product-image-url" value="{{ product.product_image_url }}">
-                        <input type="hidden" class="hidden-field" id="brand" value="{{ product.brand }}">
-                        <input type="hidden" class="hidden-field" id="sub_brand" value="{{ product.sub_brand }}">
-                        <input type="hidden" class="hidden-field" id="parent_company" value="{{ product.parent_company }}">
-                        <input type="hidden" class="hidden-field" id="weight" value="{{ product.weight }}">
-                        <input type="hidden" class="hidden-field" id="volume_ml" value="{{ product.volume_ml }}">
-                        <input type="hidden" class="hidden-field" id="category" value="{{ product.category }}">
-                        <input type="hidden" class="hidden-field" id="esg_score" value="{{ product.esg_score }}">
-                        <input type="hidden" class="hidden-field" id="CO2" value="{{ product.CO2 }}">
-
+                    
                     </div>
-                {% endfor %}
+
+    
+                    <div class="product_buttons">
+                        <button type="submit" class="btn-primary-edit-pen" id="EditButton" onclick="populateEditModals('{{product.product_id}}')">✒️</button>
+                        <button type="button" class="btn-secondary-delete-trashcan" onclick="deleteProduct('{{ product.product_id }}')">🗑️</button>
+                        <!--<button class="show-more-btn" onclick="toggleDetails(this)">+</button>-->
+                    </div>
+    
+                    
+                </div>
             {% endfor %}
-        </div>
+        {% endfor %}
+    </div>
+    
+    <script>
+    function toggleDetails(button) {
+        const details = button.closest('.product-box').querySelector('.additional-details');
+        if (details.style.display === "none" || details.style.display === "") {
+            details.style.display = "block";
+            button.textContent = "-"; 
+        } else {
+            details.style.display = "none";
+            button.textContent = "+"; 
+        }
+    }
+    </script>    
+    
+
 
 
     <!-- Modal for Deletion Confirmation -->
@@ -357,8 +363,6 @@
             <button class="btn-secondary-delete" id="cancelDeleteButton">Cancel</button>
         </div>
     </div>
-
-
 
 
     <!--Modal for editing a product-->
@@ -573,6 +577,13 @@
         
         
     </section>
+
+    <!-- Information section -->
+    <div class="information_container mt-6 text-center">
+        <p>Contact Us: support@example.com</p>
+        <p>Follow Us: @YourStore</p>
+        <p>Terms & Conditions</p>  
+    </div>
 
 
     <script src="{{ url_for('static', filename='js/confirmDelete.js') }}"></script>

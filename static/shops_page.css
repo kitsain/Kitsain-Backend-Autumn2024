@@ -436,3 +436,15 @@ h2.section-title{
     border-radius: 8px;
     color:#FFFFFF;
 }
+
+.information_container.mt-6.text-center{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 170px 30px;
+    gap: 44px;
+    isolation: isolate;
+    height: auto;
+    background: #FFF8F0;
+}

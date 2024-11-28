@@ -82,12 +82,8 @@ function populateEditModals(productId) {
     // Populate stock amount buttons based on the value
     const stockAmount = productBox.querySelector("#amount-in-stock")?.value;
 
-    //const stockButtons = document.querySelectorAll(".btn-secondary-add-edit");
-    
-    // Remove any active class from buttons
-    //stockButtons.forEach(button => button.classList.remove('active'));
+    let selectedButton = null;
 
-    // Determine which button to select based on stockAmount
     if (stockAmount === "Few") {
         selectedButton = document.getElementById("fewButton-edit");
     } else if (stockAmount === "Moderate") {
@@ -96,7 +92,6 @@ function populateEditModals(productId) {
         selectedButton = document.getElementById("manyButton-edit");
     }
 
-    // Remove 'active' class from all buttons in the second form first
     document.querySelectorAll('.btn-secondary-add-edit').forEach(button => {
         button.classList.remove('active');
     });

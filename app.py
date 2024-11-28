@@ -41,9 +41,9 @@ db.init_app(app)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # db.drop_all()
-    # db.create_all()
-    # dbf.add_user("admin", "admin", "admin@email.com", "admin")
+    db.drop_all()
+    db.create_all()
+    dbf.add_user("admin", "admin", "admin@email.com", "admin")
     
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username
