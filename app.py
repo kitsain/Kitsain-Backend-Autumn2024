@@ -41,7 +41,31 @@ db.init_app(app)
 @app.route('/update_password', methods=['GET', 'POST'])
 def update_password():
 
-    pass
+    if request.method == 'POST': 
+        current_password_field = request.form.get('current_password')
+        new_password_field = request.form.get('new_password')
+        new_password_again_field = request.form.get('new_password_again')
+
+        hashed_current_password_field = hashlib.sha256(current_password_field.encode()).hexdigest()
+
+        con = sqlite3.connect("commerce_data.db")
+        cur = con.cursor()
+
+        # if hashed_current_password_field != 
+
+        cur.execute("""
+        SELECT password
+        FROM user
+        WHERE password = ?
+    """, (hashed_current_password_field,))
+        password_saved_in_the_database = cur.fetchone()
+
+        if hashed_current_password_field != password_saved_in_the_database:
+            flash("The current password your entered was wrong. Please try again.")
+            return render_template('my_profile_page.html')
+        
+        else:
+            print("Salasana oli sama!")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

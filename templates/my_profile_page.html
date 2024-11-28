@@ -111,12 +111,20 @@
         </div> 
     </div>
 
-    <form method="POST" action="/update_password"></form>
+    <form method="POST" action="/update_password">
         <div class="update_profile_container mt-6 text-center">
             <div class="update_profile_right">
             <h1 class="subheader">Change your user password</h1>
             <p class="subtext">Change your password into a new one</p>
             </div>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color:red;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
 
             <div class="update_profile_left">
                 <label for="current_password">Current Password</label>
@@ -128,7 +136,7 @@
                 <label for="new_password_again">New Password Again</label>
                 <input type="password" id="new_password_again" name="new_password_again" class="input-field" placeholder="Enter your new password again">
             
-                <button class="save_button">Change Password</button>   
+                <button class="save_button" type="submit">Change Password</button>   
             </div> 
         </div>
     </form>
