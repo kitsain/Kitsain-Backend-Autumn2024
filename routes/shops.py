@@ -6,10 +6,7 @@ import random
 
 
 def add_shop():
-    db.drop_all()
-    db.create_all()
 
-    shop_id = generate_unique_user_id()
     shop_name = request.form.get('store_name')
     shop_chain = request.form.get('chain')
     shop_location = request.form.get('location_address')
@@ -21,18 +18,16 @@ def add_shop():
         return redirect(url_for('shops_page'))
 
     try:
-        create_shop(shop_name, shop_chain, shop_location, gps)
+        shop_id = create_shop(shop_name, shop_chain, shop_location, gps)
 
         if shopkeepers:
             shopkeeper_names = [name.strip() for name in shopkeepers.split(',')]
             for shopkeeper_name in shopkeeper_names:
                 #TODO: search for already existing users 
-                add_user(shopkeeper_name, password="default", email="default22", role="shopkeeper")
+                add_user(shopkeeper_name, password="default", email="default", role="shopkeeper")
                 #TODO: change this to search with user id, not name
                 shopkeeper = User.query.filter_by(username=shopkeeper_name).first()
                 add_shopkeeper_to_shop(shopkeeper.user_id, shop_id)
-
-                #shopkeeper = User.query.filter_by(username=shopkeeper_name).first()
         print_shops()
     except (ValueError, IndexError):
         print("Error processing the provided details. Please ensure all fields are filled out correctly.", "shop")

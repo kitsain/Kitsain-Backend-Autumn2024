@@ -209,9 +209,11 @@ def create_shop(store_name, store_chain, location_address, location_gps):
         db.session.add(shop)
         db.session.commit()
         print(f"Shop '{store_name}' created successfully.")
+        return shop.shop_id
     except Exception as e:
         print(f"Error creating shop: {e}")
         db.session.rollback()
+        return None
 
 
 from models import WorksFor

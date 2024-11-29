@@ -297,10 +297,8 @@ def shops_page():
     if shops:
         for shop in shops:
             shopkeepers = User.query.join(WorksFor).filter(WorksFor.shop_id == shop.shop_id).all()
-            #print(shopkeepers)
             shopkeepers_data[shop.shop_id] = [shopkeepers]
-    
-    #print_shops()
+
 
     return render_template('shops_page.html', shops = shops, shopkeepers_data=shopkeepers_data)
 

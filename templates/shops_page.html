@@ -139,8 +139,10 @@
                 <div class="shop-column">{{ shop.store_chain }}</div>
                 <div class="shop-column">
                     {% if shopkeepers_data[shop.shop_id] %}
-                        {% for shopkeeper in shopkeepers_data[shop.shop_id] %}
-                            {{ shopkeeper }}{% if not loop.last %}, {% endif %}
+                        {% for shopkeepers in shopkeepers_data[shop.shop_id] %}
+                            {% for shopkeeper in shopkeepers %}
+                                {{shopkeeper.username}} {%if not loop.last%}, {% endif %}
+                            {% endfor %}
                         {% endfor %}
                     {% else %}
                         No shopkeepers assigned
