@@ -229,9 +229,9 @@ def users_page():
     return render_template('users_page.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users)
 
 
-@app.route('/my_profile_page')
+@app.route('/my_profile_page', methods=['GET', 'POST'])
 def my_profile_page():
-    if dbf.confirm_access() == None:
+    if dbf.confirm_access() is None:
         return redirect(url_for('login'))
 
     user_id = session.get('user_id')  # Get the logged-in user's ID
@@ -242,45 +242,50 @@ def my_profile_page():
     if not user:
         flash("User not found.", category="error")
         return redirect(url_for('login'))
-    
-    users = (User).query.all()
-    shops = (Shop).query.all()
-    stats = (Aurapoints).query.all()
+
+    print(f"Käyttäjä löytyi: {user.username}, ID: {user_id}")
+
+    # Fetch all users, shops and Aura statistics
+    users = User.query.all()
+    shops = Shop.query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
 
     # Calculate Aura Points statistics for the logged-in user
-    total_points = (
-        db.session.query(func.sum(Aurapoints.points))
-        .filter(Aurapoints.user_id == user_id)
+    dbf.update_user_aura(user_id)  # Update the aura points using the new function
+    total_points = db.session.query(func.sum(Aurapoints.points))\
+        .filter(Aurapoints.user_id == user_id)\
         .scalar() or 0
-    )
 
-    latest_addition_query = (
-        db.session.query(Aurapoints.points)
-        .filter(Aurapoints.user_id == user_id)
-        .order_by(Aurapoints.timestamp.desc())
+    latest_addition_query = db.session.query(Aurapoints.points)\
+        .filter(Aurapoints.user_id == user_id)\
+        .order_by(Aurapoints.timestamp.desc())\
         .first()
-    )
-    recently_added_points = latest_addition_query[0] if latest_addition_query else 0
+    
+    points = Aurapoints.query.filter_by(user_id=user_id).order_by(Aurapoints.timestamp.desc()).all()
+    recently_added_points = 0  # Oletusarvo, jos ei pisteitä
+    if points:
+        current_total = points[0].points  # Viimeisin pistemäärä
+        if len(points) > 1:
+            # previous_total = points[1].points  # Edellinen pistemäärä
+            # print("???? " + str(previous_total))
+            recently_added_points = points[1].points # Erotus viimeisimmän ja edellisen pisteen välillä
+            # print("MIKSI MIINUS " + str(total_points) + " - " + str(previous_total) + " = " + str(recently_added_points))
+        else:
+            recently_added_points = current_total
 
-    current_month_points = (
-        db.session.query(func.sum(Aurapoints.points))
-        .filter(Aurapoints.user_id == user_id)
-        .filter(extract('month', Aurapoints.timestamp) == datetime.now().month)
+    current_month_points = db.session.query(func.sum(Aurapoints.points))\
+        .filter(Aurapoints.user_id == user_id)\
+        .filter(func.extract('month', Aurapoints.timestamp) == datetime.now().month)\
         .scalar() or 0
-    )
 
     last_month = (datetime.now().month - 1) or 12
-    last_month_points = (
-        db.session.query(func.sum(Aurapoints.points))
-        .filter(Aurapoints.user_id == user_id)
-        .filter(extract('month', Aurapoints.timestamp) == last_month)
+    last_month_points = db.session.query(func.sum(Aurapoints.points))\
+        .filter(Aurapoints.user_id == user_id)\
+        .filter(func.extract('month', Aurapoints.timestamp) == last_month)\
         .scalar() or 0
-    )
 
     difference_between_months = current_month_points - last_month_points
 
-    # Pack statistics into a dictionary
     stats = {
         'total_points': total_points,
         'recently_added_points': recently_added_points,
@@ -289,7 +294,35 @@ def my_profile_page():
         'difference_between_months': difference_between_months
     }
 
-    # Pass the user's data and stats to the template
+    print("STATS: ", stats)
+
+
+
+
+    # Calculate Aura Points statistics for the logged-in user
+    # dbf.update_user_aura(user_id)  # Update aura points using the new function
+
+    # Debugging: Check if points exist in the database
+    points_query = db.session.query(Aurapoints).filter(Aurapoints.user_id == user_id).all()
+    print(f"Aurapoints for user {user_id}: {points_query}")  # This will print all points for the user
+
+    # Get total points
+    total_points = db.session.query(func.sum(Aurapoints.points))\
+        .filter(Aurapoints.user_id == user_id)\
+        .scalar() or 0
+
+    print(f"Total points for user {user_id}: {total_points}")
+
+
+    # Tarkistetaan, löytyykö mitään tietoja Aurapoints-taulusta
+    points_data = Aurapoints.query.filter_by(user_id=user_id).all()
+    if not points_data:
+        print(f"No points found for user with ID {user_id}.")
+    else:
+        for point in points_data:
+            print(f"Points for user {user_id}: {point.points}, timestamp: {point.timestamp}")
+
+
     return render_template(
         'my_profile_page.html',
         user=user,
@@ -298,10 +331,6 @@ def my_profile_page():
         shopkeepers_data=shopkeepers_data,
         stats=stats
     )
-    
-    # Pass the user's data to the template
-    # return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data, stats=stats)
-
 # routes.products
 
 @app.route('/add_product', methods=['POST'])
@@ -527,8 +556,20 @@ def search_discount_method():
 #         'difference_between_months': difference_between_months
 #     })
 
-
+@app.route('/check_aura_points')
+def check_aura_points():
+    try:
+        points = Aurapoints.query.filter_by(user_id=1).all()  # Haetaan kaikki pisteet käyttäjältä ID:llä 1
+        if points:
+            points_data = ', '.join([str(point.points) for point in points])
+            return f"Points for user 1: {points_data}"
+        else:
+            return "No points found for user 1"
+    except Exception as e:
+        return f"Error accessing the database: {e}"
 
 if __name__ == '__main__':
     #add_hardcoded_user()
     app.run(debug=True)
+    check_aura_points()
+

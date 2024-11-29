@@ -30,8 +30,8 @@ class User(db.Model):
 # Aurapoints model
 class Aurapoints(db.Model):
     __tablename__ = 'aura_points'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    aurapoints_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     points = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
     reason = db.Column(db.String, nullable=True)

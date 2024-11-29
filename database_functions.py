@@ -1,7 +1,8 @@
 
-from models import db, User
+from models import db, User, Aurapoints
 
 from werkzeug.security import generate_password_hash
+from sqlalchemy.sql import func, extract
 
 def add_user(username, password, email, role):
     """
@@ -437,30 +438,55 @@ def print_prices():
 
     print("End of product price listing.")
 
-
-def update_user_aura():
+def update_user_aura(user_id):
     """
-    Updates the 'aura' score for all users based on predefined rules.
+    Päivittää käyttäjien aura-pisteet ja tallentaa ne Aurapoints-tauluun.
     """
     try:
-        # Reset aura points
-        User.query.update({"aura_points": 0})
-
-        # Calculate aura for each category of action
+        # Käy läpi kaikki käyttäjät ja laske heidän aura-pisteet
         for user in User.query.all():
-            user.aura_points += Product.query.filter_by(user_created=user.user_id).count() * 50
-            user.aura_points += Product.query.filter(Product.user_created == user.user_id).filter(Product.creation_date < db.func.max(Product.creation_date).over()).count() * 20
-            user.aura_points += Price.query.filter(Price.user_created == user.user_id, Price.price != None).count() * 10
-            user.aura_points += Price.query.filter(Price.user_created == user.user_id, Price.discount_price != None).count() * 30
-            user.aura_points += Price.query.filter(Price.user_created == user.user_id, Price.waste_discount_percentage > 0).count() * 100
+            if user.user_id == user_id:
+                total_aura_points = 0
 
-        db.session.commit()
+                # Lisää pisteitä käyttäjän luomista tuotteista (50 pistettä per tuote)
+                product_count = Product.query.filter_by(user_created=user.user_id).count()
+                total_aura_points += product_count * 50
+                print(f"Products count for user {user.user_id}: {product_count}, Total Aura Points after products: {total_aura_points}")
+
+                # Lisää pisteitä vanhemmista tuotteista (20 pistettä per tuote)
+                latest_product = Product.query.filter_by(user_created=user.user_id).order_by(Product.creation_date.desc()).first()
+                if latest_product:
+                    older_product_count = Product.query.filter(Product.user_created == user.user_id,
+                                                              Product.creation_date < latest_product.creation_date).count()
+                    total_aura_points += older_product_count * 20
+                    print(f"Older products count for user {user.user_id}: {older_product_count}, Total Aura Points after older products: {total_aura_points}")
+
+                # Lisää pisteitä hinnoittelutiedoista
+                price_count = Price.query.filter(Price.user_created == user.user_id, Price.price != None).count()
+                discount_price_count = Price.query.filter(Price.user_created == user.user_id, Price.discount_price != None).count()
+                waste_discount_count = Price.query.filter(Price.user_created == user.user_id, Price.waste_discount_percentage > 0).count()
+
+                total_aura_points += price_count * 10
+                total_aura_points += discount_price_count * 30
+                total_aura_points += waste_discount_count * 100
+                print(f"Price count: {price_count}, Discount price count: {discount_price_count}, Waste discount count: {waste_discount_count}, Total Aura Points after pricing: {total_aura_points}")
+
+                # Tallenna aura-pisteet Aurapoints-tauluun
+                new_aura_point = Aurapoints(user_id=user.user_id, points=total_aura_points)
+                db.session.add(new_aura_point)
+                print(f"Saving points {total_aura_points} for user {user.user_id}")
+
+                # Manuaalinen lisäys testaukseksi
+                new_aura_point = Aurapoints(user_id=1, points=20)
+                # new_aura_point = Aurapoints(user_id=1, points=100)
+                db.session.add(new_aura_point)
+                print(f"Manually added points for user 1: 100")
+
+        db.session.commit()  # Tallenna kaikki muutokset tietokantaan
         print("User aura points have been successfully updated.")
-    
     except Exception as e:
         print(f"Error updating user aura points: {e}")
         db.session.rollback()
-
 
 import math
 
