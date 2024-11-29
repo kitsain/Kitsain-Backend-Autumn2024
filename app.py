@@ -14,7 +14,8 @@ from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 from get_data import fetch_product_from_OFF
 import sqlite3
-from models import db, Product, Shop, User, Price
+from models import db, Product, Shop, User, Price, WorksFor
+from database_functions import print_shops
 
 import database_functions as dbf
 
@@ -264,12 +265,11 @@ def products_page():
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
-    products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
-
-    
+    products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all() 
 
     shops = Shop.query.all()
     return render_template('products_page.html', products=products, shops=shops)
+
 
 @app.route('/fetch_product_details/<barcode>', methods=['GET'])
 def fetch_product_details(barcode):
@@ -291,8 +291,19 @@ def shops_page():
         return redirect(url_for('login'))
     
     shops = (Shop).query.all() 
-    shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
+
+    shopkeepers_data = {}
+
+    if shops:
+        for shop in shops:
+            shopkeepers = User.query.join(WorksFor).filter(WorksFor.shop_id == shop.shop_id).all()
+            #print(shopkeepers)
+            shopkeepers_data[shop.shop_id] = [shopkeepers]
+    
+    #print_shops()
+
     return render_template('shops_page.html', shops = shops, shopkeepers_data=shopkeepers_data)
+
 
 @app.route('/users_page')
 def users_page():
@@ -389,7 +400,7 @@ CSV_FILE_PATH = 'routes/product_data.csv'
 def save_product_data():
     data = request.get_json()
 
-    print("DATA:", data)
+    #print("DATA:", data)
     
     # Retrieve all the fields from the request
     barcode = data.get('barcode')
