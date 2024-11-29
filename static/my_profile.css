@@ -256,7 +256,7 @@ p.ml-5{
 
 .added_products_left {
     text-align: left;
-    padding: 20px;
+    /*padding: 20px;*/
     border-radius: 10px;
 }
 
@@ -449,13 +449,14 @@ p.ml-5{
     align-items: flex-start;
 }
 
+/*
 .reducing_waste_right {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
     gap:100px;
-}
+}*/
 
 .recry_text {
     max-width: 120px 
@@ -587,13 +588,13 @@ h2.section-title{
 
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
     padding: 16px;
     gap: 16px;
 
-    width: 578px;
-    height: 224px;
+    width: auto;
+    height: auto;
 
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 6px;
@@ -627,12 +628,6 @@ h2.section-title{
     height: 180px;
     background: url('pictures/placeholder-image.jpg') no-repeat center/cover; 
     margin-right: 50px;
-}
-
-.products-container{
-    background: #FFF8F0;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
 }
 
 .btn-primary-edit{
@@ -674,17 +669,78 @@ h2.section-title{
 }
 
 .price-container {
-    display: flex; /* Use flexbox to align items in a row */
-    align-items: center; /* Center items vertically */
+    display: flex; 
+    align-items: center; 
 }
 
 .product-price {
-    margin-left: 10px; /* Add some space between the two prices */
-    font-weight: bold; /* Make the original price bold */
+    margin-left: 10px;
+    font-weight: bold;
 }
 
 .product-discount_price {
-    text-decoration: line-through; /* Overline for discount price */
-    color: red; /* Optional: Change the color of the discount price for emphasis */
+    text-decoration: line-through; 
+    color: red; 
 }
 
+.store-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.icon-container {
+    margin-left:40px;    
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 170px;
+}
+
+.store-icon {
+    font-size: 48px; 
+    width: 100px; 
+    height: 100px; 
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
+    text-align: center; 
+    line-height: 100px; 
+    margin-bottom: 5px;
+    flex-shrink: 0;
+}
+
+.icon-text {
+    margin-top: 12px; 
+    font-size: 14px; 
+
+}
+
+.icon-text-2 {
+    margin-top: 12px; 
+    font-size: 14px; 
+    margin-left: 30px;
+}
+
+.l_product_by_me_container.mt-6.text-center{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px;
+    margin-top:12px;
+    margin-left:-33px;
+
+    width: auto;
+    height: auto;
+
+    background: #FFF8F0;
+}
+
+.products-container{
+    background: #FFF8F0;
+    display: flex;
+    /*flex-direction: row;*/
+    justify-content: center;
+    gap: 16px;
+}

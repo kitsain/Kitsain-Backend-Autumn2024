@@ -333,9 +333,16 @@ def my_profile_page():
     users = (User).query.all()
     shops = (Shop).query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
+
+    products = (
+        Product.query.filter(Product.user_created == user_id)  
+        .order_by(desc(Product.creation_date)) 
+        .limit(3) 
+        .all()
+    )
     
     # Pass the user's data to the template
-    return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+    return render_template('my_profile_page.html', user=user, users=users, products=products, shops=shops, shopkeepers_data=shopkeepers_data)
 
 # routes.products
 

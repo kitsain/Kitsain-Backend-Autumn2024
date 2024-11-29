@@ -51,18 +51,18 @@
     <!-- Added Products Section -->
     <div class="added_products_container mt-6 text-center">
         <div class="added_products_left">
-        <h1 class="subheader">Added Products</h1>
-        <p class="subtext">Here you can find the products you've already added</p>
-        <button class="save_button">View More</button>
+            <h1 class="subheader">Added Products</h1>
+            <p class="subtext">Here you can find the products you've already added</p>
+            <button class="save_button">View More</button>
+
+            <div class="l_product_by_me_container mt-6 text-center">
+                <!--product container-->
+                {% include '_latest_product_by_me_container.html' %}
+            </div>
+
         </div>
 
-        <div class="added_products_right">
-        <p class="bigtext">"Did you spot a new discounted product? Add it by using the EAN code."</p>
-        <h2>SCAN EAN</h2>
-        <h3>OR</h3>
-        <input type="text" id="ean" name="ean" class="input-field" value="{{ ean }}" placeholder="Enter EAN code">
-        <button class="save_button">Fetch Item</button>
-        </div>
+
     </div>
 
     <!-- Aura Points Section -->
@@ -113,8 +113,16 @@
         </div>
 
         <div class="reducing_waste_right">
-        <p>About us</p>
-        <p class="recry_text">Interested in becoming a part of the Kitsain team?</p>
+            <div class="store-container">
+                <div class="icon-container">
+                    <p class="store-icon">&#127775;</p>
+                    <p class="icon-text">About us</p>
+                </div>
+                <div class="icon-container">
+                    <p class="store-icon">&#128188;</p>
+                    <p class="icon-text-2">Interested in becoming a part of the Kitsain team?</p>
+                </div>
+            </div>
         </div>
     </div>
 
