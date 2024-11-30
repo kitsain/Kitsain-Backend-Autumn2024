@@ -14,7 +14,8 @@ from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 from get_data import fetch_product_from_OFF
 import sqlite3
-from models import db, Product, Shop, User, Price, WorksFor
+from models import db, Product, Shop, User, Price, Aurapoints, WorksFor
+from sqlalchemy.sql import func, extract
 from pprint import pprint
 
 import database_functions as dbf
@@ -337,7 +338,7 @@ def users_page():
 
 @app.route('/my_profile_page')
 def my_profile_page():
-    if dbf.confirm_access() == None:
+    if dbf.confirm_access() is None:
         return redirect(url_for('login'))
 
     user_id = session.get('user_id')  # Get the logged-in user's ID
@@ -348,20 +349,51 @@ def my_profile_page():
     if not user:
         flash("User not found.", category="error")
         return redirect(url_for('login'))
-    
-    users = (User).query.all()
-    shops = (Shop).query.all()
+
+    print(f"Käyttäjä löytyi: {user.username}, ID: {user_id}")
+
+    # Fetch all users, shops and Aura statistics
+    users = User.query.all()
+    shops = Shop.query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
 
+    total_points = 0
+    recently_added_points = 0
+    current_month_points = 0
+    last_month_points = 0
+    graph_html = ""
+
+    total_points, recently_added_points, current_month_points, last_month_points, graph_html = dbf.update_user_aura(user_id)
+    
+    difference_between_months = current_month_points - last_month_points
+
+    stats = {
+        'total_points': total_points,
+        'recently_added_points': recently_added_points,
+        'current_month_points': current_month_points,
+        'difference_between_months': difference_between_months
+    }
+
+    print("STATS: ", stats)
     products = (
         Product.query.filter(Product.user_created == user_id)  
         .order_by(desc(Product.creation_date)) 
         .limit(3) 
         .all()
     )
-    
+
     # Pass the user's data to the template
-    return render_template('my_profile_page.html', user=user, users=users, products=products, shops=shops, shopkeepers_data=shopkeepers_data, get_product_image=get_product_image)
+    return render_template(
+        'my_profile_page.html',
+        user=user,
+        users=users,
+        products=products,
+        shops=shops,
+        shopkeepers_data=shopkeepers_data,
+        get_product_image=get_product_image,
+        stats=stats,
+        graph_html=graph_html
+    )
 
 # routes.products
 
@@ -548,7 +580,67 @@ def search_discount_method():
     
     return search_discount()
 
+# @app.route('/aura_stats/<int:user_id>', methods=['GET'])
+# def get_aura_stats(user_id):
+#     # Get total points
+#     total_points = (
+#         db.session.query(func.sum(Aurapoints.points))
+#         .filter(Aurapoints.user_id == user_id)
+#         .scalar() or 0
+#     )
+
+#     # Get lastly added points
+#     latest_addition_query = (
+#         db.session.query(Aurapoints.points)
+#         .filter(Aurapoints.user_id == user_id)
+#         .order_by(Aurapoints.timestamp.desc())
+#         .first()
+#     )
+#     recently_added_points = latest_addition_query[0] if latest_addition_query else 0
+
+#     # Get current month's points
+#     current_month_points = (
+#         db.session.query(func.sum(Aurapoints.points))
+#         .filter(Aurapoints.user_id == user_id)
+#         .filter(extract('month', Aurapoints.timestamp) == datetime.now().month)
+#         .scalar() or 0
+#     )
+
+#     # Get last month's points
+#     last_month = (datetime.now().month - 1) or 12
+#     last_month_points = (
+#         db.session.query(func.sum(Aurapoints.points))
+#         .filter(Aurapoints.user_id == user_id)
+#         .filter(extract('month', Aurapoints.timestamp) == last_month)
+#         .scalar() or 0
+#     )
+
+#     # Get difference between current month and last month
+#     difference_between_months = current_month_points - last_month_points
+
+#     # Return in JSON-format
+#     return jsonify({
+#         'total_points': total_points,
+#         'recently_added_points': recently_added_points,
+#         'current_month_points': current_month_points,
+#         'last_month_points': last_month_points,
+#         'difference_between_months': difference_between_months
+#     })
+
+@app.route('/check_aura_points')
+def check_aura_points():
+    try:
+        points = Aurapoints.query.filter_by(user_id=1).all()  # Haetaan kaikki pisteet käyttäjältä ID:llä 1
+        if points:
+            points_data = ', '.join([str(point.points) for point in points])
+            return f"Points for user 1: {points_data}"
+        else:
+            return "No points found for user 1"
+    except Exception as e:
+        return f"Error accessing the database: {e}"
 
 if __name__ == '__main__':
     #add_hardcoded_user()
     app.run(debug=True)
+    check_aura_points()
+

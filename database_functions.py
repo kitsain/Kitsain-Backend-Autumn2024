@@ -1,7 +1,10 @@
 
-from models import db, User
+from models import db, User, Aurapoints
 
 from werkzeug.security import generate_password_hash
+from sqlalchemy.sql import func, extract
+import plotly.graph_objects as go
+from flask import render_template
 
 def add_user(username, password, email, role):
     """
@@ -439,30 +442,58 @@ def print_prices():
 
     print("End of product price listing.")
 
-
-def update_user_aura():
-    """
-    Updates the 'aura' score for all users based on predefined rules.
-    """
+def update_user_aura(user_id):
     try:
-        # Reset aura points
-        User.query.update({"aura_points": 0})
+        user = User.query.get(user_id)
+        if user is None:
+            print(f"User with ID {user_id} not found.")
+            return
 
-        # Calculate aura for each category of action
-        for user in User.query.all():
-            user.aura_points += Product.query.filter_by(user_created=user.user_id).count() * 50
-            user.aura_points += Product.query.filter(Product.user_created == user.user_id).filter(Product.creation_date < db.func.max(Product.creation_date).over()).count() * 20
-            user.aura_points += Price.query.filter(Price.user_created == user.user_id, Price.price != None).count() * 10
-            user.aura_points += Price.query.filter(Price.user_created == user.user_id, Price.discount_price != None).count() * 30
-            user.aura_points += Price.query.filter(Price.user_created == user.user_id, Price.waste_discount_percentage > 0).count() * 100
+        # Suorita kysely ja hae tulokset listana
+        user_aurapoints = Aurapoints.query.filter_by(user_id=user.user_id).order_by(Aurapoints.timestamp.desc()).all()
+        
+        if len(user_aurapoints) == 0:
+            print(f"No aura points found for user with ID {user_id}.")
+            return 0, 0, 0, 0, ""
 
-        db.session.commit()
-        print("User aura points have been successfully updated.")
-    
+        difference = 0
+        total_points = user_aurapoints[0].points
+        print("POINTS " + str(total_points))
+
+        # Tarkista, että on vähintään kaksi arvoa
+        if len(user_aurapoints) > 1:
+            second_last_aurapoint = user_aurapoints[1]
+            difference = total_points - second_last_aurapoint.points
+            print(f"Toiseksi viimeinen piste: {second_last_aurapoint.points}, Aikaleima: {second_last_aurapoint.timestamp}")
+        else:
+            print("Ei ole tarpeeksi lisättyjä pisteitä.")
+
+        points_current_month = user_aurapoints[0].points_current_month
+        points_last_month = user_aurapoints[0].points_last_month
+
+        timestamps = [point.timestamp for point in user_aurapoints]
+        points = [point.points for point in user_aurapoints]
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatter(x=timestamps, y=points, mode='lines+markers', name="Aura Points"))
+
+        fig.update_layout(
+            title=f"{user.username}'s Aura Points",
+            xaxis_title="Time",
+            yaxis_title="Points",
+            xaxis_tickangle=45
+        )
+
+        # Renderöi kuvaaja HTML-muotoon
+        graph_html = fig.to_html(full_html=False)
+
+        return total_points, difference, points_current_month, points_last_month, graph_html
+
     except Exception as e:
         print(f"Error updating user aura points: {e}")
         db.session.rollback()
-
+        return 0, 0, 0, 0, ""
 
 import math
 

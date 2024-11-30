@@ -29,6 +29,19 @@ class User(db.Model):
         CheckConstraint("role IN ('user', 'shopkeeper', 'admin')", name="valid_role"),
     )
 
+# Aurapoints model
+class Aurapoints(db.Model):
+    __tablename__ = 'aura_points'
+    aurapoints_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    points = db.Column(db.Integer, nullable=False)
+    points_current_month = db.Column(db.Integer, nullable=False)
+    points_last_month = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+    reason = db.Column(db.String, nullable=True)
+
+    user = db.relationship('User', backref=db.backref('aurapoints', lazy=True))
+
 
 # Shop model
 class Shop(db.Model):
