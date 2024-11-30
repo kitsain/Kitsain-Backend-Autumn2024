@@ -24,7 +24,7 @@ def add_shop():
             shopkeeper_names = [name.strip() for name in shopkeepers.split(',')]
             for shopkeeper_name in shopkeeper_names:
                 #TODO: search for already existing users 
-                add_user(shopkeeper_name, password="default", email="default", role="shopkeeper")
+                add_user(shopkeeper_name, password="password", email=f"{shopkeeper_name}@{shop_chain}.com", role="shopkeeper")
                 #TODO: change this to search with user id, not name
                 shopkeeper = User.query.filter_by(username=shopkeeper_name).first()
                 add_shopkeeper_to_shop(shopkeeper.user_id, shop_id)
