@@ -84,21 +84,22 @@
     </div>
 
 
-        <!-- Modal for Adding New Product -->
+    <!-- Modal for Adding New Shop -->
     <div id="addProductModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 class="section-title">NOT FOUND! ADD NEW SHOP?</h2>
             
-            <form action="{{ url_for('add_shop_method') }}" method="POST" class="form">
+            <form id="addShopForm" action="{{ url_for('add_shop_method') }}" method="POST" class="form">
                 <div class="input-group">
-                    <label for="product_name">Store Name:</label>
+                    <label for="store_name">Store Name:</label>
                     <input type="text" id="store_name" name="store_name" required class="input-field">
                 </div>
                 
                 <div class="input-group">
-                    <label for="shop">Location:</label>
+                    <label for="location_address">Location:</label>
                     <input type="text" id="location_address" name="location_address" required class="input-field">
+                    <button type="button" id="locateButton" class="btn-secondary">Find on Map</button>
                 </div>
 
                 <div class="input-group">
@@ -107,19 +108,24 @@
                 </div>
                 
                 <div class="input-group">
-                    <label for="price">Chain:</label>
+                    <label for="chain">Chain:</label>
                     <input type="text" id="chain" name="chain" required class="input-field">
                 </div>
                 
                 <div class="input-group">
-                    <label for="Shopkeeper(s)">Shopkeeper(s):</label>
-                    <input type="text" id="shopkeepers" name="shopkeepers"  required class="input-field">
+                    <label for="shopkeepers">Shopkeeper(s):</label>
+                    <input type="text" id="shopkeepers" name="shopkeepers" required class="input-field">
                 </div>
+
+                <!-- Map Container -->
+                <div id="map" style="width: 100%; height: 300px; margin-top: 15px;"></div>
                 
                 <button type="submit" class="btn-primary-add">Add Shop</button>
             </form>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/gmapsSynchronization.js') }}"></script>
 
 
     <div class="shops-container">
