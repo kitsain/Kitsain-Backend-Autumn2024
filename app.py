@@ -14,9 +14,8 @@ from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 from get_data import fetch_product_from_OFF
 import sqlite3
-from models import db, Product, Shop, User, Price, Aurapoints
+from models import db, Product, Shop, User, Price, Aurapoints, WorksFor
 from sqlalchemy.sql import func, extract
-from models import db, Product, Shop, User, Price, WorksFor
 from pprint import pprint
 
 import database_functions as dbf
