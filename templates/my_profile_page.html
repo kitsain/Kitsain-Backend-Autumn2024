@@ -89,7 +89,9 @@
                 <p class="point_change">+{{ stats.difference_between_months }}</p>
             </div>
         </div>
-        <div class="default-graph-picture"></div>
+        <div class="graph-container">
+            {{ graph_html|safe }}  <!-- Tämä liittää Plotly-kuvaajan HTML:ään -->
+        </div>
     </div>
 
     <!-- Update Profile Section -->

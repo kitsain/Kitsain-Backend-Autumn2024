@@ -3,6 +3,8 @@ from models import db, User, Aurapoints
 
 from werkzeug.security import generate_password_hash
 from sqlalchemy.sql import func, extract
+import plotly.graph_objects as go
+from flask import render_template
 
 def add_user(username, password, email, role):
     """
@@ -449,7 +451,7 @@ def update_user_aura2(user_id):
         
         if len(user_aurapoints) == 0:
             print(f"No aura points found for user with ID {user_id}.")
-            return 0, 0, 0, 0
+            return 0, 0, 0, 0, ""
 
         difference = 0
         total_points = user_aurapoints[0].points
@@ -471,12 +473,30 @@ def update_user_aura2(user_id):
         points_last_month = user_aurapoints[0].points_last_month
         print("POINTS LAST MONTH " + str(points_last_month))
 
-        return total_points, difference, points_current_month, points_last_month
+
+        # Luo kuvaaja Plotlyllä
+        timestamps = [point.timestamp for point in user_aurapoints]
+        points = [point.points for point in user_aurapoints]
+
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatter(x=timestamps, y=points, mode='lines+markers', name="Aura Points"))
+
+        fig.update_layout(
+            title=f"{user.username}'s Aura Points",
+            xaxis_title="Time",
+            yaxis_title="Points",
+            xaxis_tickangle=45
+        )
+
+        graph_html = fig.to_html(full_html=False)  # Renderöi kuvaaja HTML-muotoon
+
+        return total_points, difference, points_current_month, points_last_month, graph_html
 
     except Exception as e:
         print(f"Error updating user aura points: {e}")
         db.session.rollback()
-        return 0, 0, 0, 0
+        return 0, 0, 0, 0, ""
 
 
 # TEE TIETOKANTAAN aura_points VIELÄ LISÄÄ SARAKKEITA!!

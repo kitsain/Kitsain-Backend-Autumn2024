@@ -257,8 +257,9 @@ def my_profile_page():
     recently_added_points = 0
     current_month_points = 0
     last_month_points = 0
+    graph_html = ""
 
-    total_points, recently_added_points, current_month_points, last_month_points = dbf.update_user_aura2(user_id)
+    total_points, recently_added_points, current_month_points, last_month_points, graph_html = dbf.update_user_aura2(user_id)
     
     # if total_points is None:
     #     total_points = 0
@@ -302,7 +303,8 @@ def my_profile_page():
         users=users,
         shops=shops,
         shopkeepers_data=shopkeepers_data,
-        stats=stats
+        stats=stats,
+        graph_html=graph_html
     )
 # routes.products
 
