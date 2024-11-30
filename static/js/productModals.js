@@ -94,17 +94,14 @@
     handleEditProductModal();
    
    
-   // Get the button and modal elements
    const addProductModal = document.getElementById('addProductModal');
    const addDetailedInfoModal = document.getElementById('addDetailedInfoModal');
    const closeAddDetailedInfoModal = addDetailedInfoModal.querySelector('.close');
    const addProductForm = document.getElementById('add-product-form');
 
-   // Get the input fields for detailed
    const barcodeDetailedInput = document.getElementById('barcode_detailed');
    const productNameDetailedInput = document.getElementById('product_name_detailed');
 
-   // Get the input fields for detailed and other elements
    const barcodeInput = document.getElementById('barcode');
    const productNameInput = document.getElementById('product_name');
    const shopInput = document.getElementById('shop_add');
@@ -117,19 +114,16 @@
    const productAmountInput = document.getElementById('product_amount');
 
 
-    // Handle "More product information" button click
     moreInfoBtn.addEventListener('click', function () {
         if (addProductForm.checkValidity()) {
             barcodeDetailedInput.value = barcodeInput.value;
             productNameDetailedInput.value = productNameInput.value;
 
-            // Save mandatory fields
             localStorage.setItem('barcode', barcodeInput.value);
             localStorage.setItem('product_name', productNameInput.value);
             localStorage.setItem('shop', shopInput.value);
             localStorage.setItem('price', priceInput.value);
 
-            // Save optional fields only if they are not null or empty
             if (discountPriceInput.value) {
                 localStorage.setItem('discount_price', discountPriceInput.value);
             }

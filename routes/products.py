@@ -130,7 +130,7 @@ def add_product_detail():
         #print("Product data from CSV:", product_data)
 
         barcode = product_data.get('barcode')
-        product_name = product_data.get('product_name')
+        #product_name = product_data.get('product_name')
 
         discount_price = product_data.get('discount_price', '')
         discount_valid_from = product_data.get('discount_valid_from', '')
@@ -153,7 +153,7 @@ def add_product_detail():
         with open(CSV_FILE_PATH, mode='w', newline='') as file:
             pass
             
- 
+        product_name = request.form.get('product_name_detailed')
         #additional information
         weight_g = float(request.form.get('weight', 0) or 0)
         volume_l = float(request.form.get('volume_ml', 0) or 0)
@@ -166,8 +166,13 @@ def add_product_detail():
         parent_company = request.form.get('parent_company')
         gluten_free = request.form.get('gluten_free') == 'on'
 
+        if (request.form.get("product_image_url") == "Image not found"):
+            product_image = None
+        else:
+            product_image = request.form.get("product_image_url")
+
         information_links = {
-        "product_image_url": request.form.get("product_image_url"),
+        "product_image_url": product_image,
         "product_page_url": request.form.get("product_page_url"),
         }
 

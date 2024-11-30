@@ -203,6 +203,13 @@
                 <div class="adding-detailed-section">
 
                         <div class="input-group">
+                            <label for="use_off_info">
+                                <input type="checkbox" id="use_off_info" name="use_off_info">
+                                Use OFF (Open Food Facts) information
+                            </label>
+                        </div>
+
+                        <div class="input-group">
                             <label for="barcode_detailed">Barcode</label>
                             <input type="text" id="barcode_detailed" name="barcode_detailed" required class="input-field-required" placeholder="Filled automatically based on the information on previous page">
                         </div>
@@ -304,17 +311,30 @@
                             src="{{ get_product_image(product) if get_product_image(product) else '/static/pictures/placeholder-image.jpg' }}" 
                             class="product-img" alt="Product Image">
                     </div>
+                    
 
                     <div class="product_info">
                         <h3 class="product-name">{{ product.product_name }}</h3>
+                        
                         <div class="price-container">
                             <p class="product-discount_price">{{ price.price }} €</p>
-                            <p class="product-price">{{ price.discount_price }} €</p>
+                            {% if price.discount_price is not none %}
+                                <p class="product-price">{{ price.discount_price }} €</p>
+                            {% elif price.waste_discount_percentage is not none %}
+                                <p class="product-price">- {{ price.waste_discount_percentage }}%</p>
+                            {% endif %}
                         </div>
-                        <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
+                                               
                         <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
-                        <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
-                    
+                        
+                        {% if price.waste_valid_to is not none %}
+                            <p class="product-expiration">{{ price.waste_valid_to.strftime('%d.%m.%Y') }}</p>
+                        {% elif price.discount_valid_from is not none and price.discount_valid_to is not none %}
+                            <p class="product-expiration">
+                                {{ price.discount_valid_from.strftime('%d.%m.%Y') }} - {{ price.discount_valid_to.strftime('%d.%m.%Y') }}
+                            </p>
+                        {% endif %}
+                        
                         <div class="product-details-container">
                             <button class="show-more-btn" onclick="toggleDetails(this)">+</button>
                             <div class="additional-details" style="display: none;">
@@ -333,13 +353,11 @@
                     
                     </div>
 
-    
                     <div class="product_buttons">
                         <button type="submit" class="btn-primary-edit-pen" id="EditButton" onclick="populateEditModals('{{product.product_id}}')">✒️</button>
                         <button type="button" class="btn-secondary-delete-trashcan" onclick="deleteProduct('{{ product.product_id }}')">🗑️</button>
                     </div>
-    
-                    
+                
                 </div>
             {% endfor %}
         {% endfor %}

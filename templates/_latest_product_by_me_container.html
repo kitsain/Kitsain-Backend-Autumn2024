@@ -12,14 +12,25 @@
                 </div>
                 <div class="product_info">
                     <h3 class="product-name">{{ product.product_name }}</h3>
+
                     <div class="price-container">
                         <p class="product-discount_price">{{ price.price }} €</p>
-                        <p class="product-price">{{ price.discount_price }} €</p>
+                        {% if price.discount_price is not none %}
+                            <p class="product-price">{{ price.discount_price }} €</p>
+                        {% elif price.waste_discount_percentage is not none %}
+                            <p class="product-price">- {{ price.waste_discount_percentage }}%</p>
+                        {% endif %}
                     </div>
-                    <p class="product-discount"> - {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
+                                           
                     <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
-                    <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
-
+                    
+                    {% if price.waste_valid_to is not none %}
+                        <p class="product-expiration">{{ price.waste_valid_to.strftime('%d.%m.%Y') }}</p>
+                    {% elif price.discount_valid_from is not none and price.discount_valid_to is not none %}
+                        <p class="product-expiration">
+                            {{ price.discount_valid_from.strftime('%d.%m.%Y') }} - {{ price.discount_valid_to.strftime('%d.%m.%Y') }}
+                        </p>
+                    {% endif %}
                                       
                     <div class="product-details-container">
                         <button class="show-more-btn" onclick="toggleDetails(this)">+</button>
