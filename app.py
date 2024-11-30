@@ -580,6 +580,32 @@ def search_discount_method():
     
     return search_discount()
 
+@app.route('/get_closest_shops', methods=['GET'])
+def get_closest_shops():
+    try:
+        user_lat = float(request.args.get('lat'))
+        user_lon = float(request.args.get('lon'))
+        n = 16  # Number of closest shops to fetch
+
+        # Use the find_closest_shops function
+        closest_shops = dbf.find_closest_shops(user_lat, user_lon, n)
+
+        # Fetch shop details for the closest shops
+        shop_details = []
+        for shop_id, distance in closest_shops:
+            shop = Shop.query.get(shop_id)
+            if shop:
+                shop_details.append({
+                    'shop_id': shop.shop_id,
+                    'store_name': shop.store_name,
+                    'distance': distance
+                })
+
+        return jsonify(shop_details)
+    except Exception as e:
+        print(f"Error fetching closest shops: {e}")
+        return jsonify({'error': 'Failed to fetch closest shops'}), 500
+
 # @app.route('/aura_stats/<int:user_id>', methods=['GET'])
 # def get_aura_stats(user_id):
 #     # Get total points

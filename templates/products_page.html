@@ -51,35 +51,79 @@
         <div class="modal-content">
             <span class="close">&times;</span>            
             <form action="{{ url_for('filter_products_method') }}" method="POST" class="form">
+                <h2 class="section-title">Filter Products</h2>
+                
+                <!-- Product Filters -->
                 <div class="input-group">
                     <label for="product_name_filter">Product Name:</label>
-                    <input type="text" id="product_name_filter" name="product_name_filter" class="input-field" value="{{ product_name_filter }}">
+                    <input type="text" id="product_name_filter" name="product_name_filter" class="input-field" value="{{ product_name_filter }}" placeholder="Enter product name">
                 </div>
                 
                 <div class="input-group">
-                    <label for="shop">Shop:</label>
-                    <input type="text" id="shop" name="shop" class="input-field" value="{{ shop }}">
+                    <label for="category_filter">Category:</label>
+                    <input type="text" id="category_filter" name="category_filter" class="input-field" value="{{ category_filter }}" placeholder="Enter product category">
                 </div>
                 
                 <div class="input-group">
-                    <label for="price">Price:</label>
-                    <input type="number" step="0.01" id="price" name="price" class="input-field" value="{{ price }}">
+                    <label for="brand_filter">Brand:</label>
+                    <input type="text" id="brand_filter" name="brand_filter" class="input-field" value="{{ brand_filter }}" placeholder="Enter brand">
                 </div>
                 
                 <div class="input-group">
-                    <label for="waste_discount">Waste Discount (%):</label>
-                    <input type="number" step="0.1" id="waste_discount" name="waste_discount" class="input-field" value="{{ waste_discount }}">
+                    <label for="gluten_free_filter">Gluten Free:</label>
+                    <select id="gluten_free_filter" name="gluten_free_filter" class="input-field">
+                        <option value="" {% if gluten_free_filter == '' %}selected{% endif %}>Any</option>
+                        <option value="true" {% if gluten_free_filter == 'true' %}selected{% endif %}>Yes</option>
+                        <option value="false" {% if gluten_free_filter == 'false' %}selected{% endif %}>No</option>
+                    </select>
+                </div>
+                
+                <!-- Price Filters -->
+                <div class="input-group">
+                    <label for="min_price">Min Price (€):</label>
+                    <input type="number" step="0.01" id="min_price" name="min_price" class="input-field" value="{{ min_price }}" placeholder="Enter minimum price">
                 </div>
                 
                 <div class="input-group">
-                    <label for="filter_expiration_date">Expiration Date:</label>
-                    <input type="date" id="filter_expiration_date" name="filter_expiration_date" class="input-field" value="{{ expiration_date }}">
+                    <label for="max_price">Max Price (€):</label>
+                    <input type="number" step="0.01" id="max_price" name="max_price" class="input-field" value="{{ max_price }}" placeholder="Enter maximum price">
                 </div>
                 
-                <button type="submit" class="btn-primary-add">Filter</button>
+                <div class="input-group">
+                    <label for="discounted_only">Discounted Products:</label>
+                    <select id="discounted_only" name="discounted_only" class="input-field">
+                        <option value="" {% if discounted_only == '' %}selected{% endif %}>Any</option>
+                        <option value="true" {% if discounted_only == 'true' %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="expiring_only">Expiring Products:</label>
+                    <select id="expiring_only" name="expiring_only" class="input-field">
+                        <option value="" {% if expiring_only == '' %}selected{% endif %}>Any</option>
+                        <option value="true" {% if expiring_only == 'true' %}selected{% endif %}>Yes</option>
+                    </select>
+                </div>
+
+                <!-- Shop Selection -->
+            <div class="input-group">
+                <label for="shop_filter">Shop:</label>
+                <select id="shop_filter" name="shop_filter" class="input-field">
+                    <!-- Default value -->
+                    <option value="">Select a shop</option>
+                </select>
+                <button type="button" id="findShopsBtn" class="btn-primary-add">Find Nearby Shops</button>
+            </div>
+
+            <!-- GPS coordinates (hidden) -->
+            <input type="hidden" id="gps_lat" name="gps_lat">
+            <input type="hidden" id="gps_lon" name="gps_lon">
+
+            <button type="submit" class="btn-primary-add">Apply Filters</button>
             </form>
         </div>
     </div>
+
 
     <!--Modal for adding a new product-->
     <div id="addProductModal" class="modal">

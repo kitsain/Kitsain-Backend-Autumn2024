@@ -44,46 +44,51 @@ def filter_shops():
 
 
 def filter_products():
-    products = []
-    product_name = ''
-    shop = ''
-    price = ''
-    waste_discount = ''
-    expiration_date = ''
-    
-    if request.method == 'POST':
-        # Get values from the form
-        product_name = request.form.get('product_name', '')
-        shop = request.form.get('shop', '')
-        price = request.form.get('price', '')
-        waste_discount = request.form.get('waste_discount', '')
-        expiration_date = request.form.get('expiration_date', '')
+    query = Product.query.join(Price).join(Shop)
 
-        # Filtering logic
-        query = Product.query.join(Price).join(Shop)  # Join Product with Price and Shop
-        
-        if product_name:
-            query = query.filter(Product.product_name.ilike(f'%{product_name}%'))
-        
-        if shop:
-            query = query.filter(Shop.store_name.ilike(f'%{shop}%'))  # Use the shop's name here
+    # Product filters
+    product_name = request.form.get('product_name_filter')
+    category = request.form.get('category_filter')
+    brand = request.form.get('brand_filter')
+    gluten_free = request.form.get('gluten_free_filter')
 
-        if price:
-            query = query.filter(Price.price <= float(price))  # Filter by Price model
-        
-        if waste_discount:
-            query = query.filter(Price.waste_discount_percentage <= float(waste_discount))  # Adjusted to reference Price model
-        
-        if expiration_date:
-            query = query.filter(Price.valid_to_date <= expiration_date)  # Adjust based on your requirements
+    if product_name:
+        query = query.filter(Product.product_name.ilike(f"%{product_name}%"))
+    if category:
+        query = query.filter(Product.category.ilike(f"%{category}%"))
+    if brand:
+        query = query.filter(Product.brand.ilike(f"%{brand}%"))
+    if gluten_free:
+        query = query.filter(Product.gluten_free == (gluten_free == 'true'))
 
-        # Execute the query and get filtered products
-        products = query.all()
+    # Price filters
+    min_price = request.form.get('min_price')
+    max_price = request.form.get('max_price')
+    discounted_only = request.form.get('discounted_only')
+    expiring_only = request.form.get('expiring_only')
 
-    # Render the products page with the filtered results
-    return render_template('products_page.html', products=products, 
-                           product_name=product_name, shop=shop, 
-                           price=price, waste_discount=waste_discount, 
-                           expiration_date=expiration_date)
+    if min_price:
+        query = query.filter(Price.price >= float(min_price))
+    if max_price:
+        query = query.filter(Price.price <= float(max_price))
+    if discounted_only == 'true':
+        query = query.filter(Price.discount_price.isnot(None))
+    if expiring_only == 'true':
+        query = query.filter(Price.waste_valid_to >= datetime.now())
+
+    # Shop filters
+    shop = request.form.get('shop_filter')
+    gps_lat = request.form.get('gps_lat')
+    gps_lon = request.form.get('gps_lon')
+
+    if shop:
+        query = query.filter(Shop.store_name.ilike(f"%{shop}%"))
+    if gps_lat and gps_lon:
+        # Add logic to filter nearby shops using Haversine formula or similar
+        pass  # Placeholder for nearby shop filtering logic
+
+    products = query.all()
+    return render_template('products_page.html', products=products)
+
 
 

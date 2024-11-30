@@ -40,6 +40,59 @@
         }
     }
 
+    document.getElementById('findShopsBtn').addEventListener('click', () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+    
+                    // Save GPS coordinates in hidden inputs
+                    document.getElementById('gps_lat').value = lat;
+                    document.getElementById('gps_lon').value = lon;
+    
+                    // Fetch the 16 closest shops
+                    try {
+                        const response = await fetch(`/get_closest_shops?lat=${lat}&lon=${lon}`);
+                        const shops = await response.json();
+    
+                        // Populate the shop dropdown
+                        const shopFilter = document.getElementById('shop_filter');
+                        shopFilter.innerHTML = '<option value="">Select a shop</option>'; // Reset options
+    
+                        if (shops.length > 0) {
+                            shops.forEach((shop, index) => {
+                                const option = document.createElement('option');
+                                option.value = shop.shop_id;
+                                option.textContent = `${shop.store_name} (${shop.distance.toFixed(2)} km)`;
+                                shopFilter.appendChild(option);
+    
+                                // Select the first shop by default
+                                if (index === 0) {
+                                    shopFilter.value = shop.shop_id;
+                                }
+                            });
+                        } else {
+                            alert('No shops found nearby.');
+                        }
+                    } catch (error) {
+                        console.error('Error fetching closest shops:', error);
+                        alert('Failed to fetch shops. Please try again later.');
+                    }
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                    alert('Unable to get your location. Please try again or allow location access.');
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser.');
+        }
+    });
+    
+    
+    
+
     function handleEditProductModal() {
         var modal = document.getElementById("editProductModal");
         var span = modal.getElementsByClassName("close-edit")[0];
