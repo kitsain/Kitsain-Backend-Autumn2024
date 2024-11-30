@@ -46,6 +46,10 @@ def update_password():
 
     user_id = session.get('user_id')  # Get the logged-in user's ID
     user = User.query.get(user_id)  # Fetch user data from the database
+
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print("User: ", user)
+
     users = (User).query.all()
     shops = (Shop).query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
@@ -55,14 +59,12 @@ def update_password():
     print("##################################################")
     print("Päästiin tänne!")
 
-    return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
-
     if request.method == 'POST': 
         current_password_field = request.form.get('current_password')
         new_password_field = request.form.get('new_password')
         new_password_again_field = request.form.get('new_password_again')
 
-        hashed_current_password_field = hashlib.sha256(current_password_field.encode()).hexdigest()
+        hashed_current_password_field = dbf.generate_password_hash(current_password_field)
 
         print("Hashed password: ", hashed_current_password_field)
 
@@ -76,14 +78,17 @@ def update_password():
         FROM user
         WHERE password = ?
     """, (hashed_current_password_field,))
+        
         password_saved_in_the_database = cur.fetchone()
 
         if hashed_current_password_field != password_saved_in_the_database:
             flash("The current password your entered was wrong. Please try again.")
-            return render_template('my_profile_page.html')
+            return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
         
         else:
             print("Salasana oli sama!")
+
+    return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
