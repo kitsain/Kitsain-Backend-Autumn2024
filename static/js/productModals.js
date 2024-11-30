@@ -117,65 +117,77 @@
    const productAmountInput = document.getElementById('product_amount');
 
 
-   // Handle "More product information" button click
-   moreInfoBtn.addEventListener('click', function () {
+    // Handle "More product information" button click
+    moreInfoBtn.addEventListener('click', function () {
+        if (addProductForm.checkValidity()) {
+            barcodeDetailedInput.value = barcodeInput.value;
+            productNameDetailedInput.value = productNameInput.value;
 
-       if (addProductForm.checkValidity()) {
-           barcodeDetailedInput.value = barcodeInput.value;
-           productNameDetailedInput.value = productNameInput.value;
+            // Save mandatory fields
+            localStorage.setItem('barcode', barcodeInput.value);
+            localStorage.setItem('product_name', productNameInput.value);
+            localStorage.setItem('shop', shopInput.value);
+            localStorage.setItem('price', priceInput.value);
 
-           localStorage.setItem('barcode', barcodeInput.value);
-           localStorage.setItem('product_name', productNameInput.value);
-           localStorage.setItem('shop', shopInput.value);
-           localStorage.setItem('price', priceInput.value);
-           localStorage.setItem('discount_price', discountPriceInput.value);
-           localStorage.setItem('discount_valid_from', discountValidFromInput.value);
-           localStorage.setItem('discount_valid_to', discountValidToInput.value);
-           localStorage.setItem('waste_discount', wasteDiscountInput.value);
-           localStorage.setItem('expiration_date', expirationDateInput.value);
-           localStorage.setItem('product_amount', productAmountInput.value);
+            // Save optional fields only if they are not null or empty
+            if (discountPriceInput.value) {
+                localStorage.setItem('discount_price', discountPriceInput.value);
+            }
+            if (discountValidFromInput.value) {
+                localStorage.setItem('discount_valid_from', discountValidFromInput.value);
+            }
+            if (discountValidToInput.value) {
+                localStorage.setItem('discount_valid_to', discountValidToInput.value);
+            }
 
-           console.log(shopInput.value);
-           console.log(expirationDateInput.value);
+            if (wasteDiscountInput.value) {
+                localStorage.setItem('waste_discount', wasteDiscountInput.value);
+            }
+            if (expirationDateInput.value) {
+                localStorage.setItem('expiration_date', expirationDateInput.value);
+            }
+            if (productAmountInput.value) {
+                localStorage.setItem('product_amount', productAmountInput.value);
+            }
 
-           // Send the data to the server using Fetch API
-           fetch('/save_product_data', {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json',
-               },
-               body: JSON.stringify({
-                   barcode: barcodeInput.value,
-                   product_name: productNameInput.value,
-                   shop: shopInput.value,
-                   price: priceInput.value,
-                   discount_price: discountPriceInput.value,
-                   discount_valid_from: discountValidFromInput.value,
-                   discount_valid_to: discountValidToInput.value,
-                   waste_discount: wasteDiscountInput.value,
-                   expiration_date: expirationDateInput.value,
-                   product_amount: productAmountInput.value
-               })
-           })
-           .then(response => response.json())
-           .then(data => {
-               console.log('Product data saved:', data);
-               // Optionally do something with the response from the server
-           })
-           .catch(error => {
-               console.error('Error saving product data:', error);
-           });
+            // Prepare data for sending to the server, excluding null or empty values
+            const productData = {
+                barcode: barcodeInput.value,
+                product_name: productNameInput.value,
+                shop: shopInput.value,
+                price: priceInput.value,
+                discount_price: discountPriceInput.value || null,
+                discount_valid_from: discountValidFromInput.value || null,
+                discount_valid_to: discountValidToInput.value || null,
+                waste_discount: wasteDiscountInput.value || null,
+                expiration_date: expirationDateInput.value || null,
+                product_amount: productAmountInput.value || null
+            };
 
-           //addProductForm.submit();
+            // Send the data to the server using Fetch API
+            fetch('/save_product_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Product data saved:', data);
+            })
+            .catch(error => {
+                console.error('Error saving product data:', error);
+            });
 
-           addProductModal.style.display = 'none';
-           addDetailedInfoModal.style.display = 'block';
+            addProductModal.style.display = 'none';
+            addDetailedInfoModal.style.display = 'block';
+        } else {
+            // Show validation errors if the form is invalid
+            addProductForm.reportValidity();
+        }
+    });
 
-       } else {
-           // Show validation errors if the form is invalid
-           addProductForm.reportValidity();
-       }
-   });
 
 
    // Close the addDetailedInfoModal when the close button is clicked

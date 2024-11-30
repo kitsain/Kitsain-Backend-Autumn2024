@@ -149,10 +149,6 @@ def add_product_detail():
         shop=product_data.get('shop', '')
         expiration_date = product_data.get('expiration_date', '')
 
-        #print("Name: ")
-        #print(product_name)
-        #print(barcode)
-
         # Open the CSV file in write mode to overwrite it (this clears it)
         with open(CSV_FILE_PATH, mode='w', newline='') as file:
             pass
@@ -176,8 +172,6 @@ def add_product_detail():
         }
 
         information_links_str = str(information_links)
-
-        print(information_links_str)
 
         discount_valid_from = datetime.strptime(discount_valid_from, '%Y-%m-%d').date() if discount_valid_from else None
         discount_valid_to = datetime.strptime(discount_valid_to, '%Y-%m-%d').date() if discount_valid_to else None
@@ -209,12 +203,19 @@ def add_product_detail():
         if not product_id:
             raise ValueError(f"Product '{product_name}' not found in the database.")
 
+        if product_amount == "":
+            product_amount = None
+        elif waste_discount == "":
+            waste_discount = None
+        elif discount_price == "":
+            discount_price = None
+
         add_price(
             product_id=product_id,
-            shop_id=shop,
-            price=price,
-            discount_price=discount_price,
-            waste_discount_percentage=waste_discount,
+            shop_id=int(shop) if shop else None,
+            price=float(price) if price else None,
+            discount_price=float(discount_price) if discount_price else None,
+            waste_discount_percentage=float(waste_discount) if waste_discount else None,
             discount_valid_from=discount_valid_from,
             discount_valid_to=discount_valid_to,
             waste_valid_to=expiration_date,

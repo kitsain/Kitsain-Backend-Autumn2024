@@ -415,18 +415,13 @@ def get_products_method():
 
 import csv
 from flask import session, jsonify, request
-import os
 
-# Define the file path where the CSV will be saved
 CSV_FILE_PATH = 'routes/product_data.csv'
 
 @app.route('/save_product_data', methods=['POST'])
 def save_product_data():
     data = request.get_json()
 
-    #print("DATA:", data)
-    
-    # Retrieve all the fields from the request
     barcode = data.get('barcode')
     product_name = data.get('product_name')
     shop = data.get('shop')
@@ -438,42 +433,46 @@ def save_product_data():
     expiration_date = data.get('expiration_date')
     product_amount = data.get('product_amount')
 
-    # Check if all necessary data is provided
-    if barcode and product_name and shop and price and discount_price and discount_valid_from and discount_valid_to and waste_discount and expiration_date and product_amount:
-        try:
-            # Append the product data to the CSV file without writing the header
-            with open(CSV_FILE_PATH, mode='a', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow([
-                    barcode, product_name, shop, price, discount_price,
-                    discount_valid_from, discount_valid_to, waste_discount,
-                    expiration_date, product_amount
-                ])  # Write the data row
+    if not (barcode and product_name and shop and price):
+        return jsonify({"message": "Missing required fields"}), 400
 
-            print("Product data saved to CSV.")
-            
-            # Return a JSON response with the product data
-            return jsonify({
-                "message": "Product data received and saved",
-                "barcode": barcode,
-                "product_name": product_name,
-                "shop": shop,
-                "price": price,
-                "discount_price": discount_price,
-                "discount_valid_from": discount_valid_from,
-                "discount_valid_to": discount_valid_to,
-                "waste_discount": waste_discount,
-                "expiration_date": expiration_date,
-                "product_amount": product_amount
-            })
+    product_data = [
+        barcode,
+        product_name,
+        shop,
+        price,
+        discount_price or "",  
+        discount_valid_from or "",
+        discount_valid_to or "",
+        waste_discount or "",
+        expiration_date or "",
+        product_amount or ""
+    ]
+
+    try:
+        with open(CSV_FILE_PATH, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(product_data) 
+
+        print("Product data saved to CSV.")
         
-        except Exception as e:
-            print(f"Error saving product data to CSV: {e}")
-            return jsonify({"message": "Error saving data"}), 500
-    
-    else:
-        return jsonify({"message": "Missing data"}), 400
+        return jsonify({
+            "message": "Product data received and saved",
+            "barcode": barcode,
+            "product_name": product_name,
+            "shop": shop,
+            "price": price,
+            "discount_price": discount_price,
+            "discount_valid_from": discount_valid_from,
+            "discount_valid_to": discount_valid_to,
+            "waste_discount": waste_discount,
+            "expiration_date": expiration_date,
+            "product_amount": product_amount
+        })
 
+    except Exception as e:
+        print(f"Error saving product data to CSV: {e}")
+        return jsonify({"message": "Error saving data"}), 500
 
 # routes.shops
 
