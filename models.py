@@ -33,10 +33,12 @@ class Aurapoints(db.Model):
     aurapoints_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     points = db.Column(db.Integer, nullable=False)
+    points_current_month = db.Column(db.Integer, nullable=False)
+    points_last_month = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
     reason = db.Column(db.String, nullable=True)
 
-    user = db.relationship('User', backref=db.backref('user_aura_points', lazy=True))
+    user = db.relationship('User', backref=db.backref('aurapoints', lazy=True))
 
 
 # Shop model
