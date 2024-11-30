@@ -375,26 +375,25 @@ def my_profile_page():
     }
 
     print("STATS: ", stats)
-
-    return render_template(
-        'my_profile_page.html',
-        user=user,
-        users=users,
-        shops=shops,
-        shopkeepers_data=shopkeepers_data,
-        stats=stats,
-        graph_html=graph_html
-    )
-
     products = (
         Product.query.filter(Product.user_created == user_id)  
         .order_by(desc(Product.creation_date)) 
         .limit(3) 
         .all()
     )
-    
+
     # Pass the user's data to the template
-    return render_template('my_profile_page.html', user=user, users=users, products=products, shops=shops, shopkeepers_data=shopkeepers_data, get_product_image=get_product_image)
+    return render_template(
+        'my_profile_page.html',
+        user=user,
+        users=users,
+        products=products,
+        shops=shops,
+        shopkeepers_data=shopkeepers_data,
+        get_product_image=get_product_image,
+        stats=stats,
+        graph_html=graph_html
+    )
 
 # routes.products
 
