@@ -439,7 +439,8 @@ def print_prices():
                 print("-" * 40)
 
     print("End of product price listing.")
-def update_user_aura2(user_id):
+
+def update_user_aura(user_id):
     try:
         user = User.query.get(user_id)
         if user is None:
@@ -460,21 +461,14 @@ def update_user_aura2(user_id):
         # Tarkista, että on vähintään kaksi arvoa
         if len(user_aurapoints) > 1:
             second_last_aurapoint = user_aurapoints[1]
-            difference = total_points - second_last_aurapoint.points  # Korjattu virhe: vertaile pisteitä, ei koko objektia
+            difference = total_points - second_last_aurapoint.points
             print(f"Toiseksi viimeinen piste: {second_last_aurapoint.points}, Aikaleima: {second_last_aurapoint.timestamp}")
         else:
-            print("Ei ole tarpeeksi pisteitä.")
-
-        print("USER AURAPOINTS " + str(user_aurapoints[0]))
+            print("Ei ole tarpeeksi lisättyjä pisteitä.")
 
         points_current_month = user_aurapoints[0].points_current_month
-        print("CURRENT MONTH " + str(points_current_month))
-
         points_last_month = user_aurapoints[0].points_last_month
-        print("POINTS LAST MONTH " + str(points_last_month))
 
-
-        # Luo kuvaaja Plotlyllä
         timestamps = [point.timestamp for point in user_aurapoints]
         points = [point.points for point in user_aurapoints]
 
@@ -489,7 +483,8 @@ def update_user_aura2(user_id):
             xaxis_tickangle=45
         )
 
-        graph_html = fig.to_html(full_html=False)  # Renderöi kuvaaja HTML-muotoon
+        # Renderöi kuvaaja HTML-muotoon
+        graph_html = fig.to_html(full_html=False)
 
         return total_points, difference, points_current_month, points_last_month, graph_html
 
@@ -497,102 +492,6 @@ def update_user_aura2(user_id):
         print(f"Error updating user aura points: {e}")
         db.session.rollback()
         return 0, 0, 0, 0, ""
-
-
-# TEE TIETOKANTAAN aura_points VIELÄ LISÄÄ SARAKKEITA!!
-# def update_user_aura(user_id):
-#     """
-#     Päivittää käyttäjien aura-pisteet ja tallentaa ne Aurapoints-tauluun.
-#     """
-#     try:
-#         # Find the specific user to update
-#         user = User.query.get(user_id)  # Get user by ID
-#         if user is None:
-#             print(f"User with ID {user_id} not found.")
-#             return
-
-#         total_aura_point = Aurapoints.query.filter_by(user_id=user.user_id).order_by(Aurapoints.timestamp.desc()).first()
-#         total_aura_points = total_aura_point.points
-
-#         product_count = Product.query.filter_by(user_created=user.user_id).count()
-#         total_aura_points += product_count * 50
-#         print(f"Products count for user {user.user_id}: {product_count}, Total Aura Points after products: {total_aura_points}")
-#         recently_added_points = 0
-#         # Lisää pisteitä vanhemmista tuotteista (20 pistettä per tuote)
-#         latest_product = Product.query.filter_by(user_created=user.user_id).order_by(Product.creation_date.desc()).first()
-#         if latest_product:
-#             older_product_count = Product.query.filter(Product.user_created == user.user_id,
-#                                                         Product.creation_date < latest_product.creation_date).count()
-#             total_aura_points += older_product_count * 20
-#             print(f"Older products count for user {user.user_id}: {older_product_count}, Total Aura Points after older products: {total_aura_points}")
-
-#         # Lisää pisteitä hinnoittelutiedoista
-#         price_count = Price.query.filter(Price.user_created == user.user_id, Price.price != None).count()
-#         discount_price_count = Price.query.filter(Price.user_created == user.user_id, Price.discount_price != None).count()
-#         waste_discount_count = Price.query.filter(Price.user_created == user.user_id, Price.waste_discount_percentage > 0).count()
-
-#         total_aura_points += price_count * 10
-#         total_aura_points += discount_price_count * 30
-#         total_aura_points += waste_discount_count * 100
-#         print(f"Price count: {price_count}, Discount price count: {discount_price_count}, Waste discount count: {waste_discount_count}, Total Aura Points after pricing: {total_aura_points}")
-
-
-        
-#         if total_aura_point != total_aura_points:
-#             current_month_points = total_aura_point.points_current_month
-#             last_month = total_aura_point.points_last_month
-#             # current_month_points = db.session.query(func.sum(Aurapoints.points))\
-#             #     .filter(Aurapoints.user_id == user_id)\
-#             #     .filter(func.extract('month', Aurapoints.timestamp) == datetime.now().month)\
-#             #     .scalar() or 0
-
-#             # last_month = (datetime.now().month - 1) or 12
-#             # last_month_points = db.session.query(func.sum(Aurapoints.points))\
-#             #     .filter(Aurapoints.user_id == user_id)\
-#             #     .filter(func.extract('month', Aurapoints.timestamp) == last_month)\
-#             #     .scalar() or 0
-#             new_aura_point = Aurapoints(
-#                 user_id=user.user_id,         # Käyttäjän ID
-#                 points=total_aura_points,     # Lasketut kokonaispisteet
-#                 points_current_month=current_month_points,
-#                 points_last_month=last_month_points,
-#                 reason="JEE",                 # Selite
-#                 timestamp=datetime.utcnow()   # Aikaleima
-#             )
-#             db.session.add(new_aura_point)
-#             print(f"Created new aura points record for user {user.user_id}: {total_aura_points}")
-#             points = Aurapoints.query.filter_by(user_id=user_id).order_by(Aurapoints.timestamp.desc()).all()
-#             print("!!!! " + str(points))
-            
-
-
-#               # Oletusarvo, jos ei pisteitä
-#             if points:
-#                 current_total = points[0].points  # Viimeisin pistemäärä
-#                 if len(points) > 1:
-#                     # previous_total = points[1].points  # Edellinen pistemäärä
-#                     # print("???? " + str(previous_total))
-#                     # recently_added_points = (current_total - previous_total) * (1)  # Erotus viimeisimmän ja edellisen pisteen välillä
-#                     # print("MIKSI MIINUS " + str(current_total) + " - " + str(previous_total) + " = " +str(recently_added_points))
-                
-                
-#                     recently_added_points = points[1].points
-#                 else:
-#                     recently_added_points = current_total
-
-
-#         if total_aura_points is None or recently_added_points is None:
-#             return 0, 0, 0, 0
-#         db.session.commit()  # Tallenna kaikki muutokset tietokantaan
-#         print("User aura points have been successfully updated.")
-
-#         return total_aura_points, recently_added_points, current_month_points, last_month_points
-        
-    # except Exception as e:
-    #     print(f"Error updating user aura points: {e}")
-    #     db.session.rollback()
-    #     return 0, 0, 0, 0
-
 
 import math
 

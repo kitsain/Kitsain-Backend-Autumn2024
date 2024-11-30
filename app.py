@@ -250,25 +250,14 @@ def my_profile_page():
     shops = Shop.query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
 
-    # Calculate Aura Points statistics for the logged-in user
-    # total_points, recently_added_points, current_month_points, last_month_points = dbf.update_user_aura(user_id)  # Update the aura points using the new function
-    
     total_points = 0
     recently_added_points = 0
     current_month_points = 0
     last_month_points = 0
     graph_html = ""
 
-    total_points, recently_added_points, current_month_points, last_month_points, graph_html = dbf.update_user_aura2(user_id)
+    total_points, recently_added_points, current_month_points, last_month_points, graph_html = dbf.update_user_aura(user_id)
     
-    # if total_points is None:
-    #     total_points = 0
-    # if recently_added_points is None:
-    #     recently_added_points = 0
-    # if current_month_points is None:
-    #     current_month_points = 0
-    # if last_month_points is None:
-    #     last_month_points = 0
     difference_between_months = current_month_points - last_month_points
 
     stats = {
@@ -279,23 +268,6 @@ def my_profile_page():
     }
 
     print("STATS: ", stats)
-
-    # Debugging: Check if points exist in the database
-    # points_query = db.session.query(Aurapoints).filter(Aurapoints.user_id == user_id).all()
-    # print(f"Aurapoints for user {user_id}: {points_query}")  # This will print all points for the user
-
-    # print(f"Total points for user {user_id}: {total_points}")
-
-
-    # # Tarkistetaan, löytyykö mitään tietoja Aurapoints-taulusta
-    # points_data = Aurapoints.query.filter_by(user_id=user_id).all()
-    # if not points_data:
-    #     print(f"No points found for user with ID {user_id}.")
-    # else:
-    #     for point in points_data:
-    #         print(f"Points for user {user_id}: {point.points}, timestamp: {point.timestamp}")
-
-    
 
     return render_template(
         'my_profile_page.html',
