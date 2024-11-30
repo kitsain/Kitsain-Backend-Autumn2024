@@ -18,6 +18,14 @@
     
 }
 
+.add-picture {
+    width: 100px;
+    height: 100px;
+    background: url('pictures/add_picture.png') no-repeat center/cover; 
+    margin-right: 10px; 
+    cursor: pointer; 
+}
+
 
 h1.ml-2{
     width: 96px;
@@ -344,10 +352,9 @@ h2.section-title{
 }
 
 
-.placeholder-image {
+.product-img {
     width: 180px;
     height: 180px;
-    background: url('pictures/placeholder-image.jpg') no-repeat center/cover; 
     margin-right: 50px;
 }
 

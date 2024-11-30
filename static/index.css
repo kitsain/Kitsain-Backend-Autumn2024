@@ -333,10 +333,9 @@ p.ml-4 {
 }
 
 
-.placeholder-image {
+.product-img {
     width: 180px;
     height: 180px;
-    background: url('pictures/placeholder-image.jpg') no-repeat center/cover; 
     margin-right: 50px;
 }
 

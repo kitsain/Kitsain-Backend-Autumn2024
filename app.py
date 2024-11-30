@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, json, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import CheckConstraint, text
@@ -15,7 +15,7 @@ from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 from get_data import fetch_product_from_OFF
 import sqlite3
 from models import db, Product, Shop, User, Price, WorksFor
-from database_functions import print_shops
+from pprint import pprint
 
 import database_functions as dbf
 
@@ -253,7 +253,7 @@ def index():
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
     closest_shops = None
 
-    return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users, results=None, query=None, closest_shops=None)
+    return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users, get_product_image=get_product_image, results=None, query=None, closest_shops=None)
 
 @app.route('/')
 def login_page():
@@ -268,7 +268,27 @@ def products_page():
     products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all() 
 
     shops = Shop.query.all()
-    return render_template('products_page.html', products=products, shops=shops)
+    return render_template('products_page.html', products=products, shops=shops, get_product_image=get_product_image)
+
+
+def get_product_image(product):
+    """
+    Extract the product image URL from information_links or return None.
+    """
+    try:
+        if isinstance(product, dict):
+            information_links = product.get("information_links", None)
+        else:
+            information_links = getattr(product, "information_links", None)
+        
+        if isinstance(information_links, str):
+            information_links = json.loads(information_links.replace("'", '"'))
+
+        return information_links.get("product_image_url", None) if information_links else None
+    except Exception as e:
+        print(f"Error processing product information_links: {e}")
+        return None
+
 
 
 @app.route('/fetch_product_details/<barcode>', methods=['GET'])
@@ -278,11 +298,10 @@ def fetch_product_details(barcode):
     """
     try:
         product_data = fetch_product_from_OFF(barcode)
+
         return jsonify(product_data), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
 
 @app.route('/shops_page')
 def shops_page():
@@ -342,7 +361,7 @@ def my_profile_page():
     )
     
     # Pass the user's data to the template
-    return render_template('my_profile_page.html', user=user, users=users, products=products, shops=shops, shopkeepers_data=shopkeepers_data)
+    return render_template('my_profile_page.html', user=user, users=users, products=products, shops=shops, shopkeepers_data=shopkeepers_data, get_product_image=get_product_image)
 
 # routes.products
 

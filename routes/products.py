@@ -174,6 +174,8 @@ def add_product_detail():
 
         information_links_str = str(information_links)
 
+        print(information_links_str)
+
         discount_valid_from = datetime.strptime(discount_valid_from, '%Y-%m-%d').date() if discount_valid_from else None
         discount_valid_to = datetime.strptime(discount_valid_to, '%Y-%m-%d').date() if discount_valid_to else None
         expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d').date() if expiration_date else None

@@ -271,8 +271,7 @@
                     </div>
                         
                     <div class="input-group">
-                        <label for="product_image">Add Image</label>
-                        <input type="text" id="product_image" name="product_image" class="input-field-required" placeholder="Enter Product Page URL">
+                        <div class="add-picture"></div>
                     </div>
                 </div>
             </div>
@@ -295,7 +294,12 @@
         {% for product in products %}
             {% for price in product.prices %}
                 <div class="product-box" data-product-id="{{ product.product_id }}">
-                    <div class="placeholder-image"></div>
+                    <div class="product-image">
+                        <img 
+                            src="{{ get_product_image(product) if get_product_image(product) else '/static/pictures/placeholder-image.jpg' }}" 
+                            class="product-img" alt="Product Image">
+                    </div>
+
                     <div class="product_info">
                         <h3 class="product-name">{{ product.product_name }}</h3>
                         <div class="price-container">
@@ -328,7 +332,6 @@
                     <div class="product_buttons">
                         <button type="submit" class="btn-primary-edit-pen" id="EditButton" onclick="populateEditModals('{{product.product_id}}')">✒️</button>
                         <button type="button" class="btn-secondary-delete-trashcan" onclick="deleteProduct('{{ product.product_id }}')">🗑️</button>
-                        <!--<button class="show-more-btn" onclick="toggleDetails(this)">+</button>-->
                     </div>
     
                     
