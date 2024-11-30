@@ -119,10 +119,13 @@
                             <label for="add-price">Normal Price</label>
                             <input type="number" step="0.01" id="add-price" name="add-price" required class="input-field" placeholder="Enter normal price">
                         </div>
+
+                        <p>Select discount or waste product</p>
                     </div>
                 </div>
 
-                <div class="adding-section">
+
+                <div class="adding-section-no-border">
                     <h2 class="section-title">Discount Campaign</h2>
 
                     <div class="input-groups">
@@ -140,10 +143,12 @@
                             <label for="discount_valid_to">Discount Valid To</label>
                             <input type="date" id="discount_valid_to" name="discount_valid_to" class="input-field">
                         </div>
+
+                        <p class="separator-text">or</p>
                     </div>
                 </div>
 
-                <div class="adding-section">
+                <div class="adding-section-down-border">
                     <h2 class="section-title">Waste Discount</h2>
 
                     <div class="input-groups">
@@ -594,6 +599,8 @@
     <script src="{{ url_for('static', filename='js/editProduct.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/fetchOFFData.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/chooseDiscountOrWaste.js')}}"></script>
 
 
 

@@ -551,7 +551,14 @@ h2.section-title{
     opacity: 0.8; 
 }
 
-.adding-section {
+.adding-section,
+.adding-section-down-border,
+.adding-section-no-border {
+    display: flex; 
+    flex-direction: row; 
+    justify-content: flex-end;
+    padding: 5px;
+    gap:300px;
     position: relative; 
     padding: 20px 0;
 }
@@ -572,6 +579,38 @@ h2.section-title{
 
 .adding-section::after {
     bottom: 0;
+}
+
+.adding-section p {
+    margin-top: 20px;
+    text-align: center;
+    width:200%;
+}
+
+.separator-text {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 20px; 
+    margin-left:10px;
+    width:200%;
+
+    font-family: 'Playfair Display';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 18px;
+    text-transform: uppercase;
+    color: #6B3B48;
+}
+
+.separator-text::before,
+.separator-text::after {
+    content: '';
+    flex-grow: 1;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Line style */
+    margin: 0px 10px; /* Space between the text and the lines */
 }
 
 .btn-primary-add-more {

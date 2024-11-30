@@ -149,6 +149,9 @@ def add_product_detail():
         shop=product_data.get('shop', '')
         expiration_date = product_data.get('expiration_date', '')
 
+        #print("Name: ")
+        #print(product_name)
+        #print(barcode)
 
         # Open the CSV file in write mode to overwrite it (this clears it)
         with open(CSV_FILE_PATH, mode='w', newline='') as file:
