@@ -41,12 +41,30 @@ db.init_app(app)
 @app.route('/update_password', methods=['GET', 'POST'])
 def update_password():
 
+    if dbf.confirm_access() == None:
+        return redirect(url_for('login'))
+
+    user_id = session.get('user_id')  # Get the logged-in user's ID
+    user = User.query.get(user_id)  # Fetch user data from the database
+    users = (User).query.all()
+    shops = (Shop).query.all()
+    shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
+    
+    # Pass the user's data to the template
+
+    print("##################################################")
+    print("Päästiin tänne!")
+
+    return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+
     if request.method == 'POST': 
         current_password_field = request.form.get('current_password')
         new_password_field = request.form.get('new_password')
         new_password_again_field = request.form.get('new_password_again')
 
         hashed_current_password_field = hashlib.sha256(current_password_field.encode()).hexdigest()
+
+        print("Hashed password: ", hashed_current_password_field)
 
         con = sqlite3.connect("commerce_data.db")
         cur = con.cursor()
