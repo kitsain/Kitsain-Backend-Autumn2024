@@ -98,9 +98,10 @@ def authenticate_user(username, password):
                 # Update last login timestamp
                 user.last_login = db.func.current_timestamp()
                 db.session.commit()
-
+                
                 # Store user_id in session for persistent authentication
                 session['user_id'] = user.user_id
+                print(f"Logged in user ID stored in session: {session['user_id']}")
                 return True
             else:
                 flash("Incorrect password", "error")

@@ -41,56 +41,51 @@ EXPIRATION_LIMIT_IN_SECONDS = 3600
 
 db.init_app(app)
 
-# @app.route('/update_password', methods=['GET', 'POST'])
-# def update_password():
-#     user_id = session.get('user_id')
-#     user = User.query.get(user_id)
-
-#     users = User.query.all()
-#     shops = Shop.query.all()
-#     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
-    
-#     # Pass the user's data to the template
-
-#     print("##################################################")
-#     print("Päästiin tänne!")
-
-#     if request.method == 'POST': 
-#         current_password_field = request.form.get('current_password')
-#         new_password_field = request.form.get('new_password')
-#         new_password_again_field = request.form.get('new_password_again')
-
-#         hashed_current_password_field = dbf.generate_password_hash(current_password_field)
-
-#         print("Hashed password: ", hashed_current_password_field)
-
-#         password_saved_in_the_database = User.query.filter_by(password=current_password_field).first()
-
-#         if not password_saved_in_the_database:
-#             flash("The current password you entered was wrong. Please try again.")
-#             return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
-
-#         else:
-#             print("Salasana oli sama!")
-
-        # con = sqlite3.connect("commerce_data.db")
-        # cur = con.cursor()
-
-        # if hashed_current_password_field != 
-
-    #     cur.execute("""
-    #     SELECT password
-    #     FROM user
-    #     WHERE password = ?
-    # """, (hashed_current_password_field,))
+@app.route('/change_password', methods=['POST'])
+def change_password():
         
-    #     password_saved_in_the_database = cur.fetchone()
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    if not user:
+        flash("User not found", "error")
+        return redirect(url_for('login'))
 
-        # if hashed_current_password_field != password_saved_in_the_database:
-        #     flash("The current password your entered was wrong. Please try again.")
-        #     return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
 
-    # return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+    if not dbf.check_password_hash(user.password, current_password):
+        flash("Current password is incorrect", "error")
+        return redirect(url_for('my_profile_page'))
+
+    # Validate new password
+    if len(new_password) < 10:
+        flash("New password must be at least 10 characters long", "error")
+        return redirect(url_for('my_profile_page'))
+
+    if new_password != confirm_password:
+        flash("New password and confirmation do not match", "error")
+        return redirect(url_for('my_profile_page'))
+
+    if not any(char.isupper() for char in new_password):
+        flash("New password must contain at least one uppercase letter", "error")
+        return redirect(url_for('my_profile_page'))
+
+    if not any(char.isdigit() for char in new_password):
+        flash("New password must contain at least one number", "error")
+        return redirect(url_for('my_profile_page'))
+
+    if not any(char in "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`" for char in new_password):
+        flash("New password must contain at least one special character", "error")
+        return redirect(url_for('my_profile_page'))
+
+    # Update the password
+    print("USER RIVILLÄ 143", user)
+    user.password = dbf.generate_password_hash(new_password)
+    db.session.commit()
+
+    flash("Password changed successfully", category="success")
+    return redirect('my_profile_page')
 
 @app.route('/update_profile_info', methods=['POST'])
 def update_profile_info():
@@ -119,51 +114,6 @@ def update_profile_info():
         flash("Email cannot be empty", "error")
 
     return redirect(url_for('my_profile_page'))
-
-# @app.route('/update_profile_info', methods=['GET', 'POST'])
-# def update_profile_info():
-    # user_id = session.get('user_id')
-    # user = User.query.get(user_id)
-    # user_email = User.query.filter_by(email=email).first()
-
-    # print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    # print("User_id: ", user_id)
-    # print("User: ", user)
-    # print("User_email: ", user_email)
-
-    # users = User.query.all()
-    # shops = Shop.query.all()
-    # shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
-    
-    # # Pass the user's data to the template
-
-    # print("##################################################")
-    # print("Päästiin tänne!")
-
-    # if request.method == 'POST': 
-    #     full_name = request.form.get('full_name')
-    #     email = request.form.get('email')
-
-        
-
-        # con = sqlite3.connect("commerce_data.db")
-        # cur = con.cursor()
-
-        # if hashed_current_password_field != 
-
-    #     cur.execute("""
-    #     SELECT password
-    #     FROM user
-    #     WHERE password = ?
-    # """, (hashed_current_password_field,))
-        
-    #     password_saved_in_the_database = cur.fetchone()
-
-        # if hashed_current_password_field != password_saved_in_the_database:
-        #     flash("The current password your entered was wrong. Please try again.")
-        #     return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
-
-    # return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

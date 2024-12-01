@@ -48,6 +48,16 @@
         </div>
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=False) %}
+                        {% if messages %}
+                            <p id="errorMessage" class="error">
+                                {% for message in messages %}
+                                    {{ message }}<br>
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    {% endwith %}
+    
     <!-- Added Products Section -->
     <div class="added_products_container mt-6 text-center">
         <div class="added_products_left">
@@ -98,36 +108,38 @@
             <div class="update_profile_left">
                 
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" class="input-field" value="{{ username }}" placeholder="Enter your username">
+                <input type="text" id="username" name="username" class="input-field" value="{{ username }}" placeholder="Enter new username">
 
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" class="input-field" value="{{ email }}" placeholder="Enter your email">
+                <input type="email" id="email" name="email" class="input-field" value="{{ email }}" placeholder="Enter new email">
             
                 <button class="save_button">Save Changes</button> 
             </div> 
         </div>
     </form>
 
-
-    <div class="update_profile_container mt-6 text-center">
-        <div class="update_profile_right">
-            <h1 class="subheader">Change Your User Password</h1>
-            <p class="subtext">Change your password to a new one</p>
-        </div>
-
+    <form action="{{ url_for('change_password') }}" method="POST">
+        <div class="update_profile_container mt-6 text-center">
+            <div class="update_profile_right">
+                <h1 class="subheader">Change Your User Password</h1>
+                <p class="subtext">Change your password to a new one</p>
+            </div>
+            
         <div class="update_profile_left">
-            <label for="full_name">Current Password</label>
-            <input type="password" id="current_password_field" name="current_password_field" class="input-field" value="{{ full_name }}" placeholder="Enter your current password">
+            
+            <label for="current_password">Current Password</label>
+            <input type="password" id="current_password" name="current_password" class="input-field" placeholder="Enter your current password" required>
 
-            <label for="email">New Password</label>
-            <input type="password" id="email" name="email" class="input-field" value="{{ email }}" placeholder="Enter your new password">
+            <label for="new_password">New Password</label>
+            <input type="password" id="new_password" name="new_password" class="input-field" placeholder="Enter your new password" required>
 
-            <label for="email">New Password Again</label>
-            <input type="password" id="email" name="email" class="input-field" value="{{ email }}" placeholder="Enter your new password again">
-        
-            <button class="save_button">Save Changes</button>   
+            <label for="confirm_password">Confirm New Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="input-field" placeholder="Confirm your new password" required>
+
+            <button type="submit" class="save_button">Save Changes</button>
         </div> 
-    </div>
+        </div>
+    </form>
 
     <!-- Reducing waste Section -->
     <div class="reducing_waste_container mt-6 text-center">
