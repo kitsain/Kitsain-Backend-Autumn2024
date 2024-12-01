@@ -100,15 +100,15 @@ def update_profile_info():
         return redirect(url_for('login'))
 
     new_email = request.form.get('email')
-    new_full_name = request.form.get('full_name')
+    new_username = request.form.get('username')
 
-    if new_full_name:
-        if dbf.update_user_full_name(user_id, new_full_name):
-            flash("Full name updated successfully", "success")
+    if new_username:
+        if dbf.update_user_username(user_id, new_username):
+            flash("Username updated successfully", "success")
         else:
-            flash("Error updating full name", "error")
+            flash("Error updating username", "error")
     else:
-        flash("Full name cannot be empty", "error")
+        flash("Username cannot be empty", "error")
 
     if new_email:
         if dbf.update_user_email(user_id, new_email):
