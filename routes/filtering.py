@@ -3,6 +3,8 @@ from models import db, Product, Shop, Price, User, WorksFor
 from datetime import datetime
 import random
 
+import database_functions as dbf
+
 def filter_shops():
     store_name = ''
     location_address = ''
@@ -43,7 +45,7 @@ def filter_shops():
     return render_template('shops_page.html')
 
 
-def filter_products():
+def filter_products(get_product_image):
     query = Product.query.join(Price).join(Shop)
 
     # Product filters
@@ -80,15 +82,22 @@ def filter_products():
     shop = request.form.get('shop_filter')
     gps_lat = request.form.get('gps_lat')
     gps_lon = request.form.get('gps_lon')
+    radius = request.form.get('shop_radius')
 
     if shop:
         query = query.filter(Shop.store_name.ilike(f"%{shop}%"))
-    if gps_lat and gps_lon:
-        # Add logic to filter nearby shops using Haversine formula or similar
-        pass  # Placeholder for nearby shop filtering logic
+    elif gps_lat and gps_lon and radius:
+        # Filter shops by radius using Haversine formula
+        radius = float(radius)
+        closest_shops = dbf.find_closest_shops(float(gps_lat), float(gps_lon), 16)
+        shop_ids_within_radius = [
+            shop_id for shop_id, distance in closest_shops if distance <= radius
+        ]
+        query = query.filter(Price.shop_id.in_(shop_ids_within_radius))
 
     products = query.all()
-    return render_template('products_page.html', products=products)
+    return render_template('products_page.html', products=products, get_product_image=get_product_image)
+
 
 
 

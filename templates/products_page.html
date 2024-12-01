@@ -105,21 +105,26 @@
                     </select>
                 </div>
 
+                <div class="input-group">
+                    <label for="shop_radius_filter">Shops within Radius:</label>
+                    <input type="number" id="shop_radius" name="shop_radius" class="input-field" placeholder="Enter radius in km">
+                </div>
+
                 <!-- Shop Selection -->
-            <div class="input-group">
-                <label for="shop_filter">Shop:</label>
-                <select id="shop_filter" name="shop_filter" class="input-field">
-                    <!-- Default value -->
-                    <option value="">Select a shop</option>
-                </select>
-                <button type="button" id="findShopsBtn" class="btn-primary-add">Find Nearby Shops</button>
-            </div>
+                <div class="input-group">
+                    <label for="shop_filter">Shop:</label>
+                    <select id="shop_filter" name="shop_filter" class="input-field">
+                        <!-- Default value -->
+                        <option value="">Select a shop</option>
+                    </select>
+                    <button type="button" id="findShopsBtn" class="btn-primary-add">Find Nearby Shops</button>
+                </div>
 
-            <!-- GPS coordinates (hidden) -->
-            <input type="hidden" id="gps_lat" name="gps_lat">
-            <input type="hidden" id="gps_lon" name="gps_lon">
+                <!-- GPS coordinates (hidden) -->
+                <input type="hidden" id="gps_lat" name="gps_lat">
+                <input type="hidden" id="gps_lon" name="gps_lon">
 
-            <button type="submit" class="btn-primary-add">Apply Filters</button>
+                <button type="submit" class="btn-primary-add">Apply Filters</button>
             </form>
         </div>
     </div>

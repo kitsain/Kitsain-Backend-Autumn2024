@@ -43,9 +43,10 @@ db.init_app(app)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    db.drop_all()
-    db.create_all()
-    dbf.add_user("admin", "admin", "admin@email.com", "admin")
+    # Uncomment these only to reset database:
+    # db.drop_all()
+    # db.create_all()
+    # dbf.add_user("admin", "admin", "admin@email.com", "admin")
     
     if request.method == 'POST':
         username = request.form.get('username')  # Gets the username
@@ -588,7 +589,7 @@ def filter_products_method():
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
-    return filter_products()
+    return filter_products(get_product_image)
 
 @app.route('/search_discounts', methods=['GET', 'POST'])
 def search_discount_method():
@@ -603,14 +604,20 @@ def get_closest_shops():
     try:
         user_lat = float(request.args.get('lat'))
         user_lon = float(request.args.get('lon'))
+        radius = float(request.args.get('radius', 10))  # Default radius to 10km
         n = 16  # Number of closest shops to fetch
 
         # Use the find_closest_shops function
         closest_shops = dbf.find_closest_shops(user_lat, user_lon, n)
 
-        # Fetch shop details for the closest shops
+        # Filter shops within the radius
+        filtered_shops = [
+            (shop_id, distance) for shop_id, distance in closest_shops if distance <= radius
+        ]
+
+        # Fetch shop details for the filtered shops
         shop_details = []
-        for shop_id, distance in closest_shops:
+        for shop_id, distance in filtered_shops:
             shop = Shop.query.get(shop_id)
             if shop:
                 shop_details.append({
@@ -623,6 +630,7 @@ def get_closest_shops():
     except Exception as e:
         print(f"Error fetching closest shops: {e}")
         return jsonify({'error': 'Failed to fetch closest shops'}), 500
+
 
 # @app.route('/aura_stats/<int:user_id>', methods=['GET'])
 # def get_aura_stats(user_id):

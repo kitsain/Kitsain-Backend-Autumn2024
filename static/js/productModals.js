@@ -46,14 +46,15 @@
                 async (position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
+                    const radius = document.getElementById('shop_radius').value || 10; // Default to 10km if not provided
     
                     // Save GPS coordinates in hidden inputs
                     document.getElementById('gps_lat').value = lat;
                     document.getElementById('gps_lon').value = lon;
     
-                    // Fetch the 16 closest shops
+                    // Fetch the closest shops within the radius
                     try {
-                        const response = await fetch(`/get_closest_shops?lat=${lat}&lon=${lon}`);
+                        const response = await fetch(`/get_closest_shops?lat=${lat}&lon=${lon}&radius=${radius}`);
                         const shops = await response.json();
     
                         // Populate the shop dropdown
@@ -73,7 +74,7 @@
                                 }
                             });
                         } else {
-                            alert('No shops found nearby.');
+                            alert('No shops found within the specified radius.');
                         }
                     } catch (error) {
                         console.error('Error fetching closest shops:', error);
@@ -89,6 +90,8 @@
             alert('Geolocation is not supported by your browser.');
         }
     });
+    
+    
     
     
     
