@@ -66,10 +66,12 @@ def email():
 
         print("Email: ", email)
 
-        con = sqlite3.connect("commerce_data.db")
-        cur = con.cursor()
-        cur.execute('SELECT * FROM user WHERE email = ?', (email,))
-        user = cur.fetchone()
+        user = User.query.filter_by(email=email).first()
+
+        # con = sqlite3.connect("commerce_data.db")
+        # cur = con.cursor()
+        # cur.execute('SELECT * FROM user WHERE email = ?', (email,))
+        # user = cur.fetchone()
 
         if email != emailagain:
             flash("Error: The email fields were not equal", category="error")
@@ -92,7 +94,11 @@ def email():
 
         # Save token to the database (simple example using session)
         # In production, consider a separate table for tokens with expiration
-        cur.execute('UPDATE user SET reset_token = ?, reset_token_expiry = ? WHERE email = ?', (hashed_token, expiration_time, email))
+        user.reset_token = hashed_token
+        user.reset_token_expiration = expiration_time
+        db.session.commit()
+
+        # cur.execute('UPDATE user SET reset_token = ?, reset_token_expiry = ? WHERE email = ?', (hashed_token, expiration_time, email))
 
         # Send email
         reset_link = url_for('reset_password', token=reset_token, _external=True)
@@ -104,8 +110,8 @@ def email():
 
         # session.pop('email', None)
         # session.pop('emailagain', None)
-        con.commit()
-        con.close()
+        # con.commit()
+        # con.close()
         return render_template("passwordSetConfirmation.html")
     
     email = session.get('email', '')
@@ -118,23 +124,25 @@ def reset_password(token):
     hashed_token = hashlib.sha256(token.encode()).hexdigest()
     print("Hashed token: ", hashed_token)
 
-    conn = sqlite3.connect('commerce_data.db')
-    cur = conn.cursor()
+    # conn = sqlite3.connect('commerce_data.db')
+    # cur = conn.cursor()
+
+    user = User.query.filter_by(reset_token=hashed_token).first()
 
     if request.method == 'GET': 
         
-        cur.execute("""
-        SELECT reset_token_expiry
-        FROM user
-        WHERE reset_token = ?
-    """, (hashed_token,))
-        result = cur.fetchone()
+    #     cur.execute("""
+    #     SELECT reset_token_expiry
+    #     FROM user
+    #     WHERE reset_token = ?
+    # """, (hashed_token,))
+    #     result = cur.fetchone()
 
         # Jos koko tokenia ei löydy ylipäätään, se on vanhentunut
-        if not result: 
+        if not user: 
             return render_template('resetLinkExpired.html', token=token)
         
-        expiration_time = result[0]
+        expiration_time = user.reset_token_expiration
         current_time = int(time.time())
 
         if current_time > expiration_time: 
@@ -182,32 +190,42 @@ def reset_password(token):
         print("New passwordin arvo: ", new_password)
         print("Confirm passwordin arvo: ", confirm_password)
 
-        # Update password in the database (example with SQLite)
-        try:
-            conn = sqlite3.connect('commerce_data.db')
-            cur = conn.cursor()
-            cur.execute("""
-                UPDATE user
-                SET password = ?
-                WHERE reset_token = ?
-            """, (dbf.generate_password_hash(new_password), hashed_token))
-            conn.commit()
-            cur.execute("""
-                UPDATE user
-                SET reset_token = NULL
-                WHERE reset_token = ?
-            """, (hashed_token,))
-            conn.commit()
-            conn.close()
+        if user: 
+            user.password = dbf.generate_password_hash(new_password)
+            user.reset_token = None
+            db.session.commit()
 
             session.pop(new_password, None)
             session.pop(confirm_password, None)
 
-        except sqlite3.IntegrityError as e:
-            print(f"Database error: {e}")
-            return "Database error occurred", 500
+            return render_template('passwordSetSuccessfully.html')
 
-        return render_template('passwordSetSuccessfully.html')
+        # Update password in the database (example with SQLite)
+        # try:
+        #     conn = sqlite3.connect('commerce_data.db')
+        #     cur = conn.cursor()
+        #     cur.execute("""
+        #         UPDATE user
+        #         SET password = ?
+        #         WHERE reset_token = ?
+        #     """, (dbf.generate_password_hash(new_password), hashed_token))
+        #     conn.commit()
+        #     cur.execute("""
+        #         UPDATE user
+        #         SET reset_token = NULL
+        #         WHERE reset_token = ?
+        #     """, (hashed_token,))
+        #     conn.commit()
+        #     conn.close()
+
+        #     session.pop(new_password, None)
+        #     session.pop(confirm_password, None)
+
+        # except sqlite3.IntegrityError as e:
+        #     print(f"Database error: {e}")
+        #     return "Database error occurred", 500
+
+        # return render_template('passwordSetSuccessfully.html')
 
     return render_template('resetPassword.html', token=token)
 
