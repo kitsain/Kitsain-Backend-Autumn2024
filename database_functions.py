@@ -22,6 +22,25 @@ def add_user(username, password, email, role):
         db.session.rollback()
         return False
 
+def update_user_full_name(user_id, new_full_name):
+    """
+    Updates the full name of a user with the given user_id.
+    """
+    try:
+        user = User.query.get(user_id)
+        if user:
+            user.username = new_full_name
+            db.session.commit()
+            print(f"Full name for user ID {user_id} updated successfully.")
+            return True
+        else:
+            print(f"User with ID {user_id} not found.")
+            return False
+    except Exception as e:
+        print(f"Error updating full name for user ID {user_id}: {e}")
+        db.session.rollback()
+        return False
+
 def update_user_email(user_id, new_email):
     """
     Updates the email of a user with the given user_id.
