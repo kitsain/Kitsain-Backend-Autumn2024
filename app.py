@@ -41,6 +41,120 @@ EXPIRATION_LIMIT_IN_SECONDS = 3600
 
 db.init_app(app)
 
+# @app.route('/update_password', methods=['GET', 'POST'])
+# def update_password():
+#     user_id = session.get('user_id')
+#     user = User.query.get(user_id)
+
+#     users = User.query.all()
+#     shops = Shop.query.all()
+#     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
+    
+#     # Pass the user's data to the template
+
+#     print("##################################################")
+#     print("Päästiin tänne!")
+
+#     if request.method == 'POST': 
+#         current_password_field = request.form.get('current_password')
+#         new_password_field = request.form.get('new_password')
+#         new_password_again_field = request.form.get('new_password_again')
+
+#         hashed_current_password_field = dbf.generate_password_hash(current_password_field)
+
+#         print("Hashed password: ", hashed_current_password_field)
+
+#         password_saved_in_the_database = User.query.filter_by(password=current_password_field).first()
+
+#         if not password_saved_in_the_database:
+#             flash("The current password you entered was wrong. Please try again.")
+#             return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+
+#         else:
+#             print("Salasana oli sama!")
+
+        # con = sqlite3.connect("commerce_data.db")
+        # cur = con.cursor()
+
+        # if hashed_current_password_field != 
+
+    #     cur.execute("""
+    #     SELECT password
+    #     FROM user
+    #     WHERE password = ?
+    # """, (hashed_current_password_field,))
+        
+    #     password_saved_in_the_database = cur.fetchone()
+
+        # if hashed_current_password_field != password_saved_in_the_database:
+        #     flash("The current password your entered was wrong. Please try again.")
+        #     return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+
+    # return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+
+@app.route('/update_profile_info', methods=['POST'])
+def update_profile_info():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("Please log in to update your profile", "error")
+        return redirect(url_for('login'))
+
+    new_email = request.form.get('email')
+    if new_email:
+        if dbf.update_user_email(user_id, new_email):
+            flash("Email updated successfully", "success")
+        else:
+            flash("Error updating email", "error")
+    else:
+        flash("Email cannot be empty", "error")
+
+    return redirect(url_for('my_profile_page'))
+
+# @app.route('/update_profile_info', methods=['GET', 'POST'])
+# def update_profile_info():
+    # user_id = session.get('user_id')
+    # user = User.query.get(user_id)
+    # user_email = User.query.filter_by(email=email).first()
+
+    # print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    # print("User_id: ", user_id)
+    # print("User: ", user)
+    # print("User_email: ", user_email)
+
+    # users = User.query.all()
+    # shops = Shop.query.all()
+    # shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
+    
+    # # Pass the user's data to the template
+
+    # print("##################################################")
+    # print("Päästiin tänne!")
+
+    # if request.method == 'POST': 
+    #     full_name = request.form.get('full_name')
+    #     email = request.form.get('email')
+
+        
+
+        # con = sqlite3.connect("commerce_data.db")
+        # cur = con.cursor()
+
+        # if hashed_current_password_field != 
+
+    #     cur.execute("""
+    #     SELECT password
+    #     FROM user
+    #     WHERE password = ?
+    # """, (hashed_current_password_field,))
+        
+    #     password_saved_in_the_database = cur.fetchone()
+
+        # if hashed_current_password_field != password_saved_in_the_database:
+        #     flash("The current password your entered was wrong. Please try again.")
+        #     return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+
+    # return render_template('my_profile_page.html', user=user, users=users, shops=shops, shopkeepers_data=shopkeepers_data)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # Uncomment these only to reset database:
@@ -69,11 +183,6 @@ def email():
 
         user = User.query.filter_by(email=email).first()
 
-        # con = sqlite3.connect("commerce_data.db")
-        # cur = con.cursor()
-        # cur.execute('SELECT * FROM user WHERE email = ?', (email,))
-        # user = cur.fetchone()
-
         if email != emailagain:
             flash("Error: The email fields were not equal", category="error")
             session['email'] = email
@@ -99,8 +208,6 @@ def email():
         user.reset_token_expiration = expiration_time
         db.session.commit()
 
-        # cur.execute('UPDATE user SET reset_token = ?, reset_token_expiry = ? WHERE email = ?', (hashed_token, expiration_time, email))
-
         # Send email
         reset_link = url_for('reset_password', token=reset_token, _external=True)
         msg = Message("Kitsain password reset request",
@@ -109,10 +216,6 @@ def email():
         msg.body = f"Hello!\n\nThank you for using Kitsain. You can reset your password with the following link: {reset_link} \n\nPlease note that the preceding link expires after 1 hour and cannot be reused for resetting the password.\n\nSincerely,\nKitsain"
         mail.send(msg)
 
-        # session.pop('email', None)
-        # session.pop('emailagain', None)
-        # con.commit()
-        # con.close()
         return render_template("passwordSetConfirmation.html")
     
     email = session.get('email', '')
@@ -125,19 +228,9 @@ def reset_password(token):
     hashed_token = hashlib.sha256(token.encode()).hexdigest()
     print("Hashed token: ", hashed_token)
 
-    # conn = sqlite3.connect('commerce_data.db')
-    # cur = conn.cursor()
-
     user = User.query.filter_by(reset_token=hashed_token).first()
 
     if request.method == 'GET': 
-        
-    #     cur.execute("""
-    #     SELECT reset_token_expiry
-    #     FROM user
-    #     WHERE reset_token = ?
-    # """, (hashed_token,))
-    #     result = cur.fetchone()
 
         # Jos koko tokenia ei löydy ylipäätään, se on vanhentunut
         if not user: 
@@ -200,33 +293,6 @@ def reset_password(token):
             session.pop(confirm_password, None)
 
             return render_template('passwordSetSuccessfully.html')
-
-        # Update password in the database (example with SQLite)
-        # try:
-        #     conn = sqlite3.connect('commerce_data.db')
-        #     cur = conn.cursor()
-        #     cur.execute("""
-        #         UPDATE user
-        #         SET password = ?
-        #         WHERE reset_token = ?
-        #     """, (dbf.generate_password_hash(new_password), hashed_token))
-        #     conn.commit()
-        #     cur.execute("""
-        #         UPDATE user
-        #         SET reset_token = NULL
-        #         WHERE reset_token = ?
-        #     """, (hashed_token,))
-        #     conn.commit()
-        #     conn.close()
-
-        #     session.pop(new_password, None)
-        #     session.pop(confirm_password, None)
-
-        # except sqlite3.IntegrityError as e:
-        #     print(f"Database error: {e}")
-        #     return "Database error occurred", 500
-
-        # return render_template('passwordSetSuccessfully.html')
 
     return render_template('resetPassword.html', token=token)
 
