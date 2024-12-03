@@ -5,7 +5,6 @@
     background: #FFF8F0;
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.12);
     padding: 10px 20px;
-
 }
 
 
@@ -104,7 +103,6 @@ h1.ml-3 {
 
 
 p.ml-4 {
-
     width: 520px;
     height: 24px;
 
@@ -131,7 +129,6 @@ p.ml-4 {
     background: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 6px;
-
 }
 
 
@@ -168,7 +165,6 @@ p.ml-4 {
     height: auto;
 
     background: #FFF8F0;
-
 }
 
 .ml-6 {
@@ -177,7 +173,6 @@ p.ml-4 {
     font-weight: 700;
     font-size: 40px;
     line-height: 48px;
-    /* identical to box height, or 120% */
     text-align: center;
 
     color: #511948;
@@ -192,14 +187,14 @@ p.ml-4 {
 
     color: #511948;
 
-    margin-left: 1.5rem; /* Space from the left side */
-    flex-grow: 1; /* Allow it to take available space */
+    margin-left: 1.5rem; 
+    flex-grow: 1;
 }
 
 .result_elements {
     display: flex;
-    justify-content: space-between; /* Space between the left and right elements */
-    align-items: center; /* Vertically align the elements */
+    justify-content: space-between; 
+    align-items: center; 
     width: 100%;
 }
 
@@ -218,11 +213,9 @@ p.ml-4 {
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
-    /* identical to box height, or 150% */
     text-align: start;
 
     color: #000000;
-
 }
 
 .btn.btn-primary.view {
@@ -279,13 +272,11 @@ p.ml-4 {
 
     background: #FFF8F0;
 
-    /* Inside auto layout */
     flex: none;
     order: 4;
     align-self: stretch;
     flex-grow: 0;
     z-index: 4;
-
 }
 
 .products-container{
@@ -314,7 +305,6 @@ p.ml-4 {
     flex: none;
     order: 0;
     flex-grow: 0;
-
 }
 
 .product_info {
@@ -484,13 +474,10 @@ p.ml-4 {
 
 .show-more-btn {
     margin-top: 1rem;
-    /*background-color: #000000;*/
-    /*color: white;*/
     border: none;
     border-radius: 4px;
     cursor: pointer;
     width:53px;
-    /*align-self: center;*/
 }
 
 .product-details-container {

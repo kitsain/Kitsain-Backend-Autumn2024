@@ -410,22 +410,7 @@
                 </div>
             {% endfor %}
         {% endfor %}
-    </div>
-    
-    <script>
-    function toggleDetails(button) {
-        const details = button.closest('.product-box').querySelector('.additional-details');
-        if (details.style.display === "none" || details.style.display === "") {
-            details.style.display = "block";
-            button.textContent = "-"; 
-        } else {
-            details.style.display = "none";
-            button.textContent = "+"; 
-        }
-    }
-    </script>    
-    
-
+    </div>   
 
 
     <!-- Modal for Deletion Confirmation -->
@@ -669,176 +654,15 @@
 
     <script src="{{ url_for('static', filename='js/chooseDiscountOrWaste.js')}}"></script>
 
-
-
-<script>
-document.querySelectorAll(".btn-secondary-add").forEach(button => {
-    button.addEventListener("click", function () {
-        // Check if the clicked button already has the 'active' class
-        if (this.classList.contains("selected")) {
-            // If it does, unselect it by removing the 'selected' class
-            this.classList.remove("selected");
-            document.getElementById("product_amount").value = ""; // Optional: Clear the value
-        } else {
-            // If it doesn't, unselect all other buttons first
-            document.querySelectorAll(".btn-secondary-add").forEach(btn => btn.classList.remove("selected"));
-            // Add the 'selected' class to the clicked button
-            this.classList.add("selected");
-            const selectedValue = this.getAttribute("data-value");
-            document.getElementById("product_amount").value = selectedValue; // Set the value
-        }
-    });
-});
-</script>
-
-<script>
-    document.querySelectorAll(".btn-secondary-add-edit").forEach(button => {
-        button.addEventListener("click", function () {
-            // Check if the clicked button already has the 'active' class
-            if (this.classList.contains("active")) {
-                // If it does, unselect it by removing the 'selected' class
-                this.classList.remove("active");
-                document.getElementById("product_amount").value = ""; // Optional: Clear the value
-            } else {
-                // If it doesn't, unselect all other buttons first
-                document.querySelectorAll(".btn-secondary-add-edit").forEach(btn => btn.classList.remove("active"));
-                // Add the 'selected' class to the clicked button
-                this.classList.add("active");
-                const selectedValue = this.getAttribute("data-value");
-                document.getElementById("product_amount").value = selectedValue; // Set the value
-            }
-        });
-    });
-    </script>
-    
-
-
-
-    <script>
-        document.getElementById('yesButton').addEventListener('click', function() {
-        document.getElementById('gluten_free').value = 'Yes';
-    });
-
-    document.getElementById('noButton').addEventListener('click', function() {
-        document.getElementById('gluten_free').value = 'No';
-    });
-    </script>
-
-
-    <script>
-        // Get the modal and the "Discard Changes" button
-        var modal = document.getElementById("addProductModal");
-        var discardBtn = document.getElementById("discardChangesBtn");
-        var closeBtn = document.getElementsByClassName("close")[0];
-
-        // Function to close the modal
-        function closeModal() {
-            modal.style.display = "none";
-        }
-
-        // Close the modal when the "Discard Changes" button is clicked
-        discardBtn.onclick = function() {
-            closeModal();
-        }
-
-        // Also close the modal when the "×" button is clicked
-        closeBtn.onclick = function() {
-            closeModal();
-        }
-
-        // Optional: Close the modal if the user clicks outside the modal content
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-    </script>
-
+    <script src ="{{ url_for('static', filename='js/toggleDetails.js')}}"></script>    
         
-    <script>
-        // Get the modal and the "Discard Changes" button
-        var modal = document.getElementById("editProductModal");
-        var discardBtn = document.getElementById("edit_discardChangesBtn");
-        var closeBtn = document.getElementsByClassName("close")[0];
+    <script src ="{{ url_for('static', filename='js/selectProductAmount.js')}}"></script>
 
-        // Function to close the modal
-        function closeModal() {
-            modal.style.display = "none";
-        }
+    <script src ="{{ url_for('static', filename='js/glutenFreeSelection.js')}}"></script>  
 
-        // Close the modal when the "Discard Changes" button is clicked
-        discardBtn.onclick = function() {
-            closeModal();
-        }
+    <script src = "{{ url_for('static', filename='js/productModalClose.js')}}"></script>
 
-        // Also close the modal when the "×" button is clicked
-        closeBtn.onclick = function() {
-            closeModal();
-        }
-
-        // Optional: Close the modal if the user clicks outside the modal content
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-    </script>
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Get modal elements
-        const addDetailedInfo = document.getElementById("addDetailedInfoModal");
-        const previousModal = document.getElementById("addProductModal");
-
-        // Get buttons to trigger modal changes
-        const cancelBtn = document.getElementById("cancelBtn");
-
-        // Close the 'Add Detailed Info' Modal and go back to the previous modal
-        if (cancelBtn) {
-            cancelBtn.onclick = function () {
-                addDetailedInfo.style.display = "none"; // Hide detailed info modal
-                previousModal.style.display = "block"; // Show previous modal
-            };
-        }
-
-        // Close modals when clicking outside
-        window.onclick = function (event) {
-            if (event.target === addDetailedInfo) {
-                addDetailedInfo.style.display = "none";
-            } else if (event.target === previousModal) {
-                previousModal.style.display = "none";
-            }
-        };
-    });
-    </script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Get modal elements
-        const addDetailedInfo = document.getElementById("editDetailedInfoModal");
-        const previousModal = document.getElementById("editProductModal");
-
-        // Get buttons to trigger modal changes
-        const cancelBtn = document.getElementById("cancelBtn-edit");
-
-        // Close the 'Add Detailed Info' Modal and go back to the previous modal
-        if (cancelBtn) {
-            cancelBtn.onclick = function () {
-                addDetailedInfo.style.display = "none"; // Hide detailed info modal
-                previousModal.style.display = "block"; // Show previous modal
-            };
-        }
-
-        // Close modals when clicking outside
-        window.onclick = function (event) {
-            if (event.target === addDetailedInfo) {
-                addDetailedInfo.style.display = "none";
-            } else if (event.target === previousModal) {
-                previousModal.style.display = "none";
-            }
-        };
-    });
-    </script>
+    <script src = "{{ url_for('static', filename='js/addDetailedProductInfo.js')}}"></script>
 
     <script src="../static/language_support.js"></script>
 

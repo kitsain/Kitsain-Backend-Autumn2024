@@ -10,18 +10,30 @@
                     <div class="product-box" data-product-id="{{ result.product_id }}">
                         <div class="product-image">
                             <img 
-                                src="{{ get_product_image(product) if get_product_image(product) else '/static/pictures/placeholder-image.jpg' }}" 
+                                src="{{ get_product_image(result) if get_product_image(result) else '/static/pictures/placeholder-image.jpg' }}" 
                                 class="product-img" alt="Product Image">
                         </div>
                         <div class="product_info">
                             <h3 class="product-name">{{ result.product_name }}</h3>
+
                             <div class="price-container">
                                 <p class="product-discount_price">{{ price.price }} €</p>
-                                <p class="product-price">{{ price.discount_price }} €</p>
+                                {% if price.discount_price is not none %}
+                                    <p class="product-price">{{ price.discount_price }} €</p>
+                                {% elif price.waste_discount_percentage is not none %}
+                                    <p class="product-price">- {{ price.waste_discount_percentage }}%</p>
+                                {% endif %}
                             </div>
-                            <p class="product-discount">- {{ price.waste_discount_percentage if price.waste_discount_percentage else 'N/A' }}%</p>
+                                                   
                             <p class="product-shop">{{ price.shop.store_name if price.shop else 'N/A' }}</p>
-                            <p class="product-expiration">{{ price.discount_valid_to.strftime('%d.%m.%Y') if price.discount_valid_to else 'N/A' }}</p>
+                            
+                            {% if price.waste_valid_to is not none %}
+                                <p class="product-expiration">{{ price.waste_valid_to.strftime('%d.%m.%Y') }}</p>
+                            {% elif price.discount_valid_from is not none and price.discount_valid_to is not none %}
+                                <p class="product-expiration">
+                                    {{ price.discount_valid_from.strftime('%d.%m.%Y') }} - {{ price.discount_valid_to.strftime('%d.%m.%Y') }}
+                                </p>
+                            {% endif %}
 
                             <!-- Details Section -->
                             <div class="product-details-container">
@@ -49,15 +61,4 @@
     {% endif %}
 </div>
 
-<script>
-function toggleDetails(button) {
-    const details = button.nextElementSibling;
-    if (details.style.display === "none" || details.style.display === "") {
-        details.style.display = "block";
-        button.textContent = "-"; // Change button to "-"
-    } else {
-        details.style.display = "none";
-        button.textContent = "+"; // Change button back to "+"
-    }
-}
-</script>
+<script src="../static/js/indexToggle.js"></script>

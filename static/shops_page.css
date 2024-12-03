@@ -5,7 +5,6 @@
     background: #FFF8F0;
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.12);
     padding: 10px 20px;
-
 }
 
 
@@ -14,8 +13,7 @@
     height: 40px;
     background: url('pictures/profile-picture.png') no-repeat center/cover; 
     border-radius: 100px;
-    margin-right: 10px;
-    
+    margin-right: 10px; 
 }
 
 
@@ -47,8 +45,6 @@ h1.ml-2{
     border: 2px solid rgba(0, 0, 0, 0.15);
     border-radius: 6px;
     margin-left: 10px;
-
-
 }
 
 
@@ -65,7 +61,6 @@ h1.ml-2{
     cursor: pointer;
     border: none;
 
-
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 500;
@@ -75,12 +70,9 @@ h1.ml-2{
     color: #511948;
 
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-
 }
 
 .btn-primary.ml-2-2{
-
-
     width: 66px;
     height: 24px;
 
@@ -98,7 +90,6 @@ h1.ml-2{
     flex: none;
     order: 0;
     flex-grow: 0;
-
 }
 
 .container {
@@ -113,13 +104,10 @@ h1.ml-2{
 
     isolation: isolate;
     background: #511948;
-
 }
 
 
 h1.ml-3{
-
-
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 700;
@@ -127,7 +115,6 @@ h1.ml-3{
     line-height: 48px;
 
     color: #FFF8F0;
-
 }
 
 
@@ -141,7 +128,6 @@ p.ml-4{
     line-height: 24px;
 
     color: #FFF8F0;
-
 }
 
 
@@ -244,7 +230,6 @@ h2.section-title{
     background: #000000;
     color: #FFFFFF;
     border-radius: 8px;
-
 }
  
 
@@ -296,7 +281,6 @@ h2.section-title{
     flex: none;
     order: 0;
     flex-grow: 0;
-
 }
 
 
@@ -354,78 +338,68 @@ h2.section-title{
     padding: 5px;
 }
 
-/* General container for shops */
 .shops-container {
-    background: #FFF8F0; /* Background color */
-    border-radius: 6px; /* Rounded corners */
-    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.12); /* Subtle shadow */
-    margin-top: 20px; /* Spacing above the container */
+    background: #FFF8F0; 
+    border-radius: 6px; 
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.12); 
+    margin-top: 20px;
 }
 
-/* Header for shop columns */
 .shop-header {
-    display: flex; /* Flex layout for header */
-    justify-content: space-between; /* Space between headers */
-    padding: 15px; /* Padding for header */
-    background-color: #f5f5f5; /* Header background color */
-    font-weight: bold; /* Bold text for clarity */
+    display: flex; 
+    justify-content: space-between; 
+    padding: 15px; 
+    background-color: #f5f5f5; 
+    font-weight: bold; 
 }
 
-/* Each column in the header */
 .shop-column {
-    flex: 1; /* Equal width for columns */
-    padding: 0 10px; /* Horizontal padding */
+    flex: 1; 
+    padding: 0 10px; 
 }
 
-/* Body containing shop rows */
 .shop-body {
-    padding: 10px 0; /* Padding for body */
+    padding: 10px 0; 
 }
 
-/* Individual shop row */
 .shop-row {
-    display: flex; /* Flex layout for rows */
-    justify-content: space-between; /* Space between shop details */
-    padding: 15px; /* Padding for each row */
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Row separation */
-    transition: background 0.3s; /* Smooth background transition */
+    display: flex; 
+    justify-content: space-between; 
+    padding: 15px; 
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1); 
+    transition: background 0.3s; 
 }
 
-/* Highlight on hover */
 .shop-row:hover {
-    background-color: #f9f9f9; /* Change background on hover */
+    background-color: #f9f9f9; 
 }
 
-/* Buttons in action column */
 .shop-column form {
-    display: inline-block; /* Align buttons horizontally */
+    display: inline-block; 
 }
 
-/* Style for buttons in shops */
 .btn-secondary {
-    padding: 10px 15px; /* Padding for buttons */
-    margin-right: 5px; /* Space between buttons */
-    background: #000000; /* Button background */
-    color: #FFFFFF; /* Button text color */
-    border-radius: 8px; /* Rounded corners for buttons */
-    border: none; /* Remove border */
-    cursor: pointer; /* Pointer cursor for buttons */
-    transition: background 0.3s; /* Smooth background transition */
+    padding: 10px 15px; 
+    margin-right: 5px; 
+    background: #000000; 
+    color: #FFFFFF; 
+    border-radius: 8px; 
+    border: none; 
+    cursor: pointer; 
+    transition: background 0.3s; 
 }
 
-/* Button hover effect */
 .btn-secondary:hover {
-    background: #333333; /* Darker background on hover */
+    background: #333333; 
 }
 
-/* Optional: Add some responsive design */
 @media (max-width: 600px) {
     .shop-header, .shop-row {
-        flex-direction: column; /* Stack columns on small screens */
-        align-items: flex-start; /* Align items to start */
+        flex-direction: column;
+        align-items: flex-start; 
     }
     .shop-column {
-        width: 100%; /* Full width for small screens */
+        width: 100%; 
     }
 }
 

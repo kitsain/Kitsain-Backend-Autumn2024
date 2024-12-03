@@ -58,7 +58,6 @@ def modify_user(user_id):
         flash("User not found", "error")
         return redirect(url_for('modify_user.html'))
 
-    # Pass the user object to the template
     return render_template('modify_user.html', user=user)
 
 
@@ -79,24 +78,20 @@ def modify_shopkeepers(shop_id):
         flash("Shop not found", "error")
         return redirect(url_for('modify_shopkeepers'))
 
-    # Fetch all users for shopkeeper options
     users = User.query.all()
     current_shopkeepers = [wf.user for wf in shop.works_for]
 
     if request.method == 'POST':
-        # Logic for adding/removing shopkeepers
         action = request.form.get("action")
         user_id = request.form.get("user_id")
 
         if action == "add":
-            # Add user as shopkeeper if not already assigned
             if not WorksFor.query.filter_by(shop_id=shop_id, user_id=user_id).first():
                 new_shopkeeper = WorksFor(shop_id=shop_id, user_id=user_id)
                 db.session.add(new_shopkeeper)
                 db.session.commit()
                 flash("Shopkeeper added successfully", "success")
         elif action == "remove":
-            # Remove the shopkeeper if exists
             existing_shopkeeper = WorksFor.query.filter_by(shop_id=shop_id, user_id=user_id).first()
             if existing_shopkeeper:
                 db.session.delete(existing_shopkeeper)

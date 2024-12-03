@@ -5,7 +5,6 @@
     background: #FFF8F0;
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.12);
     padding: 10px 20px;
-
 }
 
 .product-details-container {
@@ -22,8 +21,7 @@
     height: 40px;
     background: url('pictures/profile-picture.png') no-repeat center/cover; 
     border-radius: 100px;
-    margin-right: 10px;
-    
+    margin-right: 10px; 
 }
 
 .profile-picture-bigger {
@@ -35,7 +33,6 @@
     margin-top:50px;
     margin-bottom:50px;
     margin-left: 100px;
-    
 }
 
 
@@ -67,8 +64,6 @@ h1.ml-2{
     border: 2px solid rgba(0, 0, 0, 0.15);
     border-radius: 6px;
     margin-left: 10px;
-
-
 }
 
 
@@ -86,7 +81,6 @@ h1.ml-2{
     cursor: pointer;
     border: none;
 
-
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 500;
@@ -96,12 +90,9 @@ h1.ml-2{
     color: #511948;
 
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-
 }
 
 .btn-primary.ml-2-3{
-
-
     width: 66px;
     height: 24px;
 
@@ -119,7 +110,6 @@ h1.ml-2{
     flex: none;
     order: 0;
     flex-grow: 0;
-
 }
 
 
@@ -133,7 +123,6 @@ h1.ml-2{
 
     isolation: isolate;
     background: #511948;
-
 }
 
 .user-info {
@@ -178,7 +167,7 @@ h1.ml-2{
 }
 
 .btn-primary.ml-3:hover {
-    background-color: rgba(255, 255, 255, 0.1); /* Optional: Add a light hover effect */
+    background-color: rgba(255, 255, 255, 0.1); 
 }
 
 
@@ -206,7 +195,6 @@ h1.ml-3{
     line-height: 48px;
 
     color: #FFF8F0;
-
 }
 
 
@@ -218,7 +206,6 @@ p.ml-4{
 
     margin-bottom: 5px;
     color: #FFFFFF;
-
 }
 
 p.ml-5{
@@ -229,7 +216,6 @@ p.ml-5{
     margin-top: 5px;
 
     color: #FFFFFF;
-
 }
 
 
@@ -240,7 +226,6 @@ p.ml-5{
     background: #000000;
     border-radius: 8px;
     color: #FFFFFF;
-
 }
 
 
@@ -264,7 +249,6 @@ p.ml-5{
 
 .added_products_left {
     text-align: left;
-    /*padding: 20px;*/
     border-radius: 10px;
 }
 
@@ -294,8 +278,8 @@ p.ml-5{
     line-height: 24px;
     color: #000000;
 
-    max-width: 600px; /* Adjust the width as needed */
-    margin: 0 auto; /* Centers the text horizontally */
+    max-width: 600px; 
+    margin: 0 auto; 
     text-align: center; 
 }
 
@@ -322,7 +306,7 @@ p.ml-5{
 }
 
 .point-container p {
-    margin: 0; /* Removes default margins on <p> elements */
+    margin: 0; 
 }
 
 .point_header {
@@ -362,7 +346,6 @@ p.ml-5{
     margin-top:50px;
     margin-bottom:50px;
     margin-left: 100px;
-    
 }
 
 .save_button {
@@ -383,7 +366,7 @@ p.ml-5{
 .added_products_right {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Align elements to the right */
+    align-items: center; 
     text-align: center;
     padding: 20px;
     border-radius: 10px;
@@ -432,7 +415,7 @@ p.ml-5{
 
 .update_profile_left {
     margin-top: 70px;
-    gap: 160px; /* Increases space between child elements */
+    gap: 160px; 
 
 }
 
@@ -456,15 +439,6 @@ p.ml-5{
     justify-content: center;
     align-items: flex-start;
 }
-
-/*
-.reducing_waste_right {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    gap:100px;
-}*/
 
 .recry_text {
     max-width: 120px 
@@ -558,7 +532,6 @@ h2.section-title{
     background: #000000;
     color: #FFFFFF;
     border-radius: 8px;
-
 }
  
 
@@ -610,7 +583,6 @@ h2.section-title{
     flex: none;
     order: 0;
     flex-grow: 0;
-
 }
 
 
@@ -720,7 +692,6 @@ h2.section-title{
 .icon-text {
     margin-top: 12px; 
     font-size: 14px; 
-
 }
 
 .icon-text-2 {
@@ -747,7 +718,6 @@ h2.section-title{
 .products-container{
     background: #FFF8F0;
     display: flex;
-    /*flex-direction: row;*/
     justify-content: center;
     gap: 16px;
 }

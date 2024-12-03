@@ -423,40 +423,6 @@ def update_product_in_db(product_id, product_name, shop, price, waste_discount, 
         return False
 
 
-
-def get_products():
-    try:
-        products = db.session.query(Product).outerjoin(Price).outerjoin(Shop).all()
-        
-        # Prepare a list to hold the product data
-        products_list = []
-        for product in products:
-            prices_list = []
-            for price in product.prices:  # Assuming Product has a relationship with Price
-                prices_list.append({
-                    'price': price.price,
-                    'store_name': price.shop.store_name if price.shop else 'N/A',
-                    'waste_discount_percentage': price.waste_discount_percentage,
-                    'valid_to_date': price.valid_to_date if price.valid_to_date else 'N/A'
-                })
-            
-            products_list.append({
-                'product_id': product.product_id,
-                'product_name': product.product_name,
-                'prices': prices_list
-            })
-
-        # Print the products list (for debugging purposes)
-        print(products_list)
-        
-        # Render the products_page.html and pass the products_list to the template
-        return render_template('products_page.html', products=products_list)
-    
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-    
-
 def search_discount():
     query = request.args.get('query', '')  
     products_with_shops = []
@@ -482,7 +448,7 @@ def search_discount():
         products = Product.query.all()
         print(products)
 
-    return render_template('index.html', results=products, query=query)
+    return render_template('index.html', results=products, query=query, get_product_image=get_product_image)
 
 def calculate_accuracy(query, product_name):
     query_lower = query.lower()
@@ -493,3 +459,86 @@ def calculate_accuracy(query, product_name):
     
     return accuracy
 
+def get_product_image(product):
+    """
+    Extract the product image URL from information_links or return None.
+    """
+    try:
+        if isinstance(product, dict):
+            information_links = product.get("information_links", None)
+        else:
+            information_links = getattr(product, "information_links", None)
+        
+        if isinstance(information_links, str):
+            information_links = json.loads(information_links.replace("'", '"'))
+
+        return information_links.get("product_image_url", None) if information_links else None
+    except Exception as e:
+        print(f"Error processing product information_links: {e}")
+        return None
+
+
+def save_product_data_to_csv(data):
+    """
+    Validates and saves product data to a CSV file.
+
+    Args:
+        data (dict): JSON payload containing product details.
+
+    Returns:
+        tuple: A JSON response and HTTP status code.
+    """
+    # Extract fields from data
+    barcode = data.get('barcode')
+    product_name = data.get('product_name')
+    shop = data.get('shop')
+    price = data.get('price')
+    discount_price = data.get('discount_price')
+    discount_valid_from = data.get('discount_valid_from')
+    discount_valid_to = data.get('discount_valid_to')
+    waste_discount = data.get('waste_discount')
+    expiration_date = data.get('expiration_date')
+    product_amount = data.get('product_amount')
+
+    # Check for required fields
+    if not (barcode and product_name and shop and price):
+        return jsonify({"message": "Missing required fields"}), 400
+
+    product_data = [
+        barcode,
+        product_name,
+        shop,
+        price,
+        discount_price or "",
+        discount_valid_from or "",
+        discount_valid_to or "",
+        waste_discount or "",
+        expiration_date or "",
+        product_amount or ""
+    ]
+
+    try:
+        # Write data to CSV
+        with open(CSV_FILE_PATH, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(product_data)
+
+        print("Product data saved to CSV.")
+        
+        return jsonify({
+            "message": "Product data received and saved",
+            "barcode": barcode,
+            "product_name": product_name,
+            "shop": shop,
+            "price": price,
+            "discount_price": discount_price,
+            "discount_valid_from": discount_valid_from,
+            "discount_valid_to": discount_valid_to,
+            "waste_discount": waste_discount,
+            "expiration_date": expiration_date,
+            "product_amount": product_amount
+        }), 200
+
+    except Exception as e:
+        print(f"Error saving product data to CSV: {e}")
+        return jsonify({"message": "Error saving data"}), 500

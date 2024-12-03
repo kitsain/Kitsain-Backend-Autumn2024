@@ -28,11 +28,6 @@
                 </form>
                 <!-- Google Translate element -->
                 <div id="google_translate_element"></div>
-                <!-- <select class="ml-2">
-                    <option>EN</option>
-                    <option>FI</option> -->
-                    <!-- Add more languages as needed -->
-                <!-- </select> -->
             </div>
 
     <!-- Central search box for shops -->
@@ -175,67 +170,7 @@
         <p>Terms & Conditions</p>  
     </div>
     
-    <script>
-        // Function to handle opening and closing the Add Product modal
-        function handleAddShopModal() {
-            // Get the modal for adding products
-            var modal = document.getElementById("addProductModal");
-            // Get the button that opens the modal
-            var btn = document.getElementById("addButton");
-            // Get the <span> element that closes the modal
-            var span = modal.getElementsByClassName("close")[0];
-
-            // When the user clicks the button, open the modal 
-            btn.onclick = function(event) {
-                event.preventDefault(); // Prevent form submission
-                modal.style.display = "block";
-            }
-
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        }
-
-        // Function to handle opening and closing the Filter Products modal
-        function handleFilterShopModal() {
-            // Get the modal for filtering products
-            var modal = document.getElementById("filterShopsModal");
-            // Get the button that opens the modal
-            var btn = document.getElementById("filterButton");
-            // Get the <span> element that closes the modal
-            var span = modal.getElementsByClassName("close")[0];
-
-            // When the user clicks the button, open the modal 
-            btn.onclick = function(event) {
-                event.preventDefault(); // Prevent form submission
-                modal.style.display = "block";
-            }
-
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = function() {
-                modal.style.display = "none";
-            }
-
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function(event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            }
-        }
-
-        // Initialize modals
-        handleAddShopModal();
-        handleFilterShopModal();
-    </script>
+    <script src="../static/js/shopModals.js"></script>
     <script src="../static/language_support.js"></script>
 </body>
 </html>

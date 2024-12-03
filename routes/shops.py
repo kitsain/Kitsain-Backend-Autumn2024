@@ -49,25 +49,18 @@ def remove_shop(shop_id):
     shop_to_remove = Shop.query.filter_by(shop_id=shop_id).first()
     
     if shop_to_remove:
-        # Get the shopkeeper(s) associated with this shop
         shopkeepers = WorksFor.query.filter_by(shop_id=shop_id).all()
         
-        # Remove the shop
         db.session.delete(shop_to_remove)
-        db.session.commit()  # Commit the deletion
+        db.session.commit()  
 
-        # Check each shopkeeper
         for works_for in shopkeepers:
-            # Check if the shopkeeper has any other shops
             other_shops = WorksFor.query.filter_by(user_id=works_for.user_id).all()
-            if not other_shops:  # If no other shops, remove their shopkeeper status
+            if not other_shops:  
                 shopkeeper = User.query.filter_by(user_id=works_for.user_id).first()
                 if shopkeeper:
-                    db.session.delete(shopkeeper)  # Delete the shopkeeper
-                    # Alternatively, you could just update their role to something else
-                    # shopkeeper.role = 'user'  # Change the role if you don't want to delete
-                    # db.session.add(shopkeeper)
-        
-        db.session.commit()  # Commit changes to delete shopkeeper if applicable
+                    db.session.delete(shopkeeper) 
+
+        db.session.commit() 
     
     return redirect(url_for('shops_page'))

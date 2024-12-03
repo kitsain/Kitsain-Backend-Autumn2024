@@ -1,22 +1,16 @@
 from flask import Flask, json, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_mail import Mail, Message
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import CheckConstraint, text
-from datetime import datetime
 from sqlalchemy import desc
 from flask import session
 import hashlib
 import secrets
 import time
-from routes.products import add_product_from_html, remove_product, update_product, get_products, search_discount, add_product_detail, edit_product_detail
+from routes.products import add_product_from_html, remove_product, update_product,search_discount, add_product_detail, edit_product_detail
 from routes.shops import add_shop, remove_shop
 from routes.filtering import filter_shops, filter_products
 from routes.users import modify_user, add_user, remove_user, modify_shopkeepers
 from get_data import fetch_product_from_OFF
-import sqlite3
 from models import db, Product, Shop, User, Price, Aurapoints, WorksFor
-from sqlalchemy.sql import func, extract
-from pprint import pprint
 
 import database_functions as dbf
 
@@ -284,30 +278,67 @@ def add_hardcoded_user():
             db.session.rollback()
             print(f"Error adding hard-coded user: {e}")
 
+
 # page rendering
+
+from routes.products import get_product_image
 
 @app.route('/index')
 def index():
-    # Check access rights
+    """
+    Renders the index (main) page of the application.
+
+    This function checks if the user has access to the application. If not, it redirects them to the login page.
+    Otherwise, it retrieves data from the database, including recent products, all shops, users, and shopkeeper data,
+    and renders the 'index.html' template with this information.
+
+    Returns:
+        Response: 
+            - A redirect to the login page if the user lacks access.
+            - Rendered 'index.html' template with the following context:
+                - products (list): The two most recently created Product objects.
+                - shops (list): All Shop objects.
+                - shopkeepers_data (dict): A mapping of shop IDs to lists of usernames of shopkeepers.
+                - users (list): All User objects.
+                - get_product_image (callable): A function to retrieve product images.
+                - results (None): Placeholder for future search results.
+                - query (None): Placeholder for future search queries.
+                - closest_shops (None): Placeholder for future implementation of closest shop retrieval.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
-    # Retrieve the five latest products, assuming Product has a 'created_at' or 'added_date' field
     products = (Product).query.order_by(desc(Product. creation_date)).limit(2).all()
     shops = Shop.query.all()
     users = User.query.all()
     shopkeepers_data = {shop.shop_id: [wf.user.username for wf in shop.works_for] for shop in shops}
+    #TODO: closest_shops retrieval
     closest_shops = None
 
     return render_template('index.html', products=products, shops=shops, shopkeepers_data=shopkeepers_data, users=users, get_product_image=get_product_image, results=None, query=None, closest_shops=None)
 
+
 @app.route('/')
 def login_page():
+    """
+    Renders the login page of the application.
+
+    Returns:
+        Response: The rendered 'login.html' template.
+    """
     return render_template('login.html')
+
 
 @app.route('/products_page', methods=['POST', 'GET'])
 def products_page():
-    # Check access rights
+    """
+    Renders the products page with a list of products and shops.
+
+    Returns:
+        Response: 
+            - Redirect to login if access is denied.
+            - Rendered 'products_page.html' template with products, shops, and product images.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
@@ -315,26 +346,6 @@ def products_page():
 
     shops = Shop.query.all()
     return render_template('products_page.html', products=products, shops=shops, get_product_image=get_product_image)
-
-
-def get_product_image(product):
-    """
-    Extract the product image URL from information_links or return None.
-    """
-    try:
-        if isinstance(product, dict):
-            information_links = product.get("information_links", None)
-        else:
-            information_links = getattr(product, "information_links", None)
-        
-        if isinstance(information_links, str):
-            information_links = json.loads(information_links.replace("'", '"'))
-
-        return information_links.get("product_image_url", None) if information_links else None
-    except Exception as e:
-        print(f"Error processing product information_links: {e}")
-        return None
-
 
 
 @app.route('/fetch_product_details/<barcode>', methods=['GET'])
@@ -349,9 +360,17 @@ def fetch_product_details(barcode):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/shops_page')
 def shops_page():
-    # Check access rights
+    """
+    Renders the shops page with shop and shopkeeper data.
+
+    Returns:
+        Response: 
+            - Redirect to login if access is denied.
+            - Rendered 'shops_page.html' template with shops and shopkeepers data.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
@@ -364,13 +383,19 @@ def shops_page():
             shopkeepers = User.query.join(WorksFor).filter(WorksFor.shop_id == shop.shop_id).all()
             shopkeepers_data[shop.shop_id] = [shopkeepers]
 
-
     return render_template('shops_page.html', shops = shops, shopkeepers_data=shopkeepers_data)
 
 
 @app.route('/users_page')
 def users_page():
-    # Check access rights
+    """
+    Renders the users page with user, product, and shop data.
+
+    Returns:
+        Response: 
+            - Redirect to login if access is denied.
+            - Rendered 'users_page.html' template with users, products, shops, and shopkeepers data.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
@@ -383,6 +408,17 @@ def users_page():
 
 @app.route('/my_profile_page')
 def my_profile_page():
+    """
+    Renders the profile page for the logged-in user.
+
+    Redirects to the login page if access is denied or no user is logged in. 
+    Displays user details, Aura statistics, and recently added products.
+
+    Returns:
+        Response:
+            - Redirect to login if access is denied or user not found.
+            - Rendered 'my_profile_page.html' template with user data, shops, products, shopkeepers data, and stats.
+    """
     if dbf.confirm_access() is None:
         return redirect(url_for('login'))
 
@@ -440,208 +476,301 @@ def my_profile_page():
         graph_html=graph_html
     )
 
+
 # routes.products
 
 @app.route('/add_product', methods=['POST'])
 def add_product_method():
-    # Check access rights
+    """
+    Handles adding a new product via a POST request.
+
+    Redirects to the login page if access is denied.
+
+    Returns:
+        Response: The result of `add_product_from_html()`.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
         
     return add_product_from_html()
 
+
 @app.route('/add_product_detail', methods=['POST'])
 def add_product_detail_method():
-        # Check access rights
+    """
+    Handles adding product details via a POST request.
+
+    Redirects to the login page if access is denied.
+
+    Returns:
+        Response: The result of `add_product_detail()`.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
         
     return add_product_detail()
 
+
 @app.route('/edit_product_detail', methods=['POST', 'PUT'])
 def edit_product_detail_method():
-        # Check access rights
+    """
+    Handles editing product details via POST or PUT requests.
+
+    Redirects to the login page if access is denied.
+
+    Returns:
+        Response: The result of `edit_product_detail()`.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
         
     return edit_product_detail()
 
+
 @app.route('/remove_product/<int:product_id>', methods=['POST'])
 def remove_product_method(product_id):
-    # Check access rights
+    """
+    Handles removing a product by its ID via a POST request.
+
+    Access is restricted to admin users; others are redirected to the login page.
+
+    Args:
+        product_id (int): The ID of the product to remove.
+
+    Returns:
+        Response: The result of `remove_product(product_id)`.
+    """
     if dbf.confirm_access() != "admin":
         return redirect(url_for('login'))
     
     return remove_product(product_id)
 
+
 @app.route('/update_product', methods=['POST', 'PUT'])
 def update_product_method():
-    # Check access rights
+    """
+    Handles updating (basic) product information via POST or PUT requests.
+
+    Redirects to the login page if access is denied.
+
+    Returns:
+        Response: The result of `update_product()`.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
     return update_product()
 
-@app.route('/get_products', methods=['GET'])
-def get_products_method():
-    # Check access rights
-    if dbf.confirm_access() == None:
-        return redirect(url_for('login'))
-    
-    return get_products()
 
-import csv
 from flask import session, jsonify, request
+from routes.products import save_product_data_to_csv
 
-CSV_FILE_PATH = 'routes/product_data.csv'
 
 @app.route('/save_product_data', methods=['POST'])
 def save_product_data():
+    """
+    Route handler for saving product data.
+
+    Reads JSON payload from the request and passes it to the save_product_data_to_csv function.
+
+    Returns:
+        Response: JSON response from save_product_data_to_csv.
+    """
     data = request.get_json()
+    return save_product_data_to_csv(data)
 
-    barcode = data.get('barcode')
-    product_name = data.get('product_name')
-    shop = data.get('shop')
-    price = data.get('price')
-    discount_price = data.get('discount_price')
-    discount_valid_from = data.get('discount_valid_from')
-    discount_valid_to = data.get('discount_valid_to')
-    waste_discount = data.get('waste_discount')
-    expiration_date = data.get('expiration_date')
-    product_amount = data.get('product_amount')
-
-    if not (barcode and product_name and shop and price):
-        return jsonify({"message": "Missing required fields"}), 400
-
-    product_data = [
-        barcode,
-        product_name,
-        shop,
-        price,
-        discount_price or "",  
-        discount_valid_from or "",
-        discount_valid_to or "",
-        waste_discount or "",
-        expiration_date or "",
-        product_amount or ""
-    ]
-
-    try:
-        with open(CSV_FILE_PATH, mode='a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(product_data) 
-
-        print("Product data saved to CSV.")
-        
-        return jsonify({
-            "message": "Product data received and saved",
-            "barcode": barcode,
-            "product_name": product_name,
-            "shop": shop,
-            "price": price,
-            "discount_price": discount_price,
-            "discount_valid_from": discount_valid_from,
-            "discount_valid_to": discount_valid_to,
-            "waste_discount": waste_discount,
-            "expiration_date": expiration_date,
-            "product_amount": product_amount
-        })
-
-    except Exception as e:
-        print(f"Error saving product data to CSV: {e}")
-        return jsonify({"message": "Error saving data"}), 500
 
 # routes.shops
 
 @app.route('/add_shop', methods=['POST'])
 def add_shop_method():
-    # Check access rights
+    """
+    Route to add a new shop.
+
+    Checks if the user has access rights before proceeding. 
+    Redirects to the login page if access is denied.
+
+    Returns:
+        Response from add_shop function.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
     return add_shop()
 
+
 @app.route('/remove_shop/<int:shop_id>', methods=['POST'])
 def remove_shop_method(shop_id):
-    # Check access rights
+    """
+    Route to remove an existing shop.
+
+    Requires admin access to proceed. 
+    Redirects to the login page if access is denied.
+
+    Args:
+        shop_id (int): The ID of the shop to be removed.
+
+    Returns:
+        Response from remove_shop function.
+    """
     if dbf.confirm_access() != "admin":
         return redirect(url_for('login'))
     
     return remove_shop(shop_id)
 
+
 # routes.users
 
 @app.route('/add_user', methods=['POST'])
 def add_user_method():
+    """
+    Route to add a new user.
+
+    Returns:
+        Response from add_user function.
+    """
     return add_user()
+
 
 @app.route('/modify_users/<int:user_id>', methods=['GET', 'POST'])
 def modify_user_method(user_id):
-    # Check access rights
+    """
+    Route to modify an existing user's details.
+
+    Requires admin access to modify user data. 
+    Redirects to the login page if access is denied.
+
+    Args:
+        user_id (int): The ID of the user to be modified.
+
+    Returns:
+        Response from modify_user function.
+    """
     if dbf.confirm_access() != "admin":
         return redirect(url_for('login'))
     
     return modify_user(user_id)
 
+
 @app.route('/remove_user/<int:user_id>', methods=['GET', 'POST'])
 def remove_user_method(user_id):
-    # Check access rights
+    """
+    Route to remove an existing user.
+
+    Requires admin access to remove a user. 
+    Redirects to the login page if access is denied.
+
+    Args:
+        user_id (int): The ID of the user to be removed.
+
+    Returns:
+        Response from remove_user function.
+    """
     if dbf.confirm_access() != "admin":
         return redirect(url_for('login'))
     
     return remove_user(user_id)
 
+
 @app.route('/modify_shopkeepers/<int:shop_id>', methods=['GET', 'POST'])
 def modify_shopkeepers_method(shop_id):
-    # Check access rights
+    """
+    Route to modify the shopkeepers for a specific shop.
+
+    Requires admin access to modify shopkeepers. 
+    Redirects to the login page if access is denied.
+
+    Args:
+        shop_id (int): The ID of the shop whose shopkeepers are to be modified.
+
+    Returns:
+        Response from modify_shopkeepers function.
+    """
     if dbf.confirm_access() != "admin":
         return redirect(url_for('login'))
     
     return modify_shopkeepers(shop_id)
 
+
 # routes.filtering
 
 @app.route('/filter_shops', methods=['GET', 'POST'])
 def filter_shops_method():
-    # Check access rights
+    """
+    Route to filter shops based on certain criteria.
+
+    Ensures the user has the necessary access rights.
+    Redirects to the login page if access is denied.
+
+    Returns:
+        Response from filter_shops function.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
     return filter_shops
 
+
 @app.route('/filter_products', methods=['GET', 'POST'])
 def filter_products_method():
-    # Check access rights
+    """
+    Route to filter products based on specific criteria.
+
+    Ensures the user has the necessary access rights.
+    Redirects to the login page if access is denied.
+
+    Returns:
+        Response from filter_products function.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
     return filter_products(get_product_image)
 
+
 @app.route('/search_discounts', methods=['GET', 'POST'])
 def search_discount_method():
-    # Check access rights
+    """
+    Route to search for products with discounts.
+
+    Ensures the user has the necessary access rights.
+    Redirects to the login page if access is denied.
+
+    Returns:
+        Response from search_discount function.
+    """
     if dbf.confirm_access() == None:
         return redirect(url_for('login'))
     
     return search_discount()
 
+
 @app.route('/get_closest_shops', methods=['GET'])
 def get_closest_shops():
+    """
+    Route to fetch the closest shops to a user's location.
+
+    Calculates the closest shops within a given radius based on the user's latitude and longitude.
+
+    Returns:
+        A JSON response containing the details of the closest shops.
+    """
     try:
+        # Fetch query parameters for latitude, longitude, and radius
         user_lat = float(request.args.get('lat'))
         user_lon = float(request.args.get('lon'))
-        radius = float(request.args.get('radius', 10))  # Default radius to 10km
+        radius = float(request.args.get('radius', 10))  # Default radius is 10km
         n = 16  # Number of closest shops to fetch
 
-        # Use the find_closest_shops function
+        # Use the find_closest_shops function to get the closest shops
         closest_shops = dbf.find_closest_shops(user_lat, user_lon, n)
 
-        # Filter shops within the radius
+        # Filter shops within the specified radius
         filtered_shops = [
             (shop_id, distance) for shop_id, distance in closest_shops if distance <= radius
         ]
 
-        # Fetch shop details for the filtered shops
+        # Fetch shop details for each filtered shop
         shop_details = []
         for shop_id, distance in filtered_shops:
             shop = Shop.query.get(shop_id)

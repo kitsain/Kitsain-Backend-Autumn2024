@@ -81,12 +81,9 @@ h1.ml-2{
     color: #511948;
 
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-
 }
 
 .btn-primary.ml-2-1{
-
-
     width: 66px;
     height: 24px;
 
@@ -96,7 +93,6 @@ h1.ml-2{
     font-size: 16px;
     line-height: 24px;
 
-
     color: #511948;
 
     text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25), 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -104,7 +100,6 @@ h1.ml-2{
     flex: none;
     order: 0;
     flex-grow: 0;
-
 }
 
 
@@ -120,13 +115,10 @@ h1.ml-2{
 
     isolation: isolate;
     background: #511948;
-
 }
 
 
 h1.ml-3{
-
-
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 700;
@@ -134,7 +126,6 @@ h1.ml-3{
     line-height: 48px;
 
     color: #FFF8F0;
-
 }
 
 
@@ -148,7 +139,6 @@ p.ml-4{
     line-height: 24px;
 
     color: #FFF8F0;
-
 }
 
 
@@ -159,7 +149,6 @@ p.ml-4{
     background: #000000;
     border-radius: 8px;
     color: #FFFFFF;
-
 }
 
 
@@ -325,12 +314,9 @@ h2.section-title{
 
 .show-more-btn {
     margin-top: 1rem;
-    /*background-color: #000000;*/
-    /*color: white;*/
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    /*align-self: center;*/
 }
 
 .product_info {
@@ -389,8 +375,6 @@ h2.section-title{
     left:-1;
 }
 
-
-
 .btn-primary-save{
     padding: 12px;
 
@@ -411,14 +395,13 @@ h2.section-title{
 
     background-color: rgba(255, 255, 255, 0.5); 
     opacity: 0.8; 
-
 }
 
 .btn-secondary-delete-trashcan{
     background: transparent;
     border: none;
-    font-size: 24px;  /* Adjust the size of the emoji */
-    color: #FF0000;  /* Red color for the trash can */
+    font-size: 24px;  
+    color: #FF0000;  
     cursor: pointer;
 }
 
@@ -608,8 +591,8 @@ h2.section-title{
 .separator-text::after {
     content: '';
     flex-grow: 1;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Line style */
-    margin: 0px 10px; /* Space between the text and the lines */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+    margin: 0px 10px; 
 }
 
 .btn-primary-add-more {
