@@ -49,7 +49,7 @@ def change_password():
     confirm_password = request.form.get('confirm_password')
 
     if not dbf.check_password_hash(user.password, current_password):
-        flash("Current password is incorrect", "error")
+        flash("Current password was incorrect", "error")
         return redirect(url_for('my_profile_page'))
 
     # Validate new password
@@ -78,7 +78,7 @@ def change_password():
     user.password = dbf.generate_password_hash(new_password)
     db.session.commit()
 
-    flash("Password changed successfully", category="success")
+    flash("Password changed successfully!", "success")
     return redirect('my_profile_page')
 
 @app.route('/update_profile_info', methods=['POST'])
@@ -97,7 +97,7 @@ def update_profile_info():
         else:
             flash("Error updating username", "error")
     else:
-        flash("Username cannot be empty", "error")
+        flash("Username cannot be empty ", "error")
 
     if new_email:
         if dbf.update_user_email(user_id, new_email):
@@ -138,7 +138,7 @@ def email():
         user = User.query.filter_by(email=email).first()
 
         if email != emailagain:
-            flash("Error: The email fields were not equal", category="error")
+            flash("The email fields were not equal", category="error")
             session['email'] = email
             session['emailagain'] = emailagain
             return redirect(url_for('email'))
@@ -208,17 +208,17 @@ def reset_password(token):
             print("Päästiin Token-tarkituksesta ohi!")
 
         if len(new_password) < MIN_PASSWORD_LENGHT:
-            flash("Error: New password is too short (min 10 chars)")
+            flash("New password is too short (min 10 chars)")
             return render_template('resetPassword.html', token=token)
 
         elif new_password != confirm_password:
-            flash("Error: The password fields were not equal", category="error")
+            flash("The password fields were not equal", category="error")
             return render_template('resetPassword.html', token=token)
         
         has_capital = any(char.isupper() for char in new_password)
 
         if not has_capital: 
-            flash("Error: Your password must have at least one capital letter.")
+            flash("Your password must have at least one capital letter")
             return render_template('resetPassword.html', token=token)
         
         special_characters = "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`"
@@ -226,13 +226,13 @@ def reset_password(token):
         has_special = any(char in special_characters for char in new_password)
 
         if not has_special: 
-            flash("Error: Your password must have at least one special character.")
+            flash("Your password must have at least one special character")
             return render_template('resetPassword.html', token=token)
         
         has_numbers = any(char.isdigit() for char in new_password)
 
         if not has_numbers:
-            flash("Error: Your password must have at least one number.")
+            flash("Your password must have at least one number")
             return render_template('resetPassword.html', token=token)
         
         print("New passwordin arvo: ", new_password)

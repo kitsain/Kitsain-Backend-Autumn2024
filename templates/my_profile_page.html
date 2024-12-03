@@ -36,27 +36,27 @@
         <div class="profile-picture-bigger"></div>
 
         <div class="user-info">
-        <p class="ml-4">{{ user.username }}, </p>
-        <p class="ml-5">welcome to your profile!</p>
+            <p class="ml-4">{{ user.username }}, </p>
+            <p class="ml-5">welcome to your profile!</p>
         </div>
 
         <div class="user-info-2">
-        <form action="{{ url_for('login')}}" method="Get", class="d-inline">
-            <button type="submit" class="btn btn-primary ml-3" id="logoutButton">Logout</button>
-        </form>
-        <button type="submit" class="btn btn-primary ml-3-2" id="editProfileButton">Edit Profile</button>
+            <form action="{{ url_for('login')}}" method="Get", class="d-inline">
+                <button type="submit" class="btn btn-primary ml-3" id="logoutButton">Logout</button>
+            </form>
+            <button type="submit" class="btn btn-primary ml-3-2" id="editProfileButton">Edit Profile</button>
         </div>
     </div>
-
-    {% with messages = get_flashed_messages(with_categories=False) %}
-                        {% if messages %}
-                            <p id="errorMessage" class="error">
-                                {% for message in messages %}
-                                    {{ message }}<br>
-                                {% endfor %}
-                            </p>
-                        {% endif %}
-                    {% endwith %}
+    
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <p id="errorMessage" class="{{ category }}">
+                {{ message }}
+            </p>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
     
     <!-- Added Products Section -->
     <div class="added_products_container mt-6 text-center">
