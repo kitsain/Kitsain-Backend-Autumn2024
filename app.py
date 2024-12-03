@@ -241,6 +241,7 @@ def reset_password(token):
         if user: 
             user.password = dbf.generate_password_hash(new_password)
             user.reset_token = None
+            user.reset_token_expiration = None
             db.session.commit()
 
             session.pop(new_password, None)
