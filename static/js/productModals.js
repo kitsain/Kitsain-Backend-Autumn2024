@@ -24,6 +24,8 @@ function handleAddProductModal() {
     }
 }
 
+document.addEventListener("DOMContentLoaded", handleAddProductModal);
+
 /**
  * Handles the behavior of the "Filter Product" modal.
  * This function opens the modal when the "Filter" button is clicked,
@@ -49,6 +51,8 @@ function handleFilterProductModal() {
         }
     }
 }
+
+document.addEventListener("DOMContentLoaded", handleFilterProductModal);
 
 /**
  * Fetches the user's geolocation and displays a list of shops within the specified radius.
@@ -141,6 +145,8 @@ function handleEditProductModal() {
     };
 }
 
+document.addEventListener("DOMContentLoaded", handleEditProductModal);
+
 /**
  * Handles the behavior of the "Edit Detailed Info" modal.
  * This function opens the modal when the "Edit More Info" button is clicked,
@@ -160,6 +166,23 @@ function handleEditDetailedInfoModal() {
         }
     };
 }
+
+document.addEventListener("DOMContentLoaded", handleEditDetailedInfoModal);
+
+const addProductForm = document.getElementById("add-product-form"); // Ensure the form has this ID
+const moreInfoBtn = document.getElementById("moreInfoBtn");
+const barcodeInput = document.getElementById("barcode");
+const barcodeDetailedInput = document.getElementById("barcode_detailed");
+const productNameDetailedInput = document.getElementById("product_name_detailed");
+const productNameInput = document.getElementById("product_name");
+const shopInput = document.getElementById("shop_add");
+const priceInput = document.getElementById("add-price");
+const discountPriceInput = document.getElementById("discount_price");
+const discountValidFromInput = document.getElementById("discount_valid_from");
+const discountValidToInput = document.getElementById("discount_valid_to");
+const wasteDiscountInput = document.getElementById("waste_discount_add");
+const expirationDateInput = document.getElementById("expiration_date");
+const productAmountInput = document.getElementById("product_amount");
 
 /**
  * Handles the submission of the "Add Product" form, saving the form data to localStorage and sending it to the server.
