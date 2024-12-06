@@ -1,6 +1,9 @@
 # Kitsain-Backend-Autumn2024
 
 ## Setup Instructions
+Check that you have Python installed before 
+moving on to the next step!
+
 Clone the repository:
     ```
     git clone <repository-url>
