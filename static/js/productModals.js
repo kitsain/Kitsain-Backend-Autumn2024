@@ -4,22 +4,22 @@
  * and closes it when the close button or outside the modal is clicked.
  */
 function handleAddProductModal() {
-    var modal = document.getElementById("addProductModal");
-    var btn = document.getElementById("addButton");
-    var span = modal.getElementsByClassName("close")[0];
+    const addProductModal = document.getElementById("addProductModal");
+    const btn = document.getElementById("addButton");
+    const span = addProductModal.getElementsByClassName("close")[0];
 
     btn.onclick = function(event) {
         event.preventDefault(); 
-        modal.style.display = "block";
+       addProductModal.style.display = "block";
     }
 
     span.onclick = function() {
-        modal.style.display = "none";
+        addProductModal.style.display = "none";
     }
 
     window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        if (event.target == addProductModal) {
+            addProductModal.style.display = "none";
         }
     }
 }
@@ -32,22 +32,22 @@ document.addEventListener("DOMContentLoaded", handleAddProductModal);
  * and closes it when the close button or outside the modal is clicked.
  */
 function handleFilterProductModal() {
-    var modal = document.getElementById("filterProductModal");
-    var btn = document.getElementById("filterButton");
-    var span = modal.getElementsByClassName("close")[0];
+    const filterProductModal = document.getElementById("filterProductModal");
+    const btn = document.getElementById("filterButton");
+    const span = filterProductModal.getElementsByClassName("close")[0];
 
     btn.onclick = function(event) {
         event.preventDefault(); 
-        modal.style.display = "block";
+        filterProductModal.style.display = "block";
     }
 
     span.onclick = function() {
-        modal.style.display = "none";
+        addProductModal.style.display = "none";
     }
 
     window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        if (event.target == filterProductModal) {
+            filterProductModal.style.display = "none";
         }
     }
 }
@@ -117,13 +117,13 @@ document.getElementById('findShopsBtn').addEventListener('click', () => {
  * It also handles switching to the detailed info modal when the "More Info" button is clicked.
  */
 function handleEditProductModal() {
-    var modal = document.getElementById("editProductModal");
-    var span = modal.getElementsByClassName("close-edit")[0];
+    const modal = document.getElementById("editProductModal");
+    const span = modal.getElementsByClassName("close-edit")[0];
 
-    var moreInfoBtn = document.getElementById("edit_moreInfoBtn");
+    const moreInfoBtn = document.getElementById("edit_moreInfoBtn");
 
-    var detailedModal = document.getElementById("editDetailedInfoModal");
-    var detailedSpan = detailedModal.getElementsByClassName("close-edit")[0];
+    const detailedModal = document.getElementById("editDetailedInfoModal");
+    const detailedSpan = detailedModal.getElementsByClassName("close-edit")[0];
 
     span.onclick = function() {
         modal.style.display = "none";
@@ -153,8 +153,8 @@ document.addEventListener("DOMContentLoaded", handleEditProductModal);
  * and closes it when the close button or outside the modal is clicked.
  */
 function handleEditDetailedInfoModal() {
-    var modal = document.getElementById("editDetailedInfoModal");
-    var span = modal.getElementsByClassName("close")[0]; 
+    const modal = document.getElementById("editDetailedInfoModal");
+    const span = modal.getElementsByClassName("close")[0]; 
 
     span.onclick = function() {
         modal.style.display = "none";
@@ -169,7 +169,7 @@ function handleEditDetailedInfoModal() {
 
 document.addEventListener("DOMContentLoaded", handleEditDetailedInfoModal);
 
-const addProductForm = document.getElementById("add-product-form"); // Ensure the form has this ID
+const addProductForm = document.getElementById("add-product-form"); 
 const moreInfoBtn = document.getElementById("moreInfoBtn");
 const barcodeInput = document.getElementById("barcode");
 const barcodeDetailedInput = document.getElementById("barcode_detailed");

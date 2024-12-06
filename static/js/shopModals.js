@@ -4,9 +4,9 @@
  * and the window to control the display of the modal.
  */
 function handleAddShopModal() {
-    var modal = document.getElementById("addProductModal");
-    var btn = document.getElementById("addButton");
-    var span = modal.getElementsByClassName("close")[0];
+    const modal = document.getElementById("addProductModal");
+    const btn = document.getElementById("addButton");
+    const span = modal.getElementsByClassName("close")[0];
 
     btn.onclick = function(event) {
         event.preventDefault();
@@ -30,9 +30,9 @@ function handleAddShopModal() {
  * and the window to control the display of the modal.
  */
 function handleFilterShopModal() {
-    var modal = document.getElementById("filterShopsModal");
-    var btn = document.getElementById("filterButton");
-    var span = modal.getElementsByClassName("close")[0];
+    const modal = document.getElementById("filterShopsModal");
+    const btn = document.getElementById("filterButton");
+    const span = modal.getElementsByClassName("close")[0];
 
     btn.onclick = function(event) {
         event.preventDefault();

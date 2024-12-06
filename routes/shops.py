@@ -36,13 +36,6 @@ def add_shop():
         db.session.rollback()
 
     return redirect(url_for('shops_page'))
-
-
-def generate_unique_user_id():
-    while True:
-        user_id = random.randint(1000, 999999)
-        if not db.session.query(User).filter_by(user_id=user_id).first():
-            return user_id
         
         
 def remove_shop(shop_id):

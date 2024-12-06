@@ -1,9 +1,9 @@
-var modal = document.getElementById("addProductModal");
-var discardBtn = document.getElementById("discardChangesBtn");
-var closeBtn = document.getElementsByClassName("close")[0];
+const addProductModal = document.getElementById("addProductModal");
+const discardBtn = document.getElementById("discardChangesBtn");
+const closeBtn = document.getElementsByClassName("close")[0];
 
 function closeModal() {
-    modal.style.display = "none";
+    addProductModal.style.display = "none";
 }
 
 discardBtn.onclick = function() {
@@ -15,17 +15,17 @@ closeBtn.onclick = function() {
 }
 
 window.onclick = function(event) {
-    if (event.target == modal) {
+    if (event.target == addProductModal) {
         closeModal();
     }
 }
 
-var modal = document.getElementById("editProductModal");
-var discardBtn = document.getElementById("edit_discardChangesBtn");
-var closeBtn = document.getElementsByClassName("close")[0];
+const editProductModal = document.getElementById("editProductModal");
+const discardBtn = document.getElementById("edit_discardChangesBtn");
+const closeBtn = document.getElementsByClassName("close")[0];
 
 function closeModal() {
-    modal.style.display = "none";
+    editProductModal.style.display = "none";
 }
 
 discardBtn.onclick = function() {
@@ -37,7 +37,7 @@ closeBtn.onclick = function() {
 }
 
 window.onclick = function(event) {
-    if (event.target == modal) {
+    if (event.target == editProductModal) {
         closeModal();
     }
 }
