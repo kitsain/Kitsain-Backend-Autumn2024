@@ -35,6 +35,7 @@ EXPIRATION_LIMIT_IN_SECONDS = 3600
 
 db.init_app(app)
 
+
 @app.route('/change_password', methods=['POST'])
 def change_password():
         
@@ -255,29 +256,29 @@ def reset_password(token):
 def forgot_password():
     return render_template('newPassword.html')
 
-def add_hardcoded_user():
-    with app.app_context():
-        db.create_all()  # Ensures tables are created
+# def add_hardcoded_user():
+#     with app.app_context():
+#         db.create_all()  # Ensures tables are created
 
-        # Create a hard-coded user
-        hardcoded_user = User(
-            username="hardcoded_user",
-            password="securepassword123",  # You should hash the password
-            email="user@example.com",
-            role="admin",
-            aura_points=100,
-        )
+#         # Create a hard-coded user
+#         hardcoded_user = User(
+#             username="hardcoded_user",
+#             password="securepassword123",  # You should hash the password
+#             email="user@example.com",
+#             role="admin",
+#             aura_points=100,
+#         )
 
-        # Add the user to the session
-        db.session.add(hardcoded_user)
+#         # Add the user to the session
+#         db.session.add(hardcoded_user)
 
-        # Commit the changes to the database
-        try:
-            db.session.commit()
-            print("Hard-coded user added successfully.")
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error adding hard-coded user: {e}")
+#         # Commit the changes to the database
+#         try:
+#             db.session.commit()
+#             print("Hard-coded user added successfully.")
+#         except Exception as e:
+#             db.session.rollback()
+#             print(f"Error adding hard-coded user: {e}")
 
 
 # page rendering
