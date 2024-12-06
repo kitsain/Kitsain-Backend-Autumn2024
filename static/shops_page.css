@@ -17,12 +17,12 @@
 }
 
 
-h1.ml-2{
+h1.ml-2 {
     width: 96px;
     height: 36px;
-    margin:0;
+    margin: 0;
 
-    font-family: 'Roboto';
+    font-family: 'Roboto', Arial, sans-serif; /* Add fallback fonts */
     font-style: normal;
     font-weight: 500;
     font-size: 28px;
@@ -421,4 +421,11 @@ h2.section-title{
     isolation: isolate;
     height: auto;
     background: #FFF8F0;
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-style: normal;
+    font-weight: 400;
 }

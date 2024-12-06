@@ -646,3 +646,9 @@ h2.section-title{
     height: auto;
     background: #FFF8F0;
 }
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+}

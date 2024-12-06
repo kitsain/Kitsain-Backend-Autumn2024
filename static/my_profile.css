@@ -596,15 +596,9 @@ h2.section-title{
     padding: 16px;
     gap: 16px;
 
-    width: auto;
-    height: auto;
-
+    width: calc(150% - 16px);
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 6px;
-
-    flex: none;
-    order: 0;
-    flex-grow: 0;
 }
 
 
@@ -737,9 +731,15 @@ h2.section-title{
     background: #FFF8F0;
 }
 
-.products-container{
-    background: #FFF8F0;
+.products-container {
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
     gap: 16px;
+    justify-content: flex-start; /* Align items to the left */
+}
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-style: normal;
+    font-weight: 400;
 }

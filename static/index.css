@@ -489,3 +489,8 @@ p.ml-4 {
     width:150px;
 }
 
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+}
