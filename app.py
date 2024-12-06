@@ -788,53 +788,6 @@ def get_closest_shops():
         return jsonify({'error': 'Failed to fetch closest shops'}), 500
 
 
-# @app.route('/aura_stats/<int:user_id>', methods=['GET'])
-# def get_aura_stats(user_id):
-#     # Get total points
-#     total_points = (
-#         db.session.query(func.sum(Aurapoints.points))
-#         .filter(Aurapoints.user_id == user_id)
-#         .scalar() or 0
-#     )
-
-#     # Get lastly added points
-#     latest_addition_query = (
-#         db.session.query(Aurapoints.points)
-#         .filter(Aurapoints.user_id == user_id)
-#         .order_by(Aurapoints.timestamp.desc())
-#         .first()
-#     )
-#     recently_added_points = latest_addition_query[0] if latest_addition_query else 0
-
-#     # Get current month's points
-#     current_month_points = (
-#         db.session.query(func.sum(Aurapoints.points))
-#         .filter(Aurapoints.user_id == user_id)
-#         .filter(extract('month', Aurapoints.timestamp) == datetime.now().month)
-#         .scalar() or 0
-#     )
-
-#     # Get last month's points
-#     last_month = (datetime.now().month - 1) or 12
-#     last_month_points = (
-#         db.session.query(func.sum(Aurapoints.points))
-#         .filter(Aurapoints.user_id == user_id)
-#         .filter(extract('month', Aurapoints.timestamp) == last_month)
-#         .scalar() or 0
-#     )
-
-#     # Get difference between current month and last month
-#     difference_between_months = current_month_points - last_month_points
-
-#     # Return in JSON-format
-#     return jsonify({
-#         'total_points': total_points,
-#         'recently_added_points': recently_added_points,
-#         'current_month_points': current_month_points,
-#         'last_month_points': last_month_points,
-#         'difference_between_months': difference_between_months
-#     })
-
 @app.route('/check_aura_points')
 def check_aura_points():
     try:

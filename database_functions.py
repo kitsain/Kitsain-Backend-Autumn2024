@@ -487,7 +487,7 @@ def update_user_aura(user_id):
             print(f"User with ID {user_id} not found.")
             return
 
-        # Suorita kysely ja hae tulokset listana
+        # Query and get the results as list
         user_aurapoints = Aurapoints.query.filter_by(user_id=user.user_id).order_by(Aurapoints.timestamp.desc()).all()
         
         if len(user_aurapoints) == 0:
@@ -498,7 +498,7 @@ def update_user_aura(user_id):
         total_points = user_aurapoints[0].points
         print("POINTS " + str(total_points))
 
-        # Tarkista, että on vähintään kaksi arvoa
+        # Make sure there are at least two values
         if len(user_aurapoints) > 1:
             second_last_aurapoint = user_aurapoints[1]
             difference = total_points - second_last_aurapoint.points
@@ -523,7 +523,7 @@ def update_user_aura(user_id):
             xaxis_tickangle=45
         )
 
-        # Renderöi kuvaaja HTML-muotoon
+        # Render graph in HTML format
         graph_html = fig.to_html(full_html=False)
 
         return total_points, difference, points_current_month, points_last_month, graph_html
