@@ -53,12 +53,12 @@ def change_password():
         return redirect(url_for('my_profile_page'))
 
     # Validate new password
-    if len(new_password) < 10:
-        flash("New password must be at least 10 characters long", "error")
-        return redirect(url_for('my_profile_page'))
-
     if new_password != confirm_password:
         flash("New password and confirmation do not match", "error")
+        return redirect(url_for('my_profile_page'))
+
+    if len(new_password) < MIN_PASSWORD_LENGHT:
+        flash("New password must be at least 10 characters long", "error")
         return redirect(url_for('my_profile_page'))
 
     if not any(char.isupper() for char in new_password):
