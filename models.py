@@ -8,6 +8,10 @@ app.secret_key = 'asdhfauisdhfuhi'  # Required for flashing messages
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///commerce_data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# GLOBAL CONSTANTS
+
+USER_ID = "user.user_id"
+
 db = SQLAlchemy(app)
 
 # User model
@@ -33,7 +37,7 @@ class User(db.Model):
 class Aurapoints(db.Model):
     __tablename__ = 'aura_points'
     aurapoints_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey(USER_ID))
     points = db.Column(db.Integer, nullable=False)
     points_current_month = db.Column(db.Integer, nullable=False)
     points_last_month = db.Column(db.Integer, nullable=False)
@@ -51,7 +55,7 @@ class Shop(db.Model):
     store_chain = db.Column(db.String)
     location_address = db.Column(db.String)
     location_gps = db.Column(db.String)
-    user_created = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    user_created = db.Column(db.Integer, db.ForeignKey(USER_ID))
     creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     # Relationships
@@ -61,7 +65,7 @@ class Shop(db.Model):
 # WorksFor model (associates shopkeepers with shops)
 class WorksFor(db.Model):
     __tablename__ = 'works_for'
-    user_id = db.Column(db.Integer, ForeignKey('user.user_id'), primary_key=True)
+    user_id = db.Column(db.Integer, ForeignKey(USER_ID), primary_key=True)
     shop_id = db.Column(db.Integer, ForeignKey('shop.shop_id'), primary_key=True)
 
     # Relationships
@@ -85,7 +89,7 @@ class Product(db.Model):
     sub_brand = db.Column(db.String)
     parent_company = db.Column(db.String)
     information_links = db.Column(db.Text)
-    user_created = db.Column(db.Integer, ForeignKey('user.user_id'))
+    user_created = db.Column(db.Integer, ForeignKey(USER_ID))
     creation_date = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     # Relationships
@@ -113,7 +117,7 @@ class Price(db.Model):
     discount_valid_from = db.Column(db.DateTime)
     discount_valid_to = db.Column(db.DateTime)
     waste_valid_to = db.Column(db.DateTime)
-    user_created = db.Column(db.Integer, ForeignKey('user.user_id'))
+    user_created = db.Column(db.Integer, ForeignKey(USER_ID))
 
     # Constraints
     __table_args__ = (

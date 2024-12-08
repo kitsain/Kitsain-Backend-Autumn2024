@@ -29,6 +29,7 @@ mail = Mail(app)
 
 # Global constants
 MIN_PASSWORD_LENGHT = 10
+RESET_PASSWORD_PAGE = "resetPassword.html"
 
 # Salasanalinkki vanhenee tunnin päästä
 EXPIRATION_LIMIT_IN_SECONDS = 3600
@@ -209,17 +210,17 @@ def reset_password(token):
 
         if len(new_password) < MIN_PASSWORD_LENGHT:
             flash("New password is too short (min 10 chars)")
-            return render_template('resetPassword.html', token=token)
+            return render_template(RESET_PASSWORD_PAGE, token=token)
 
         elif new_password != confirm_password:
             flash("The password fields were not equal", category="error")
-            return render_template('resetPassword.html', token=token)
+            return render_template(RESET_PASSWORD_PAGE, token=token)
         
         has_capital = any(char.isupper() for char in new_password)
 
         if not has_capital: 
             flash("Your password must have at least one capital letter")
-            return render_template('resetPassword.html', token=token)
+            return render_template(RESET_PASSWORD_PAGE, token=token)
         
         special_characters = "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`"
 
@@ -227,13 +228,13 @@ def reset_password(token):
 
         if not has_special: 
             flash("Your password must have at least one special character")
-            return render_template('resetPassword.html', token=token)
+            return render_template(RESET_PASSWORD_PAGE, token=token)
         
         has_numbers = any(char.isdigit() for char in new_password)
 
         if not has_numbers:
             flash("Your password must have at least one number")
-            return render_template('resetPassword.html', token=token)
+            return render_template(RESET_PASSWORD_PAGE, token=token)
         
         print("New passwordin arvo: ", new_password)
         print("Confirm passwordin arvo: ", confirm_password)
@@ -249,7 +250,7 @@ def reset_password(token):
 
             return render_template('passwordSetSuccessfully.html')
 
-    return render_template('resetPassword.html', token=token)
+    return render_template(RESET_PASSWORD_PAGE, token=token)
 
 @app.route('/forgot_password')
 def forgot_password():
