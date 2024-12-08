@@ -3,6 +3,10 @@ from models import db, Product, Shop, Price, User, WorksFor
 from datetime import datetime
 import random
 
+# GLOBAL CONSTANTS
+
+MODIFY_USER_PAGE = "modify_user.html"
+
 def generate_unique_user_id():
     while True:
         user_id = random.randint(1000, 999999)
@@ -51,14 +55,14 @@ def add_user():
 def modify_user(user_id):
     if not user_id:
         flash("User ID is required.", "error")
-        return redirect(url_for('modify_user.html'))
+        return redirect(url_for(MODIFY_USER_PAGE))
     
     user = User.query.get(user_id)
     if not user:
         flash("User not found", "error")
-        return redirect(url_for('modify_user.html'))
+        return redirect(url_for(MODIFY_USER_PAGE))
 
-    return render_template('modify_user.html', user=user)
+    return render_template(MODIFY_USER_PAGE, user=user)
 
 
 def remove_user(user_id):
