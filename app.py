@@ -183,15 +183,15 @@ def reset_password(token):
     hashed_token = hashlib.sha256(token.encode()).hexdigest()
     print("Hashed token: ", hashed_token)
 
-    user = User.query.filter_by(reset_token=hashed_token).first()
+    token_to_find = User.query.filter_by(reset_token=hashed_token).first()
 
     if request.method == 'GET': 
 
         # Jos koko tokenia ei löydy ylipäätään, se on vanhentunut
-        if not user: 
+        if not token_to_find: 
             return render_template('resetLinkExpired.html', token=token)
         
-        expiration_time = user.reset_token_expiration
+        expiration_time = token_to_find.reset_token_expiration
         current_time = int(time.time())
 
         if current_time > expiration_time: 
@@ -204,9 +204,6 @@ def reset_password(token):
         if token is None:
             print("Token puuttuu!")
             raise ValueError("Token cannot be None")
-        
-        else: 
-            print("Päästiin Token-tarkituksesta ohi!")
 
         if len(new_password) < MIN_PASSWORD_LENGHT:
             flash("New password is too short (min 10 chars)")
@@ -239,10 +236,10 @@ def reset_password(token):
         print("New passwordin arvo: ", new_password)
         print("Confirm passwordin arvo: ", confirm_password)
 
-        if user: 
-            user.password = dbf.generate_password_hash(new_password)
-            user.reset_token = None
-            user.reset_token_expiration = None
+        if token_to_find: 
+            token_to_find.password = dbf.generate_password_hash(new_password)
+            token_to_find.reset_token = None
+            token_to_find.reset_token_expiration = None
             db.session.commit()
 
             session.pop(new_password, None)
