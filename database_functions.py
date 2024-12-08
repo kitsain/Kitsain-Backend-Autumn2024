@@ -6,6 +6,10 @@ from sqlalchemy.sql import func, extract
 import plotly.graph_objects as go
 from flask import render_template
 
+# GLOBAL CONSTANTS 
+
+NOT_ALLOWED_ERROR = "Not allowed"
+
 def add_user(username, password, email, role):
     """
     Adds a new user to the user table.
@@ -165,7 +169,7 @@ def add_product(product_name, weight_g, volume_l, barcode, category, esg_score, 
     try:
         user_id = session.get('user_id')
         if not user_id:
-            print("Not allowed")
+            print(NOT_ALLOWED_ERROR)
             return
             
         product = Product(
@@ -197,7 +201,7 @@ def remove_latest_product_version(barcode):
     """
     user_id = session.get('user_id')
     if not user_id:
-        print("Not allowed")
+        print(NOT_ALLOWED_ERROR)
         return
     
     user = User.query.get(user_id)
@@ -332,7 +336,7 @@ def add_price(product_id, shop_id, price, discount_price=None, waste_discount_pe
     """
     user_id = session.get('user_id')
     if not user_id:
-        print("Not allowed")
+        print(NOT_ALLOWED_ERROR)
         return
     
     if waste_quantity not in (None, 'Few', 'Moderate', 'Many'):
@@ -366,7 +370,7 @@ def remove_price(price_id, shop_id):
     """
     user_id = session.get('user_id')
     if not user_id:
-        print("Not allowed")
+        print(NOT_ALLOWED_ERROR)
         return
     
     user = User.query.get(user_id)
