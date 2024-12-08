@@ -59,7 +59,7 @@ h1.ml-2{
     cursor: pointer;
     border: none;
 
-    font-family: 'Roboto';
+    font-family: 'Roboto', Arial, sans-serif;
     font-style: normal;
     font-weight: 500;
     font-size: 16px;
@@ -90,7 +90,7 @@ h1.ml-3 {
     width: 520px;
     height: 0px;
 
-    font-family: 'Roboto';
+    font-family: 'Roboto', Arial, sans-serif;
     font-style: normal;
     font-weight: 700;
     font-size: 40px;
@@ -208,7 +208,7 @@ p.ml-4 {
 }
 
 .ml-7 {
-    font-family: 'Roboto';
+    font-family: 'Roboto', Arial, sans-serif;
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
