@@ -5,10 +5,11 @@ Check that you have Python installed before
 moving on to the next step!
 
 Clone the repository:
-    ```
+
     git clone <repository-url>
+    
     cd Kitsain-Backend-Autumn2024
-    ```
+
 
 NOTE: Installing dependencies takes few minutes!
 
@@ -16,37 +17,30 @@ Install dependecies:
 
 **Windows**:
 
-      ```
       .\setup.bat
-      ```
+
 **Mac/Linux**:
 
-      ```
       ./setup.sh
 
       chmod +x setup.sh
-      ```
+
 
 ## Run the program
 Run the program:
 
-    ```
     cd Kitsain-Backend-Autumn2024
 
     python app.py
-    ```
 
 Close the program:
 
-    ```
     Crtl + C
-    ```
 
 Open the application in your browser:
 
-    ```
     http://127.0.0.1:5000
-    ```
+
 
 ## The application shortly
 This is an application to help users to find discounted food items and prevent 
