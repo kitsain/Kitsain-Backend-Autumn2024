@@ -7,7 +7,7 @@ moving on to the next step!
 Clone the repository:
 
     git clone <repository-url>
-    
+
     cd Kitsain-Backend-Autumn2024
 
 
@@ -17,13 +17,13 @@ Install dependecies:
 
 **Windows**:
 
-      .\setup.bat
+    .\setup.bat
 
 **Mac/Linux**:
 
-      ./setup.sh
+    ./setup.sh
 
-      chmod +x setup.sh
+    chmod +x setup.sh
 
 
 ## Run the program
