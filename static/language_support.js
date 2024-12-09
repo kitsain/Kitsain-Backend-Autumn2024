@@ -1,13 +1,13 @@
 function googleTranslateElementInit() {
-new google.translate.TranslateElement({
-    // default language english
-    pageLanguage: 'en',
-    // languages available: English, Finnish, Swedish
-    includedLanguages: 'en,fi,sv',
-    // simple layout
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+    new google.translate.TranslateElement({
+        // default language english
+        pageLanguage: 'en',
+        // languages available: English, Finnish, Swedish
+        includedLanguages: 'en,fi,sv',
+        // simple layout
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
 
-}, 'google_translate_element');
+    }, 'google_translate_element');
 }
 
 // loads the google translate script
