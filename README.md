@@ -11,30 +11,39 @@ Clone the repository:
     ```
 
 NOTE: Installing dependencies takes few minutes!
+
 Install dependecies:
-    - **Windows**:
+
+**Windows**:
+
       ```
       .\setup.bat
       ```
-    - **Mac/Linux**:
+**Mac/Linux**:
+
       ```
       ./setup.sh
+
       chmod +x setup.sh
       ```
 
 ## Run the program
 Run the program:
+
     ```
     cd Kitsain-Backend-Autumn2024
+
     python app.py
     ```
 
 Close the program:
+
     ```
     Crtl + C
     ```
 
 Open the application in your browser:
+
     ```
     http://127.0.0.1:5000
     ```
