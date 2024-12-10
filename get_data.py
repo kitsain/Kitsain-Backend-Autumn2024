@@ -1,7 +1,5 @@
 import requests
 
-import requests
-
 def fetch_product_from_OFF(barcode):
     """
     Fetch product details from OpenFoodFacts API based on the provided barcode.
