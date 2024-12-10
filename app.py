@@ -38,9 +38,8 @@ db.init_app(app)
 
 @app.route('/change_password', methods=['POST'])
 def change_password():
-        
     user_id = session.get('user_id')
-    user = User.query.get(user_id)
+    user = dbf.get_user_by_id(user_id)
     if not user:
         flash("User not found", "error")
         return redirect(url_for('login'))
@@ -49,38 +48,21 @@ def change_password():
     new_password = request.form.get('new_password')
     confirm_password = request.form.get('confirm_password')
 
-    if not dbf.check_password_hash(user.password, current_password):
+    if not dbf.check_current_password(user.password, current_password):
         flash("Current password was incorrect", "error")
         return redirect(url_for('my_profile_page'))
 
-    # Validate new password
-    if new_password != confirm_password:
-        flash("New password and confirmation do not match", "error")
+    password_validation_error = dbf.validate_new_password(new_password, confirm_password)
+    if password_validation_error:
+        flash(password_validation_error, "error")
         return redirect(url_for('my_profile_page'))
 
-    if len(new_password) < MIN_PASSWORD_LENGHT:
-        flash("New password must be at least 10 characters long", "error")
-        return redirect(url_for('my_profile_page'))
-
-    if not any(char.isupper() for char in new_password):
-        flash("New password must contain at least one uppercase letter", "error")
-        return redirect(url_for('my_profile_page'))
-
-    if not any(char.isdigit() for char in new_password):
-        flash("New password must contain at least one number", "error")
-        return redirect(url_for('my_profile_page'))
-
-    if not any(char in "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`" for char in new_password):
-        flash("New password must contain at least one special character", "error")
-        return redirect(url_for('my_profile_page'))
-
-    # Update the password
-    print("USER RIVILLÄ 143", user)
-    user.password = dbf.generate_password_hash(new_password)
-    db.session.commit()
-
-    flash("Password changed successfully!", "success")
-    return redirect('my_profile_page')
+    if dbf.update_user_password(user, new_password):
+        flash("Password changed successfully!", "success")
+    else:
+        flash("Failed to update password. Please try again.", "error")
+    
+    return redirect(url_for('my_profile_page'))
 
 @app.route('/update_profile_info', methods=['POST'])
 def update_profile_info():
@@ -179,75 +161,29 @@ def email():
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    hashed_token = dbf.hash_token(token)
+    user = dbf.get_user_by_reset_token(hashed_token)
 
-    hashed_token = hashlib.sha256(token.encode()).hexdigest()
-    print("Hashed token: ", hashed_token)
-
-    token_to_find = User.query.filter_by(reset_token=hashed_token).first()
-
-    if request.method == 'GET': 
-
-        # Jos koko tokenia ei löydy ylipäätään, se on vanhentunut
-        if not token_to_find: 
-            return render_template('resetLinkExpired.html', token=token)
-        
-        expiration_time = token_to_find.reset_token_expiration
-        current_time = int(time.time())
-
-        if current_time > expiration_time: 
-            return render_template('resetLinkExpired.html', token=token)
+    if not user or dbf.is_reset_token_expired(user.reset_token_expiration):
+        return render_template('resetLinkExpired.html', token=token)
 
     if request.method == 'POST':
         new_password = request.form.get('password')
         confirm_password = request.form.get('newpassword')
 
-        if token is None:
-            print("Token puuttuu!")
-            raise ValueError("Token cannot be None")
-
-        if len(new_password) < MIN_PASSWORD_LENGHT:
-            flash("New password is too short (min 10 chars)")
+        password_validation_error = dbf.validate_new_password(new_password, confirm_password)
+        if password_validation_error:
+            flash(password_validation_error, "error")
             return render_template(RESET_PASSWORD_PAGE, token=token)
 
-        elif new_password != confirm_password:
-            flash("The password fields were not equal", category="error")
-            return render_template(RESET_PASSWORD_PAGE, token=token)
-        
-        has_capital = any(char.isupper() for char in new_password)
-
-        if not has_capital: 
-            flash("Your password must have at least one capital letter")
-            return render_template(RESET_PASSWORD_PAGE, token=token)
-        
-        special_characters = "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`"
-
-        has_special = any(char in special_characters for char in new_password)
-
-        if not has_special: 
-            flash("Your password must have at least one special character")
-            return render_template(RESET_PASSWORD_PAGE, token=token)
-        
-        has_numbers = any(char.isdigit() for char in new_password)
-
-        if not has_numbers:
-            flash("Your password must have at least one number")
-            return render_template(RESET_PASSWORD_PAGE, token=token)
-        
-        print("New passwordin arvo: ", new_password)
-        print("Confirm passwordin arvo: ", confirm_password)
-
-        if token_to_find: 
-            token_to_find.password = dbf.generate_password_hash(new_password)
-            token_to_find.reset_token = None
-            token_to_find.reset_token_expiration = None
-            db.session.commit()
-
-            session.pop(new_password, None)
-            session.pop(confirm_password, None)
-
+        if dbf.update_user_password(user, new_password):
+            dbf.clear_reset_token(user)
             return render_template('passwordSetSuccessfully.html')
+        else:
+            flash("Failed to reset password. Please try again.", "error")
 
     return render_template(RESET_PASSWORD_PAGE, token=token)
+
 
 @app.route('/forgot_password')
 def forgot_password():

@@ -1,14 +1,47 @@
-
 from models import db, User, Aurapoints
-
 from werkzeug.security import generate_password_hash
 from sqlalchemy.sql import func, extract
 import plotly.graph_objects as go
+import hashlib
+import time
 from flask import render_template
 
 # GLOBAL CONSTANTS 
 
 NOT_ALLOWED_ERROR = "Not allowed"
+
+def hash_token(token):
+    """
+    Hashes the token using SHA256.
+    """
+    return hashlib.sha256(token.encode()).hexdigest()
+
+def get_user_by_reset_token(hashed_token):
+    """
+    Fetches a user by their reset token.
+    """
+    return User.query.filter_by(reset_token=hashed_token).first()
+
+def is_reset_token_expired(expiration_time):
+    """
+    Checks if a reset token is expired.
+    """
+    current_time = int(time.time())
+    return current_time > expiration_time
+
+def clear_reset_token(user):
+    """
+    Clears the reset token and expiration from the user.
+    """
+    try:
+        user.reset_token = None
+        user.reset_token_expiration = None
+        db.session.commit()
+        return True
+    except Exception as e:
+        print(f"Error clearing reset token: {e}")
+        db.session.rollback()
+        return False
 
 def add_user(username, password, email, role):
     """
@@ -363,6 +396,49 @@ def add_price(product_id, shop_id, price, discount_price=None, waste_discount_pe
         print(f"Error: {e}")
         db.session.rollback()
 
+def get_user_by_id(user_id):
+    """
+    Fetches a user by their ID.
+    """
+    return User.query.get(user_id)
+
+def check_current_password(stored_password, input_password):
+    """
+    Verifies if the input password matches the stored password hash.
+    """
+    return check_password_hash(stored_password, input_password)
+
+def validate_new_password(new_password, confirm_password):
+    """
+    Validates the new password against certain rules.
+    Returns an error message if invalid, otherwise None.
+    """
+    MIN_PASSWORD_LENGTH = 10
+    if new_password != confirm_password:
+        return "New password and confirmation do not match"
+    if len(new_password) < MIN_PASSWORD_LENGTH:
+        return "New password must be at least 10 characters long"
+    if not any(char.isupper() for char in new_password):
+        return "New password must contain at least one uppercase letter"
+    if not any(char.isdigit() for char in new_password):
+        return "New password must contain at least one number"
+    if not any(char in "!@#$%^&*()-_+=[]{}|\\:;\"'<>,.?/~`" for char in new_password):
+        return "New password must contain at least one special character"
+    return None
+
+def update_user_password(user, new_password):
+    """
+    Updates the user's password in the database.
+    Returns True on success, False otherwise.
+    """
+    try:
+        user.password = generate_password_hash(new_password)
+        db.session.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating password: {e}")
+        db.session.rollback()
+        return False
 
 def remove_price(price_id, shop_id):
     """
